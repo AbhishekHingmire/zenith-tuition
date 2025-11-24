@@ -1,4 +1,4 @@
-import { Home, Calendar, ClipboardList, MessageCircle, Grid } from "lucide-react";
+import { Home, Calendar, ClipboardList, Grid } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
@@ -24,30 +24,26 @@ export const BottomTabBar = ({ onMoreClick }: BottomTabBarProps) => {
       case 'admin':
         return [
           { icon: Home, label: 'Dashboard', path: '/admin/dashboard' },
-          { icon: Calendar, label: 'Batches', path: '/admin/batches' },
+          { icon: Calendar, label: 'Calendar', path: '/admin/calendar' },
           { icon: ClipboardList, label: 'Students', path: '/admin/students' },
-          { icon: MessageCircle, label: 'Messages', path: '/admin/messages', badge: 3 },
         ];
       case 'teacher':
         return [
           { icon: Home, label: 'Dashboard', path: '/teacher/dashboard' },
           { icon: Calendar, label: 'Schedule', path: '/teacher/schedule' },
           { icon: ClipboardList, label: 'Assignments', path: '/teacher/assignments', badge: 5 },
-          { icon: MessageCircle, label: 'Messages', path: '/teacher/messages', badge: 2 },
         ];
       case 'parent':
         return [
           { icon: Home, label: 'Dashboard', path: '/parent/dashboard' },
           { icon: Calendar, label: 'Attendance', path: '/parent/attendance' },
           { icon: ClipboardList, label: 'Assignments', path: '/parent/assignments' },
-          { icon: MessageCircle, label: 'Messages', path: '/parent/messages', badge: 1 },
         ];
       case 'student':
         return [
           { icon: Home, label: 'Dashboard', path: '/student/dashboard' },
           { icon: Calendar, label: 'Schedule', path: '/student/schedule' },
           { icon: ClipboardList, label: 'Assignments', path: '/student/assignments', badge: 3 },
-          { icon: MessageCircle, label: 'Messages', path: '/student/messages' },
         ];
       default:
         return [];
