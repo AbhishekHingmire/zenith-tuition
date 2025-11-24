@@ -45,11 +45,11 @@ export default function StudentDetail() {
                 className="w-24 h-24 rounded-full"
               />
               <div className="flex-1">
-                <h1 className="text-2xl font-bold text-gray-900">{student.name}</h1>
-                <p className="text-gray-600">{student.admissionNo}</p>
+                <h1 className="text-2xl font-bold">{student.name}</h1>
+                <p className="text-muted-foreground">{student.admissionNo}</p>
                 <div className="flex items-center gap-4 mt-2">
                   <Badge variant="outline">{student.batch}</Badge>
-                  <Badge className="bg-emerald-100 text-emerald-700">
+                  <Badge className="bg-secondary text-secondary-foreground">
                     {student.status}
                   </Badge>
                 </div>
@@ -75,37 +75,37 @@ export default function StudentDetail() {
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-gray-400" />
+                    <User className="w-4 h-4 text-muted-foreground" />
                     <div>
-                      <p className="text-sm text-gray-600">Name</p>
+                      <p className="text-sm text-muted-foreground">Name</p>
                       <p className="font-medium">{student.name}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-gray-400" />
+                    <Calendar className="w-4 h-4 text-muted-foreground" />
                     <div>
-                      <p className="text-sm text-gray-600">Date of Birth</p>
+                      <p className="text-sm text-muted-foreground">Date of Birth</p>
                       <p className="font-medium">{student.dateOfBirth}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-gray-400" />
+                    <Mail className="w-4 h-4 text-muted-foreground" />
                     <div>
-                      <p className="text-sm text-gray-600">Email</p>
+                      <p className="text-sm text-muted-foreground">Email</p>
                       <p className="font-medium">{student.email}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-gray-400" />
+                    <Phone className="w-4 h-4 text-muted-foreground" />
                     <div>
-                      <p className="text-sm text-gray-600">Phone</p>
+                      <p className="text-sm text-muted-foreground">Phone</p>
                       <p className="font-medium">{student.phone}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 col-span-2">
-                    <MapPin className="w-4 h-4 text-gray-400" />
+                    <MapPin className="w-4 h-4 text-muted-foreground" />
                     <div>
-                      <p className="text-sm text-gray-600">Address</p>
+                      <p className="text-sm text-muted-foreground">Address</p>
                       <p className="font-medium">{student.address}</p>
                     </div>
                   </div>
@@ -120,15 +120,15 @@ export default function StudentDetail() {
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-gray-600">Parent Name</p>
+                    <p className="text-sm text-muted-foreground">Parent Name</p>
                     <p className="font-medium">{student.parentName}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Parent Phone</p>
+                    <p className="text-sm text-muted-foreground">Parent Phone</p>
                     <p className="font-medium">{student.parentPhone}</p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-sm text-gray-600">Parent Email</p>
+                    <p className="text-sm text-muted-foreground">Parent Email</p>
                     <p className="font-medium">{student.parentEmail}</p>
                   </div>
                 </div>
@@ -139,7 +139,7 @@ export default function StudentDetail() {
           <TabsContent value="attendance">
             <Card>
               <CardContent className="p-12 text-center">
-                <p className="text-gray-600">Attendance records will be displayed here</p>
+                <p className="text-muted-foreground">Attendance records will be displayed here</p>
               </CardContent>
             </Card>
           </TabsContent>
@@ -147,7 +147,7 @@ export default function StudentDetail() {
           <TabsContent value="fees">
             <Card>
               <CardContent className="p-12 text-center">
-                <p className="text-gray-600">Fee history will be displayed here</p>
+                <p className="text-muted-foreground">Fee history will be displayed here</p>
               </CardContent>
             </Card>
           </TabsContent>
@@ -155,7 +155,7 @@ export default function StudentDetail() {
           <TabsContent value="performance">
             <Card>
               <CardContent className="p-12 text-center">
-                <p className="text-gray-600">Academic performance will be displayed here</p>
+                <p className="text-muted-foreground">Academic performance will be displayed here</p>
               </CardContent>
             </Card>
           </TabsContent>

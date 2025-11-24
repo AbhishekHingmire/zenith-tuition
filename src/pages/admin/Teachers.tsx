@@ -18,6 +18,8 @@ export default function Teachers() {
   const [editingTeacher, setEditingTeacher] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [teacherToDelete, setTeacherToDelete] = useState<string | null>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewingTeacher, setViewingTeacher] = useState<any>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -97,6 +99,11 @@ export default function Teachers() {
     setTeacherToDelete(null);
   };
 
+  const handleViewTeacher = (teacher: any) => {
+    setViewingTeacher(teacher);
+    setViewDialogOpen(true);
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -129,8 +136,7 @@ export default function Teachers() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredTeachers.map((teacher) => (
-                <Card key={teacher.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <CardContent className="p-6">
+                <div key={teacher.id} className="border border-border rounded-lg p-6 hover:shadow-lg transition-shadow bg-card">
                     <div className="flex items-center gap-4 mb-4">
                       <img
                         src={teacher.photo}
@@ -165,7 +171,12 @@ export default function Teachers() {
                     </div>
 
                     <div className="flex gap-2 pt-4 border-t border-border">
-                      <Button size="sm" variant="outline" className="flex-1">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={() => handleViewTeacher(teacher)}
+                      >
                         <Eye className="w-4 h-4 mr-2" />
                         View
                       </Button>
@@ -185,8 +196,7 @@ export default function Teachers() {
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
               ))}
             </div>
           </CardContent>
@@ -248,6 +258,80 @@ export default function Teachers() {
                 {editingTeacher ? 'Update' : 'Add'} Teacher
               </Button>
             </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* View Details Dialog */}
+        <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Teacher Details</DialogTitle>
+            </DialogHeader>
+            {viewingTeacher && (
+              <div className="space-y-4 py-4">
+                <div className="flex items-center gap-4">
+                  <img
+                    src={viewingTeacher.photo}
+                    alt={viewingTeacher.name}
+                    className="w-20 h-20 rounded-full"
+                  />
+                  <div>
+                    <h3 className="text-xl font-semibold">{viewingTeacher.name}</h3>
+                    <p className="text-muted-foreground">{viewingTeacher.employeeId}</p>
+                    <Badge className="bg-secondary text-secondary-foreground mt-1">
+                      {viewingTeacher.status}
+                    </Badge>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Email</p>
+                    <p className="font-medium">{viewingTeacher.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Phone</p>
+                    <p className="font-medium">{viewingTeacher.phone}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Qualification</p>
+                    <p className="font-medium">{viewingTeacher.qualification}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Joining Date</p>
+                    <p className="font-medium">{viewingTeacher.joiningDate}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Salary</p>
+                    <p className="font-medium">₹{viewingTeacher.salary.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Assigned Batches</p>
+                    <p className="font-medium">{viewingTeacher.assignedBatches.length} batches</p>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t">
+                  <p className="text-sm text-muted-foreground mb-2">Subjects</p>
+                  <div className="flex gap-2 flex-wrap">
+                    {viewingTeacher.subjects.map((subject: string, idx: number) => (
+                      <Badge key={idx} variant="outline">{subject}</Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {viewingTeacher.assignedBatches.length > 0 && (
+                  <div className="pt-4 border-t">
+                    <p className="text-sm text-muted-foreground mb-2">Assigned Batches</p>
+                    <div className="flex gap-2 flex-wrap">
+                      {viewingTeacher.assignedBatches.map((batch: string, idx: number) => (
+                        <Badge key={idx} variant="outline">{batch}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </DialogContent>
         </Dialog>
 

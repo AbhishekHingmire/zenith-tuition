@@ -99,7 +99,7 @@ export const CreateExamForm = ({ onSuccess }: CreateExamFormProps) => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-gray-900">Create New Exam</h2>
+          <h2 className="text-2xl font-bold">Create New Exam</h2>
           
           {/* Basic Details */}
           <div className="space-y-4">
@@ -316,7 +316,7 @@ export const CreateExamForm = ({ onSuccess }: CreateExamFormProps) => {
           >
             Reset
           </Button>
-          <Button type="submit" className="flex-1 bg-indigo-600 hover:bg-indigo-700">
+          <Button type="submit" className="flex-1 bg-primary hover:bg-primary/90">
             Create Exam
           </Button>
         </div>
