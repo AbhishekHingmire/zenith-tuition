@@ -25,6 +25,18 @@ import AdminFees from "./pages/admin/Fees";
 import AdminReports from "./pages/admin/Reports";
 import AdminSettings from "./pages/admin/Settings";
 import AdminMessages from "./pages/admin/Messages";
+import AdminAcademicYear from "./pages/admin/AcademicYear";
+import AdminCalendar from "./pages/admin/Calendar";
+import AdminSubjects from "./pages/admin/Subjects";
+import AdminTimetable from "./pages/admin/Timetable";
+import AdminAutomation from "./pages/admin/Automation";
+import AdminCertificates from "./pages/admin/Certificates";
+import AdminFinance from "./pages/admin/Finance";
+import AdminBulkOperations from "./pages/admin/BulkOperations";
+import AdminUserManagement from "./pages/admin/UserManagement";
+import AdminSystemSettings from "./pages/admin/SystemSettings";
+import AdminNotifications from "./pages/admin/Notifications";
+import AdminAdmissions from "./pages/admin/Admissions";
 
 // Teacher pages
 import TeacherSchedule from "./pages/teacher/Schedule";
@@ -162,6 +174,102 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <AdminMessages />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/academic-year"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminAcademicYear />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/calendar"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminCalendar />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/subjects"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminSubjects />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/timetable"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminTimetable />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/automation"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminAutomation />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/certificates"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminCertificates />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/finance"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminFinance />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/bulk-operations"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminBulkOperations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/user-management"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminUserManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/system-settings"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminSystemSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/notifications"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminNotifications />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/admissions"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminAdmissions />
                 </ProtectedRoute>
               }
             />
