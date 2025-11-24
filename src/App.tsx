@@ -24,6 +24,7 @@ import AdminExams from "./pages/admin/Exams";
 import AdminFees from "./pages/admin/Fees";
 import AdminReports from "./pages/admin/Reports";
 import AdminSettings from "./pages/admin/Settings";
+import AdminMessages from "./pages/admin/Messages";
 
 // Teacher pages
 import TeacherSchedule from "./pages/teacher/Schedule";
@@ -32,6 +33,7 @@ import TeacherAssignments from "./pages/teacher/Assignments";
 import TeacherPerformance from "./pages/teacher/Performance";
 import TeacherSettings from "./pages/teacher/Settings";
 import ExamResults from "./pages/teacher/ExamResults";
+import TeacherMessages from "./pages/teacher/Messages";
 
 // Admin detail pages
 import StudentDetail from "./pages/admin/StudentDetail";
@@ -42,6 +44,7 @@ import ParentReports from "./pages/parent/Reports";
 import ParentFees from "./pages/parent/Fees";
 import ParentAssignments from "./pages/parent/Assignments";
 import ParentSettings from "./pages/parent/Settings";
+import ParentMessages from "./pages/parent/Messages";
 
 // Student pages
 import StudentSchedule from "./pages/student/Schedule";
@@ -49,6 +52,7 @@ import StudentAssignments from "./pages/student/Assignments";
 import StudentExams from "./pages/student/Exams";
 import StudentAttendance from "./pages/student/Attendance";
 import StudentSettings from "./pages/student/Settings";
+import StudentMessages from "./pages/student/Messages";
 
 const queryClient = new QueryClient();
 
@@ -143,6 +147,14 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin/messages"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminMessages />
+                </ProtectedRoute>
+              }
+            />
             
             <Route
               path="/teacher/dashboard"
@@ -216,6 +228,14 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/teacher/messages"
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <TeacherMessages />
+                </ProtectedRoute>
+              }
+            />
             
             <Route
               path="/parent/dashboard"
@@ -265,6 +285,14 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/parent/messages"
+              element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentMessages />
+                </ProtectedRoute>
+              }
+            />
             
             <Route
               path="/student/dashboard"
@@ -311,6 +339,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['student']}>
                   <StudentSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/messages"
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <StudentMessages />
                 </ProtectedRoute>
               }
             />
