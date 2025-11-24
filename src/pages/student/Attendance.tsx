@@ -7,8 +7,8 @@ export default function StudentAttendance() {
     <MainLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Attendance</h1>
-          <p className="text-gray-600 mt-1">View your attendance records</p>
+          <h1 className="text-3xl font-bold text-foreground">My Attendance</h1>
+          <p className="text-muted-foreground mt-1">View your attendance records</p>
         </div>
 
         <Card>
@@ -17,9 +17,9 @@ export default function StudentAttendance() {
           </CardHeader>
           <CardContent>
             <div className="text-center py-12">
-              <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <Calendar className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Attendance Records</h3>
-              <p className="text-gray-600">This feature is under development</p>
+              <p className="text-muted-foreground">This feature is under development</p>
             </div>
           </CardContent>
         </Card>

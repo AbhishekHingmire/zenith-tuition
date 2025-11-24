@@ -7,8 +7,8 @@ export default function StudentSettings() {
     <MainLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-          <p className="text-gray-600 mt-1">Manage your profile and preferences</p>
+          <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+          <p className="text-muted-foreground mt-1">Manage your profile and preferences</p>
         </div>
 
         <Card>
@@ -17,9 +17,9 @@ export default function StudentSettings() {
           </CardHeader>
           <CardContent>
             <div className="text-center py-12">
-              <SettingsIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <SettingsIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Settings</h3>
-              <p className="text-gray-600">This feature is under development</p>
+              <p className="text-muted-foreground">This feature is under development</p>
             </div>
           </CardContent>
         </Card>

@@ -287,10 +287,10 @@ const App = () => (
               }
             />
             <Route
-              path="/parent/messages"
+              path="/parent/leave-request"
               element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <ParentMessages />
+                  <ParentLeaveRequest />
                 </ProtectedRoute>
               }
             />
