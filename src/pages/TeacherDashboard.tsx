@@ -2,6 +2,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Clock, Users, CheckSquare, BookOpen, Bell } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const todayClasses = [
   { batch: 'Grade 10 - Mathematics', time: '9:00 AM - 10:30 AM', students: 25, room: 'Room 101' },
@@ -21,6 +22,8 @@ const announcements = [
 ];
 
 export default function TeacherDashboard() {
+  const navigate = useNavigate();
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -144,9 +147,12 @@ export default function TeacherDashboard() {
                 <BookOpen className="w-5 h-5 mr-2" />
                 Post Assignment
               </Button>
-              <Button className="bg-amber-600 hover:bg-amber-700">
+              <Button
+                onClick={() => navigate('/teacher/exams')}
+                className="bg-amber-600 hover:bg-amber-700"
+              >
                 <CheckSquare className="w-5 h-5 mr-2" />
-                Enter Marks
+                Manage Exams
               </Button>
               <Button className="bg-purple-600 hover:bg-purple-700">
                 <Users className="w-5 h-5 mr-2" />

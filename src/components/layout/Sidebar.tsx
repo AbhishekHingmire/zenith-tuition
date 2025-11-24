@@ -7,28 +7,69 @@ import {
   FileText, 
   DollarSign,
   Settings,
-  GraduationCap
+  GraduationCap,
+  ClipboardList,
+  BarChart3
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/" },
-  { icon: Users, label: "Students", path: "/students" },
-  { icon: GraduationCap, label: "Teachers", path: "/teachers" },
-  { icon: Users, label: "Parents", path: "/parents" },
-  { icon: BookOpen, label: "Courses", path: "/courses" },
-  { icon: Calendar, label: "Attendance", path: "/attendance" },
-  { icon: FileText, label: "Exams", path: "/exams" },
-  { icon: DollarSign, label: "Fees", path: "/fees" },
-  { icon: Settings, label: "Settings", path: "/settings" },
-];
+const getMenuItems = (role: string) => {
+  switch (role) {
+    case 'admin':
+      return [
+        { icon: LayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
+        { icon: Users, label: "Students", path: "/admin/students" },
+        { icon: GraduationCap, label: "Teachers", path: "/admin/teachers" },
+        { icon: BookOpen, label: "Batches", path: "/admin/batches" },
+        { icon: Calendar, label: "Attendance", path: "/admin/attendance" },
+        { icon: FileText, label: "Exams", path: "/admin/exams" },
+        { icon: DollarSign, label: "Fees", path: "/admin/fees" },
+        { icon: BarChart3, label: "Reports", path: "/admin/reports" },
+        { icon: Settings, label: "Settings", path: "/admin/settings" },
+      ];
+    case 'teacher':
+      return [
+        { icon: LayoutDashboard, label: "Dashboard", path: "/teacher/dashboard" },
+        { icon: Calendar, label: "My Schedule", path: "/teacher/schedule" },
+        { icon: FileText, label: "Exams", path: "/teacher/exams" },
+        { icon: ClipboardList, label: "Attendance", path: "/teacher/attendance" },
+        { icon: BookOpen, label: "Assignments", path: "/teacher/assignments" },
+        { icon: BarChart3, label: "Performance", path: "/teacher/performance" },
+        { icon: Settings, label: "Settings", path: "/teacher/settings" },
+      ];
+    case 'parent':
+      return [
+        { icon: LayoutDashboard, label: "Dashboard", path: "/parent/dashboard" },
+        { icon: Calendar, label: "Attendance", path: "/parent/attendance" },
+        { icon: FileText, label: "Academic Reports", path: "/parent/reports" },
+        { icon: DollarSign, label: "Fees", path: "/parent/fees" },
+        { icon: BookOpen, label: "Assignments", path: "/parent/assignments" },
+        { icon: Settings, label: "Settings", path: "/parent/settings" },
+      ];
+    case 'student':
+      return [
+        { icon: LayoutDashboard, label: "Dashboard", path: "/student/dashboard" },
+        { icon: Calendar, label: "My Schedule", path: "/student/schedule" },
+        { icon: BookOpen, label: "Assignments", path: "/student/assignments" },
+        { icon: FileText, label: "Exams", path: "/student/exams" },
+        { icon: Calendar, label: "Attendance", path: "/student/attendance" },
+        { icon: Settings, label: "Settings", path: "/student/settings" },
+      ];
+    default:
+      return [];
+  }
+};
 
 export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
+  const { user } = useAuth();
+  const menuItems = user ? getMenuItems(user.role) : [];
+
   return (
     <>
       {/* Mobile overlay */}
