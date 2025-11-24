@@ -1,28 +1,301 @@
+import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { IndianRupee } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { IndianRupee, Search, Download, Send, CheckCircle, Clock, AlertTriangle, TrendingUp } from 'lucide-react';
+import { mockStudents } from '@/data/mockData';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 
 export default function Fees() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  const [paymentAmount, setPaymentAmount] = useState('');
+
+  // Mock fee data
+  const feeData = mockStudents.map(student => ({
+    ...student,
+    feeAmount: student.monthlyFee || 5000,
+    paidAmount: Math.random() > 0.5 ? student.monthlyFee || 5000 : Math.floor(Math.random() * (student.monthlyFee || 5000)),
+    dueDate: new Date(2024, 1, 15).toISOString().split('T')[0],
+    status: Math.random() > 0.5 ? 'paid' : Math.random() > 0.3 ? 'pending' : 'overdue',
+  }));
+
+  const filteredData = feeData.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.admissionNo.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = filterStatus === 'all' || item.status === filterStatus;
+    return matchesSearch && matchesStatus;
+  });
+
+  const stats = {
+    totalCollection: feeData.reduce((sum, s) => sum + s.paidAmount, 0),
+    pending: feeData.filter(s => s.status === 'pending').length,
+    overdue: feeData.filter(s => s.status === 'overdue').length,
+    paid: feeData.filter(s => s.status === 'paid').length,
+  };
+
+  const handleRecordPayment = (student: any) => {
+    setSelectedStudent(student);
+    setPaymentAmount(String(student.feeAmount - student.paidAmount));
+    setPaymentDialogOpen(true);
+  };
+
+  const handleSavePayment = () => {
+    toast.success(`Payment of ₹${paymentAmount} recorded for ${selectedStudent.name}`);
+    setPaymentDialogOpen(false);
+  };
+
+  const handleSendReminder = (student: any) => {
+    toast.success(`Reminder sent to ${student.name}`);
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch(status) {
+      case 'paid':
+        return <Badge className="bg-secondary text-secondary-foreground"><CheckCircle className="w-3 h-3 mr-1" />Paid</Badge>;
+      case 'pending':
+        return <Badge className="bg-amber-100 text-amber-700"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
+      case 'overdue':
+        return <Badge className="bg-red-100 text-red-700"><AlertTriangle className="w-3 h-3 mr-1" />Overdue</Badge>;
+      default:
+        return null;
+    }
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Fee Management</h1>
-          <p className="text-gray-600 mt-1">Manage fee collection and payments</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold">Fee Management</h1>
+            <p className="text-muted-foreground mt-1">Track fee collection and payments</p>
+          </div>
+          <Button variant="outline" className="w-full sm:w-auto">
+            <Download className="w-4 h-4 mr-2" />
+            Export Report
+          </Button>
         </div>
 
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-primary/10 p-3 rounded-lg">
+                  <IndianRupee className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Collection</p>
+                  <p className="text-2xl font-bold">₹{(stats.totalCollection / 100000).toFixed(1)}L</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-secondary/10 p-3 rounded-lg">
+                  <CheckCircle className="w-5 h-5 text-secondary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Paid</p>
+                  <p className="text-2xl font-bold">{stats.paid}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-amber-100 p-3 rounded-lg">
+                  <Clock className="w-5 h-5 text-amber-700" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Pending</p>
+                  <p className="text-2xl font-bold">{stats.pending}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-red-100 p-3 rounded-lg">
+                  <AlertTriangle className="w-5 h-5 text-red-700" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Overdue</p>
+                  <p className="text-2xl font-bold">{stats.overdue}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Filters */}
         <Card>
-          <CardHeader>
-            <CardTitle>Fee Dashboard</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-12">
-              <IndianRupee className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Fee Management</h3>
-              <p className="text-gray-600">This feature is under development</p>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="relative sm:col-span-2">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Search students..." 
+                  className="pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="overdue">Overdue</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>
+
+        {/* Fee Records */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Fee Records ({filteredData.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <table className="w-full min-w-[800px]">
+                <thead className="bg-muted">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Student</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Admission No</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Fee Amount</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Paid</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Due</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold">Status</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {filteredData.map((item) => (
+                    <tr key={item.id} className="hover:bg-muted/50">
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={item.photo}
+                            alt={item.name}
+                            className="w-10 h-10 rounded-full"
+                          />
+                          <div>
+                            <p className="font-medium">{item.name}</p>
+                            <p className="text-sm text-muted-foreground">{item.batch}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-sm">{item.admissionNo}</td>
+                      <td className="px-4 py-4 text-sm font-medium">₹{item.feeAmount}</td>
+                      <td className="px-4 py-4 text-sm text-secondary font-medium">₹{item.paidAmount}</td>
+                      <td className="px-4 py-4 text-sm text-destructive font-medium">
+                        ₹{item.feeAmount - item.paidAmount}
+                      </td>
+                      <td className="px-4 py-4 text-center">
+                        {getStatusBadge(item.status)}
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex items-center justify-center gap-2">
+                          {item.status !== 'paid' && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleRecordPayment(item)}
+                              >
+                                Record Payment
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleSendReminder(item)}
+                              >
+                                <Send className="w-4 h-4" />
+                              </Button>
+                            </>
+                          )}
+                          {item.status === 'paid' && (
+                            <Badge className="bg-secondary text-secondary-foreground">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Complete
+                            </Badge>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Payment Dialog */}
+        <Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Record Payment</DialogTitle>
+            </DialogHeader>
+            {selectedStudent && (
+              <div className="space-y-4 py-4">
+                <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+                  <img
+                    src={selectedStudent.photo}
+                    alt={selectedStudent.name}
+                    className="w-12 h-12 rounded-full"
+                  />
+                  <div>
+                    <p className="font-semibold">{selectedStudent.name}</p>
+                    <p className="text-sm text-muted-foreground">{selectedStudent.admissionNo}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Fee</p>
+                    <p className="text-lg font-semibold">₹{selectedStudent.feeAmount}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Already Paid</p>
+                    <p className="text-lg font-semibold text-secondary">₹{selectedStudent.paidAmount}</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="amount">Payment Amount *</Label>
+                  <Input
+                    id="amount"
+                    type="number"
+                    placeholder="Enter amount"
+                    value={paymentAmount}
+                    onChange={(e) => setPaymentAmount(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setPaymentDialogOpen(false)}>Cancel</Button>
+              <Button onClick={handleSavePayment} className="bg-primary hover:bg-primary/90">
+                Record Payment
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </MainLayout>
   );
