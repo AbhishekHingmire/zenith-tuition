@@ -1,6 +1,6 @@
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, BookOpen, Calendar, DollarSign, TrendingUp, TrendingDown } from "lucide-react";
+import { Users, BookOpen, Calendar, IndianRupee, TrendingUp, TrendingDown } from "lucide-react";
 
 type StatItem = {
   title: string;
@@ -38,10 +38,10 @@ const stats: StatItem[] = [
   },
   {
     title: "Revenue",
-    value: "$45,231",
+    value: "₹45,231",
     change: "+8%",
     trend: "up",
-    icon: DollarSign,
+    icon: IndianRupee,
     color: "text-secondary",
   },
 ];

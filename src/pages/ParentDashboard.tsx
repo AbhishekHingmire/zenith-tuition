@@ -1,7 +1,7 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { User, Calendar, DollarSign, BookOpen, Bell, TrendingUp } from 'lucide-react';
+import { User, Calendar, IndianRupee, BookOpen, Bell, TrendingUp } from 'lucide-react';
 
 export default function ParentDashboard() {
   return (
@@ -60,7 +60,7 @@ export default function ParentDashboard() {
                   <p className="text-xs text-gray-600 mt-1">Jan 2024</p>
                 </div>
                 <div className="bg-emerald-100 p-3 rounded-lg">
-                  <DollarSign className="w-6 h-6 text-emerald-600" />
+                  <IndianRupee className="w-6 h-6 text-emerald-600" />
                 </div>
               </div>
             </CardContent>

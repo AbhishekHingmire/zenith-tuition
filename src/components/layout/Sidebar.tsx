@@ -5,7 +5,7 @@ import {
   BookOpen, 
   Calendar, 
   FileText, 
-  DollarSign,
+  IndianRupee,
   Settings,
   GraduationCap,
   ClipboardList,
@@ -29,7 +29,7 @@ const getMenuItems = (role: string) => {
         { icon: BookOpen, label: "Batches", path: "/admin/batches" },
         { icon: Calendar, label: "Attendance", path: "/admin/attendance" },
         { icon: FileText, label: "Exams", path: "/admin/exams" },
-        { icon: DollarSign, label: "Fees", path: "/admin/fees" },
+        { icon: IndianRupee, label: "Fees", path: "/admin/fees" },
         { icon: BarChart3, label: "Reports", path: "/admin/reports" },
         { icon: Settings, label: "Settings", path: "/admin/settings" },
       ];
@@ -48,7 +48,7 @@ const getMenuItems = (role: string) => {
         { icon: LayoutDashboard, label: "Dashboard", path: "/parent/dashboard" },
         { icon: Calendar, label: "Attendance", path: "/parent/attendance" },
         { icon: FileText, label: "Academic Reports", path: "/parent/reports" },
-        { icon: DollarSign, label: "Fees", path: "/parent/fees" },
+        { icon: IndianRupee, label: "Fees", path: "/parent/fees" },
         { icon: BookOpen, label: "Assignments", path: "/parent/assignments" },
         { icon: Settings, label: "Settings", path: "/parent/settings" },
       ];

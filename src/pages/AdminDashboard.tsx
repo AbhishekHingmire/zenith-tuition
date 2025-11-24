@@ -1,7 +1,7 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, GraduationCap, DollarSign, TrendingUp, TrendingDown, UserPlus, ClipboardCheck, Bell, FileText } from 'lucide-react';
+import { Users, GraduationCap, IndianRupee, TrendingUp, TrendingDown, UserPlus, ClipboardCheck, Bell, FileText } from 'lucide-react';
 
 const stats = [
   {
@@ -36,7 +36,7 @@ const stats = [
     value: '₹4.2L',
     change: '85%',
     trend: 'up' as const,
-    icon: DollarSign,
+    icon: IndianRupee,
     color: 'text-emerald-600',
     bgColor: 'bg-emerald-100',
   },
@@ -44,7 +44,7 @@ const stats = [
 
 const recentActivities = [
   { action: 'New student enrolled', name: 'Rahul Kumar', time: '5 mins ago', icon: UserPlus },
-  { action: 'Fee payment received', name: 'Class 10-A', time: '12 mins ago', icon: DollarSign },
+  { action: 'Fee payment received', name: 'Class 10-A', time: '12 mins ago', icon: IndianRupee },
   { action: 'Attendance marked', name: 'Mathematics Batch', time: '25 mins ago', icon: ClipboardCheck },
   { action: 'New announcement posted', name: 'Holiday Notice', time: '1 hour ago', icon: Bell },
 ];
