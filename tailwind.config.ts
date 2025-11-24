@@ -16,6 +16,21 @@ export default {
       fontFamily: {
         sans: ['Poppins', 'system-ui', 'sans-serif'],
       },
+      fontSize: {
+        'xs': '0.65rem',      // ~10.4px (was 12px)
+        'sm': '0.77rem',      // ~12.3px (was 14px)
+        'base': '0.875rem',   // 14px (was 16px)
+        'lg': '0.98rem',      // ~15.7px (was 18px)
+        'xl': '1.1rem',       // ~17.6px (was 20px)
+        '2xl': '1.33rem',     // ~21.3px (was 24px)
+        '3xl': '1.68rem',     // ~26.9px (was 30px)
+        '4xl': '2rem',        // 32px (was 36px)
+        '5xl': '2.1rem',      // ~33.6px (was 48px)
+        '6xl': '2.66rem',     // ~42.6px (was 60px)
+        '7xl': '3.15rem',     // ~50.4px (was 72px)
+        '8xl': '4.2rem',      // ~67.2px (was 96px)
+        '9xl': '5.6rem',      // ~89.6px (was 128px)
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

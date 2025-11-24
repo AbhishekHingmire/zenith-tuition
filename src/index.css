@@ -106,5 +106,6 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground font-sans;
+    font-size: 14px;
   }
 }
