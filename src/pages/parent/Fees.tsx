@@ -1,6 +1,6 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DollarSign } from 'lucide-react';
+import { IndianRupee } from 'lucide-react';
 
 export default function ParentFees() {
   return (
@@ -17,7 +17,7 @@ export default function ParentFees() {
           </CardHeader>
           <CardContent>
             <div className="text-center py-12">
-              <DollarSign className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <IndianRupee className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Fee Management</h3>
               <p className="text-gray-600">This feature is under development</p>
             </div>
