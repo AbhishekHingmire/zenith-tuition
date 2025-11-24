@@ -8,7 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { mockTeachers } from '@/data/mockData';
+import { mockTeachers, mockSubjects } from '@/data/mockData';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 
 export default function Teachers() {
@@ -25,9 +27,18 @@ export default function Teachers() {
     name: '',
     email: '',
     phone: '',
-    subjects: '',
+    subjects: [] as string[],
     qualification: '',
   });
+
+  const toggleSubject = (subjectCode: string) => {
+    setFormData(prev => ({
+      ...prev,
+      subjects: prev.subjects.includes(subjectCode)
+        ? prev.subjects.filter(s => s !== subjectCode)
+        : [...prev.subjects, subjectCode]
+    }));
+  };
 
   const filteredTeachers = teachers.filter(teacher =>
     teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -41,7 +52,7 @@ export default function Teachers() {
       name: '',
       email: '',
       phone: '',
-      subjects: '',
+      subjects: [],
       qualification: '',
     });
     setDialogOpen(true);
@@ -53,7 +64,7 @@ export default function Teachers() {
       name: teacher.name,
       email: teacher.email,
       phone: teacher.phone,
-      subjects: teacher.subjects.join(', '),
+      subjects: Array.isArray(teacher.subjects) ? teacher.subjects : [],
       qualification: teacher.qualification,
     });
     setDialogOpen(true);
@@ -63,7 +74,7 @@ export default function Teachers() {
     if (editingTeacher) {
       setTeachers(teachers.map(t =>
         t.id === editingTeacher.id
-          ? { ...t, ...formData, subjects: formData.subjects.split(',').map(s => s.trim()) }
+          ? { ...t, ...formData }
           : t
       ));
       toast.success('Teacher updated successfully');
@@ -73,7 +84,6 @@ export default function Teachers() {
         id: `t${teachers.length + 1}`,
         employeeId: `EMP-2024-${String(teachers.length + 1).padStart(3, '0')}`,
         photo: `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.name}`,
-        subjects: formData.subjects.split(',').map(s => s.trim()),
         joiningDate: new Date().toISOString().split('T')[0],
         salary: 45000,
         assignedBatches: [],
@@ -153,9 +163,12 @@ export default function Teachers() {
                       <div>
                         <p className="text-sm text-muted-foreground">Subjects</p>
                         <div className="flex gap-2 mt-1 flex-wrap">
-                          {teacher.subjects.map((subject, idx) => (
-                            <Badge key={idx} variant="outline">{subject}</Badge>
-                          ))}
+                          {teacher.subjects.map((subCode, idx) => {
+                            const subject = mockSubjects.find(s => s.code === subCode);
+                            return (
+                              <Badge key={idx} variant="outline">{subject?.name || subCode}</Badge>
+                            );
+                          })}
                         </div>
                       </div>
                       <div>
@@ -243,13 +256,24 @@ export default function Teachers() {
                 />
               </div>
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="teacherSubjects">Subjects (comma separated) *</Label>
-                <Input
-                  id="teacherSubjects"
-                  placeholder="e.g., Mathematics, Physics"
-                  value={formData.subjects}
-                  onChange={(e) => setFormData({ ...formData, subjects: e.target.value })}
-                />
+                <Label>Subjects * (Select multiple)</Label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-md max-h-48 overflow-y-auto">
+                  {mockSubjects.map((subject) => (
+                    <div key={subject.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={subject.code}
+                        checked={formData.subjects.includes(subject.code)}
+                        onCheckedChange={() => toggleSubject(subject.code)}
+                      />
+                      <label
+                        htmlFor={subject.code}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        {subject.name}
+                      </label>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
             <DialogFooter>
@@ -314,9 +338,12 @@ export default function Teachers() {
                 <div className="pt-4 border-t">
                   <p className="text-sm text-muted-foreground mb-2">Subjects</p>
                   <div className="flex gap-2 flex-wrap">
-                    {viewingTeacher.subjects.map((subject: string, idx: number) => (
-                      <Badge key={idx} variant="outline">{subject}</Badge>
-                    ))}
+                    {viewingTeacher.subjects.map((subCode: string, idx: number) => {
+                      const subject = mockSubjects.find(s => s.code === subCode);
+                      return (
+                        <Badge key={idx} variant="outline">{subject?.name || subCode}</Badge>
+                      );
+                    })}
                   </div>
                 </div>
 
