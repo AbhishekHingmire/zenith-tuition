@@ -59,7 +59,7 @@ const getMenuItems = (role: string) => {
         { icon: BookOpen, label: "Materials", path: "/teacher/materials" },
         { icon: Users, label: "Behavior", path: "/teacher/behavior" },
         { icon: Calendar, label: "Leave", path: "/teacher/leave" },
-        { icon: MessageSquare, label: "Messages", path: "/teacher/parent-communication" },
+        { icon: Users, label: "Parent Communication", path: "/teacher/parent-communication" },
         { icon: Users, label: "PTM", path: "/teacher/ptm" },
         { icon: BarChart3, label: "Performance", path: "/teacher/performance" },
         { icon: Settings, label: "Settings", path: "/teacher/settings" },
@@ -83,7 +83,6 @@ const getMenuItems = (role: string) => {
         { icon: FileText, label: "Study Materials", path: "/student/study-materials" },
         { icon: HelpCircle, label: "Doubts", path: "/student/doubts" },
         { icon: ClipboardList, label: "Attendance", path: "/student/attendance" },
-        { icon: MessageSquare, label: "Messages", path: "/student/messages" },
         { icon: Settings, label: "Settings", path: "/student/settings" },
       ];
     default:
