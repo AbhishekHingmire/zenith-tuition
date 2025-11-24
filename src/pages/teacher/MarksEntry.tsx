@@ -139,7 +139,7 @@ export default function MarksEntry() {
                 <div className="flex items-center gap-3 mt-2">
                   <Badge variant="outline">{exam.subject}</Badge>
                   <Badge variant="outline">{exam.batches[0]}</Badge>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-muted-foreground">
                     Total Marks: {exam.totalMarks}
                   </span>
                 </div>
@@ -149,7 +149,7 @@ export default function MarksEntry() {
                   <Switch checked={published} onCheckedChange={togglePublish} />
                   <Label className="cursor-pointer">Publish Results</Label>
                 </div>
-                <Button onClick={saveAll} className="bg-indigo-600 hover:bg-indigo-700">
+                <Button onClick={saveAll} className="bg-primary hover:bg-primary/90">
                   <Save className="w-4 h-4 mr-2" />
                   Save All
                 </Button>
@@ -162,52 +162,52 @@ export default function MarksEntry() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Average Marks</p>
-                  <p className="text-2xl font-bold">{averageMarks.toFixed(1)}</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Average Marks</p>
+                    <p className="text-2xl font-bold">{averageMarks.toFixed(1)}</p>
+                  </div>
+                  <TrendingUp className="w-8 h-8 text-primary" />
                 </div>
-                <TrendingUp className="w-8 h-8 text-indigo-600" />
-              </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Highest Score</p>
-                  <p className="text-2xl font-bold">{highestScore?.marks || 0}</p>
-                  <p className="text-xs text-gray-500">{highestScore?.name}</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Highest Score</p>
+                    <p className="text-2xl font-bold">{highestScore?.marks || 0}</p>
+                    <p className="text-xs text-muted-foreground">{highestScore?.name}</p>
+                  </div>
+                  <Award className="w-8 h-8 text-secondary" />
                 </div>
-                <Award className="w-8 h-8 text-emerald-600" />
-              </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Lowest Score</p>
-                  <p className="text-2xl font-bold">{lowestScore?.marks || 0}</p>
-                  <p className="text-xs text-gray-500">{lowestScore?.name}</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Lowest Score</p>
+                    <p className="text-2xl font-bold">{lowestScore?.marks || 0}</p>
+                    <p className="text-xs text-muted-foreground">{lowestScore?.name}</p>
+                  </div>
+                  <BarChart3 className="w-8 h-8 text-accent" />
                 </div>
-                <BarChart3 className="w-8 h-8 text-amber-600" />
-              </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Pass Percentage</p>
-                  <p className="text-2xl font-bold">{passPercentage.toFixed(0)}%</p>
-                  <p className="text-xs text-gray-500">{passedStudents}/{gradedStudents.length} passed</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Pass Percentage</p>
+                    <p className="text-2xl font-bold">{passPercentage.toFixed(0)}%</p>
+                    <p className="text-xs text-muted-foreground">{passedStudents}/{gradedStudents.length} passed</p>
+                  </div>
+                  <TrendingUp className="w-8 h-8 text-secondary" />
                 </div>
-                <TrendingUp className="w-8 h-8 text-emerald-600" />
-              </div>
             </CardContent>
           </Card>
         </div>
@@ -222,19 +222,19 @@ export default function MarksEntry() {
               {/* Desktop Table */}
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-muted">
                     <tr>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Sr.</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Student</th>
-                      <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Marks</th>
-                      <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Grade</th>
-                      <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Absent</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Remarks</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">Sr.</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">Student</th>
+                      <th className="px-4 py-3 text-center text-sm font-semibold">Marks</th>
+                      <th className="px-4 py-3 text-center text-sm font-semibold">Grade</th>
+                      <th className="px-4 py-3 text-center text-sm font-semibold">Absent</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">Remarks</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y">
+                  <tbody className="divide-y divide-border">
                     {students.map((student, index) => (
-                      <tr key={student.id} className="hover:bg-gray-50">
+                      <tr key={student.id} className="hover:bg-muted/50">
                         <td className="px-4 py-4 text-sm">{index + 1}</td>
                         <td className="px-4 py-4">
                           <div className="flex items-center gap-3">
@@ -244,8 +244,8 @@ export default function MarksEntry() {
                               className="w-8 h-8 rounded-full"
                             />
                             <div>
-                              <p className="font-medium text-gray-900">{student.studentName}</p>
-                              <p className="text-xs text-gray-500">{student.admissionNo}</p>
+                              <p className="font-medium">{student.studentName}</p>
+                              <p className="text-xs text-muted-foreground">{student.admissionNo}</p>
                             </div>
                           </div>
                         </td>
@@ -301,10 +301,10 @@ export default function MarksEntry() {
                           alt={student.studentName}
                           className="w-12 h-12 rounded-full"
                         />
-                        <div className="flex-1">
-                          <p className="font-medium">{student.studentName}</p>
-                          <p className="text-sm text-gray-500">{student.admissionNo}</p>
-                        </div>
+                          <div className="flex-1">
+                            <p className="font-medium">{student.studentName}</p>
+                            <p className="text-sm text-muted-foreground">{student.admissionNo}</p>
+                          </div>
                         <div className="flex items-center gap-2">
                           <Checkbox
                             checked={student.isAbsent}
@@ -336,7 +336,7 @@ export default function MarksEntry() {
                                 {student.grade}
                               </Badge>
                             ) : (
-                              <span className="text-sm text-gray-400">-</span>
+                              <span className="text-sm text-muted-foreground">-</span>
                             )}
                           </div>
                         </div>

@@ -17,6 +17,8 @@ export default function Batches() {
   const [editingBatch, setEditingBatch] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [batchToDelete, setBatchToDelete] = useState<string | null>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewingBatch, setViewingBatch] = useState<any>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -96,6 +98,11 @@ export default function Batches() {
     setBatchToDelete(null);
   };
 
+  const handleViewBatch = (batch: any) => {
+    setViewingBatch(batch);
+    setViewDialogOpen(true);
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -141,7 +148,12 @@ export default function Batches() {
                   <span className="font-medium">{batch.enrolledStudents}/{batch.capacity}</span>
                 </div>
                 <div className="pt-3 border-t border-border flex gap-2">
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={() => handleViewBatch(batch)}
+                  >
                     View Details
                   </Button>
                   <Button 
@@ -239,6 +251,81 @@ export default function Batches() {
                 {editingBatch ? 'Update' : 'Create'} Batch
               </Button>
             </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* View Details Dialog */}
+        <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Batch Details</DialogTitle>
+            </DialogHeader>
+            {viewingBatch && (
+              <div className="space-y-4 py-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="text-xl font-semibold">{viewingBatch.name}</h3>
+                    <Badge variant="outline" className="mt-2">{viewingBatch.subject}</Badge>
+                  </div>
+                  <Badge className={viewingBatch.status === 'ongoing' ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'}>
+                    {viewingBatch.status}
+                  </Badge>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Grade</p>
+                    <p className="font-medium">{viewingBatch.grade}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Teacher</p>
+                    <p className="font-medium">{viewingBatch.teacher}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Schedule</p>
+                    <p className="font-medium text-sm">{viewingBatch.schedule}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Capacity</p>
+                    <p className="font-medium">{viewingBatch.enrolledStudents}/{viewingBatch.capacity} students</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Start Date</p>
+                    <p className="font-medium">{viewingBatch.startDate}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">End Date</p>
+                    <p className="font-medium">{viewingBatch.endDate}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Monthly Fee</p>
+                    <p className="font-medium">₹{viewingBatch.monthlyFee.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Enrolled Students</p>
+                    <p className="font-medium">{viewingBatch.enrolledStudents} students</p>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t">
+                  <p className="text-sm text-muted-foreground mb-2">Progress</p>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span>Enrollment</span>
+                      <span className="font-medium">
+                        {Math.round((viewingBatch.enrolledStudents / viewingBatch.capacity) * 100)}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-2">
+                      <div 
+                        className="bg-primary h-2 rounded-full transition-all"
+                        style={{ width: `${(viewingBatch.enrolledStudents / viewingBatch.capacity) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
 
