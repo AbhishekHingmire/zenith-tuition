@@ -72,7 +72,6 @@ export default function Students() {
         batchId: batchId,
         batch: selectedBatch.name,
         monthlyFee: selectedBatch.monthlyFee,
-        timing: selectedBatch.timing,
       });
     }
   };
