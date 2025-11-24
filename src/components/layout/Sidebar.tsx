@@ -12,7 +12,9 @@ import {
   BarChart3,
   X,
   UserCircle,
-  LogOut
+  LogOut,
+  MessageSquare,
+  HelpCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -62,7 +64,10 @@ const getMenuItems = (role: string) => {
         { icon: Calendar, label: "My Schedule", path: "/student/schedule" },
         { icon: BookOpen, label: "Assignments", path: "/student/assignments" },
         { icon: FileText, label: "Exams", path: "/student/exams" },
-        { icon: Calendar, label: "Attendance", path: "/student/attendance" },
+        { icon: FileText, label: "Study Materials", path: "/student/study-materials" },
+        { icon: HelpCircle, label: "Doubts", path: "/student/doubts" },
+        { icon: ClipboardList, label: "Attendance", path: "/student/attendance" },
+        { icon: MessageSquare, label: "Messages", path: "/student/messages" },
         { icon: Settings, label: "Settings", path: "/student/settings" },
       ];
     default:
