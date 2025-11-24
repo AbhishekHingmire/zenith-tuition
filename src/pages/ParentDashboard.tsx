@@ -19,11 +19,11 @@ export default function ParentDashboard() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Parent Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Track your child's progress and activities</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Parent Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-1">Track your child's progress and activities</p>
         </div>
 
         {/* Performance Alerts */}
@@ -31,21 +31,21 @@ export default function ParentDashboard() {
 
         {/* Child Info Card */}
         <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10">
-          <CardContent className="p-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
               {child.avatar ? (
-                <img src={child.avatar} alt={child.name} className="w-20 h-20 rounded-full" />
+                <img src={child.avatar} alt={child.name} className="w-16 h-16 rounded-full" />
               ) : (
-                <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center">
-                  <User className="w-10 h-10 text-primary-foreground" />
+                <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
+                  <User className="w-8 h-8 text-primary-foreground" />
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <h2 className="text-2xl font-bold text-foreground">{child.name}</h2>
-                <p className="text-muted-foreground">
+                <h2 className="text-xl font-bold text-foreground">{child.name}</h2>
+                <p className="text-sm text-muted-foreground">
                   {child.grade} • Admission No: {child.admissionNumber}
                 </p>
-                <div className="flex flex-wrap items-center gap-2 mt-2 text-sm text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-muted-foreground">
                   <span>Class: {child.class}</span>
                   <span>•</span>
                   <span>Roll No: {child.rollNumber}</span>
@@ -59,17 +59,17 @@ export default function ParentDashboard() {
         </Card>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Attendance</p>
-                  <p className="text-2xl font-bold text-foreground">{child.attendance}%</p>
-                  <p className="text-xs text-secondary mt-1">This Month</p>
+                  <p className="text-xs text-muted-foreground mb-0.5">Attendance</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">{child.attendance}%</p>
+                  <p className="text-xs text-secondary mt-0.5">This Month</p>
                 </div>
-                <div className="bg-secondary/20 p-3 rounded-lg">
-                  <Calendar className="w-6 h-6 text-secondary" />
+                <div className="bg-secondary/20 p-2 rounded-lg">
+                  <Calendar className="w-5 h-5 text-secondary" />
                 </div>
               </div>
             </CardContent>

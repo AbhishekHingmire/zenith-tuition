@@ -64,11 +64,11 @@ export default function Reports() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Reports & Analytics</h1>
-            <p className="text-muted-foreground mt-1">Comprehensive insights and data reports</p>
+            <h1 className="text-xl sm:text-2xl font-bold">Reports & Analytics</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Comprehensive insights and data reports</p>
           </div>
           <Button className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
             <Download className="w-4 h-4 mr-2" />
@@ -77,16 +77,16 @@ export default function Reports() {
         </div>
 
         {/* Overview Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-primary/10 p-2 rounded-lg">
-                  <Users className="w-5 h-5 text-primary" />
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2">
+                <div className="bg-primary/10 p-1.5 rounded-lg">
+                  <Users className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Students</p>
-                  <p className="text-2xl font-bold">{totalStudents}</p>
+                  <p className="text-xs text-muted-foreground">Students</p>
+                  <p className="text-lg sm:text-xl font-bold">{totalStudents}</p>
                 </div>
               </div>
             </CardContent>
@@ -147,33 +147,34 @@ export default function Reports() {
 
         {/* Available Reports */}
         <Card>
-          <CardHeader>
-            <CardTitle>Available Reports</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Available Reports</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {reports.map((report, index) => (
                 <div
                   key={index}
-                  className="border border-border rounded-lg p-6 hover:shadow-lg transition-shadow space-y-4"
+                  className="border border-border rounded-lg p-4 hover:shadow-lg transition-shadow space-y-3"
                 >
                   <div className="flex items-start justify-between">
-                    <div className={`${report.color} p-3 rounded-lg`}>
-                      <report.icon className="w-6 h-6" />
+                    <div className={`${report.color} p-2 rounded-lg`}>
+                      <report.icon className="w-5 h-5" />
                     </div>
-                    <Badge variant="outline">{report.category}</Badge>
+                    <Badge variant="outline" className="text-xs">{report.category}</Badge>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg mb-2">{report.title}</h3>
-                    <p className="text-sm text-muted-foreground">{report.description}</p>
+                    <h3 className="font-semibold text-base mb-1">{report.title}</h3>
+                    <p className="text-xs text-muted-foreground">{report.description}</p>
                   </div>
                   <Button
+                    size="sm"
                     variant="outline"
-                    className="w-full"
+                    className="w-full text-xs"
                     onClick={() => handleGenerateReport(report.title)}
                   >
-                    <Download className="w-4 h-4 mr-2" />
-                    Generate Report
+                    <Download className="w-3.5 h-3.5 mr-1.5" />
+                    Generate
                   </Button>
                 </div>
               ))}
@@ -182,13 +183,13 @@ export default function Reports() {
         </Card>
 
         {/* Chart Placeholder */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Enrollment Trend (Last 6 Months)</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Enrollment Trend (Last 6 Months)</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="h-64 flex items-center justify-center bg-muted/50 rounded-lg">
+            <CardContent className="pt-0">
+              <div className="h-48 sm:h-56 flex items-center justify-center bg-muted/50 rounded-lg">
                 <div className="text-center">
                   <BarChart3 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground">Chart visualization coming soon</p>

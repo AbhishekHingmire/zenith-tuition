@@ -174,11 +174,11 @@ export default function Batches() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Batch Management</h1>
-            <p className="text-muted-foreground mt-1">Create and manage class batches</p>
+            <h1 className="text-xl sm:text-2xl font-bold">Batch Management</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Create and manage class batches</p>
           </div>
           <Button onClick={handleAddBatch} className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
             <Plus className="w-5 h-5 mr-2" />
@@ -186,14 +186,14 @@ export default function Batches() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {batches.map((batch) => (
             <Card key={batch.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <CardTitle className="text-lg truncate">{batch.name}</CardTitle>
-                    <div className="flex flex-wrap gap-1 mt-2">
+                    <CardTitle className="text-base truncate">{batch.name}</CardTitle>
+                    <div className="flex flex-wrap gap-1 mt-1.5">
                       {batch.subjects?.map((subCode, idx) => {
                         const subject = mockSubjects.find(s => s.code === subCode);
                         return (
@@ -209,25 +209,25 @@ export default function Batches() {
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-2 text-sm">
-                  <Users className="w-4 h-4 text-muted-foreground" />
+              <CardContent className="space-y-2 pt-0">
+                <div className="flex items-center gap-2 text-xs">
+                  <Users className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                   <span className="text-muted-foreground">Teacher:</span>
                   <span className="font-medium truncate">{batch.teacher}</span>
                 </div>
-                <div className="flex items-start gap-2 text-sm">
-                  <Calendar className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <div className="flex items-start gap-2 text-xs">
+                  <Calendar className="w-3.5 h-3.5 text-muted-foreground mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <span className="text-muted-foreground">Schedule:</span>
-                    <p className="font-medium text-xs break-words">{batch.schedule}</p>
+                    <p className="font-medium break-words">{batch.schedule}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Users className="w-4 h-4 text-muted-foreground" />
+                <div className="flex items-center gap-2 text-xs">
+                  <Users className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                   <span className="text-muted-foreground">Students:</span>
                   <span className="font-medium">{batch.enrolledStudents}/{batch.capacity}</span>
                 </div>
-                <div className="pt-3 border-t border-border flex gap-2">
+                <div className="pt-2 border-t border-border flex gap-2">
                   <Button 
                     size="sm" 
                     variant="outline" 
