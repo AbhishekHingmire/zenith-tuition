@@ -1,4 +1,4 @@
-import { Menu, Search, Bell, User } from "lucide-react";
+import { Menu, Search, Bell, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,12 +9,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface NavbarProps {
   onMenuClick: () => void;
 }
 
 export const Navbar = ({ onMenuClick }: NavbarProps) => {
+  const { user, logout } = useAuth();
+
   return (
     <header className="sticky top-0 z-30 w-full bg-card border-b border-border">
       <div className="flex items-center justify-between px-4 lg:px-6 py-4">
@@ -77,12 +80,16 @@ export const Navbar = ({ onMenuClick }: NavbarProps) => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="gap-2">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                  <User className="w-4 h-4 text-primary-foreground" />
-                </div>
+                {user?.avatar ? (
+                  <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full" />
+                ) : (
+                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4 text-primary-foreground" />
+                  </div>
+                )}
                 <div className="hidden md:flex flex-col items-start">
-                  <span className="text-sm font-medium">Admin User</span>
-                  <span className="text-xs text-muted-foreground">Administrator</span>
+                  <span className="text-sm font-medium">{user?.name || 'User'}</span>
+                  <span className="text-xs text-muted-foreground capitalize">{user?.role || 'Guest'}</span>
                 </div>
               </Button>
             </DropdownMenuTrigger>
@@ -92,7 +99,8 @@ export const Navbar = ({ onMenuClick }: NavbarProps) => {
               <DropdownMenuItem>Profile</DropdownMenuItem>
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive">
+              <DropdownMenuItem onClick={logout} className="text-destructive cursor-pointer">
+                <LogOut className="mr-2 h-4 w-4" />
                 Log out
               </DropdownMenuItem>
             </DropdownMenuContent>
