@@ -116,11 +116,11 @@ export default function Teachers() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Teachers Management</h1>
-            <p className="text-muted-foreground mt-1">Manage all teacher records and assignments</p>
+            <h1 className="text-xl sm:text-2xl font-bold">Teachers Management</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Manage all teacher records and assignments</p>
           </div>
           <Button onClick={handleAddTeacher} className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
             <Plus className="w-5 h-5 mr-2" />
@@ -129,10 +129,10 @@ export default function Teachers() {
         </div>
 
         <Card>
-          <CardHeader>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <CardTitle>All Teachers ({filteredTeachers.length})</CardTitle>
-              <div className="relative w-full sm:w-64">
+          <CardHeader className="pb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <CardTitle className="text-lg">All Teachers ({filteredTeachers.length})</CardTitle>
+              <div className="relative w-full sm:w-56">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input 
                   placeholder="Search teachers..." 
@@ -143,47 +143,47 @@ export default function Teachers() {
               </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredTeachers.map((teacher) => (
-                <div key={teacher.id} className="border border-border rounded-lg p-6 hover:shadow-lg transition-shadow bg-card">
-                    <div className="flex items-center gap-4 mb-4">
+                <div key={teacher.id} className="border border-border rounded-lg p-4 hover:shadow-lg transition-shadow bg-card">
+                    <div className="flex items-center gap-3 mb-3">
                       <img
                         src={teacher.photo}
                         alt={teacher.name}
-                        className="w-16 h-16 rounded-full"
+                        className="w-12 h-12 rounded-full"
                       />
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-lg truncate">{teacher.name}</h3>
-                        <p className="text-sm text-muted-foreground">{teacher.employeeId}</p>
+                        <h3 className="font-semibold text-base truncate">{teacher.name}</h3>
+                        <p className="text-xs text-muted-foreground">{teacher.employeeId}</p>
                       </div>
                     </div>
                     
-                    <div className="space-y-2 mb-4">
+                    <div className="space-y-1.5 mb-3">
                       <div>
-                        <p className="text-sm text-muted-foreground">Subjects</p>
-                        <div className="flex gap-2 mt-1 flex-wrap">
+                        <p className="text-xs text-muted-foreground">Subjects</p>
+                        <div className="flex gap-1 mt-0.5 flex-wrap">
                           {teacher.subjects.map((subCode, idx) => {
                             const subject = mockSubjects.find(s => s.code === subCode);
                             return (
-                              <Badge key={idx} variant="outline">{subject?.name || subCode}</Badge>
+                              <Badge key={idx} variant="outline" className="text-xs">{subject?.name || subCode}</Badge>
                             );
                           })}
                         </div>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Batches</p>
-                        <p className="font-medium">{teacher.assignedBatches.length} batches</p>
+                        <p className="text-xs text-muted-foreground">Batches</p>
+                        <p className="text-sm font-medium">{teacher.assignedBatches.length} batches</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Status</p>
-                        <Badge className="bg-secondary text-secondary-foreground">
+                        <p className="text-xs text-muted-foreground">Status</p>
+                        <Badge className="bg-secondary text-secondary-foreground text-xs">
                           {teacher.status}
                         </Badge>
                       </div>
                     </div>
 
-                    <div className="flex gap-2 pt-4 border-t border-border">
+                    <div className="flex gap-1.5 pt-3 border-t border-border">
                       <Button 
                         size="sm" 
                         variant="outline" 

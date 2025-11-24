@@ -26,41 +26,41 @@ export default function TeacherDashboard() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Teacher Dashboard</h1>
-          <p className="text-gray-600 mt-1">Good morning! Here's your schedule for today.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Teacher Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-1">Good morning! Here's your schedule for today.</p>
         </div>
 
         {/* Today's Classes */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Clock className="w-5 h-5 mr-2 text-indigo-600" />
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center text-lg">
+              <Clock className="w-4 h-4 mr-2 text-primary" />
               My Classes Today
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
+          <CardContent className="pt-0">
+            <div className="space-y-2">
               {todayClasses.map((cls, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-indigo-300 transition-colors">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{cls.batch}</h3>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                <div key={index} className="flex items-center justify-between p-3 border border-border rounded-lg hover:border-primary/50 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm text-foreground truncate">{cls.batch}</h3>
+                    <div className="flex flex-wrap items-center gap-3 mt-1 text-xs text-muted-foreground">
                       <span className="flex items-center">
-                        <Clock className="w-4 h-4 mr-1" />
+                        <Clock className="w-3 h-3 mr-1" />
                         {cls.time}
                       </span>
                       <span className="flex items-center">
-                        <Users className="w-4 h-4 mr-1" />
+                        <Users className="w-3 h-3 mr-1" />
                         {cls.students} students
                       </span>
                       <span>{cls.room}</span>
                     </div>
                   </div>
-                  <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
-                    Start Class
+                  <Button size="sm" className="bg-primary hover:bg-primary/90 text-xs ml-2">
+                    Start
                   </Button>
                 </div>
               ))}
@@ -68,27 +68,27 @@ export default function TeacherDashboard() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Pending Tasks */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <CheckSquare className="w-5 h-5 mr-2 text-emerald-600" />
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center text-lg">
+                <CheckSquare className="w-4 h-4 mr-2 text-secondary" />
                 Pending Tasks
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
+            <CardContent className="pt-0">
+              <div className="space-y-2">
                 {pendingTasks.map((task, index) => (
-                  <div key={index} className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900">{task.task}</p>
-                        <p className="text-sm text-gray-600 mt-1">
+                  <div key={index} className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm text-foreground truncate">{task.task}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
                           {task.count} item{task.count > 1 ? 's' : ''} • Due: {task.dueDate}
                         </p>
                       </div>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" className="text-xs h-7 flex-shrink-0">
                         View
                       </Button>
                     </div>

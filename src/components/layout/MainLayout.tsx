@@ -17,12 +17,12 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
       <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
         <Navbar onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
         
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto pb-20 lg:pb-4">
+        <main className="flex-1 p-3 sm:p-4 md:p-5 lg:p-6 overflow-auto pb-20 lg:pb-4">
           {children}
         </main>
 
-        <footer className="hidden lg:block border-t border-border py-4 px-6">
-          <div className="text-center text-sm text-muted-foreground">
+        <footer className="hidden lg:block border-t border-border py-3 px-6">
+          <div className="text-center text-xs text-muted-foreground">
             © {new Date().getFullYear()} EduManage. All rights reserved.
           </div>
         </footer>

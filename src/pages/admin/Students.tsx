@@ -135,11 +135,11 @@ export default function Students() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Students Management</h1>
-            <p className="text-muted-foreground mt-1">Manage all student records and information</p>
+            <h1 className="text-xl sm:text-2xl font-bold">Students Management</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Manage all student records and information</p>
           </div>
           <Button onClick={handleAddStudent} className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
             <Plus className="w-5 h-5 mr-2" />
@@ -148,10 +148,10 @@ export default function Students() {
         </div>
 
         <Card>
-          <CardHeader>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <CardTitle>All Students ({filteredStudents.length})</CardTitle>
-              <div className="relative w-full sm:w-64">
+          <CardHeader className="pb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <CardTitle className="text-lg">All Students ({filteredStudents.length})</CardTitle>
+              <div className="relative w-full sm:w-56">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input 
                   placeholder="Search students..." 
@@ -162,50 +162,50 @@ export default function Students() {
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="overflow-x-auto -mx-4 sm:mx-0">
               <table className="w-full min-w-[800px]">
                 <thead className="bg-muted">
                   <tr>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Student</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Admission No</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Batch</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Parent Contact</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold">Attendance</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold">Status</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold">Actions</th>
+                    <th className="px-3 py-2 text-left text-xs font-semibold">Student</th>
+                    <th className="px-3 py-2 text-left text-xs font-semibold">Admission No</th>
+                    <th className="px-3 py-2 text-left text-xs font-semibold">Batch</th>
+                    <th className="px-3 py-2 text-left text-xs font-semibold">Parent Contact</th>
+                    <th className="px-3 py-2 text-center text-xs font-semibold">Attendance</th>
+                    <th className="px-3 py-2 text-center text-xs font-semibold">Status</th>
+                    <th className="px-3 py-2 text-center text-xs font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {filteredStudents.map((student) => (
                     <tr key={student.id} className="hover:bg-muted/50">
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-3">
+                      <td className="px-3 py-3">
+                        <div className="flex items-center gap-2">
                           <img
                             src={student.photo}
                             alt={student.name}
-                            className="w-10 h-10 rounded-full"
+                            className="w-8 h-8 rounded-full"
                           />
-                          <div>
-                            <p className="font-medium">{student.name}</p>
-                            <p className="text-sm text-muted-foreground">{student.email}</p>
+                          <div className="min-w-0">
+                            <p className="font-medium text-sm truncate">{student.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{student.email}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-sm">{student.admissionNo}</td>
-                      <td className="px-4 py-4">
-                        <Badge variant="outline">{student.batch}</Badge>
+                      <td className="px-3 py-3 text-xs">{student.admissionNo}</td>
+                      <td className="px-3 py-3">
+                        <Badge variant="outline" className="text-xs">{student.batch}</Badge>
                       </td>
-                      <td className="px-4 py-4 text-sm">{student.parentPhone}</td>
-                      <td className="px-4 py-4 text-center">
-                        <span className="text-sm font-medium">{student.attendancePercentage}%</span>
+                      <td className="px-3 py-3 text-xs">{student.parentPhone}</td>
+                      <td className="px-3 py-3 text-center">
+                        <span className="text-xs font-medium">{student.attendancePercentage}%</span>
                       </td>
-                      <td className="px-4 py-4 text-center">
-                        <Badge className="bg-secondary text-secondary-foreground">
+                      <td className="px-3 py-3 text-center">
+                        <Badge className="bg-secondary text-secondary-foreground text-xs">
                           {student.status}
                         </Badge>
                       </td>
-                      <td className="px-4 py-4">
+                      <td className="px-3 py-3">
                         <div className="flex items-center justify-center gap-2">
                           <Button
                             size="sm"

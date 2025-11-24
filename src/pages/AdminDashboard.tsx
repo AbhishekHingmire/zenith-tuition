@@ -83,35 +83,35 @@ export default function AdminDashboard() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Welcome back! Here's what's happening today.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">Admin Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-1">Welcome back! Here's what's happening today.</p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {stats.map((stat) => (
             <Card key={stat.title}>
-              <CardContent className="p-6">
+              <CardContent className="p-4">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <p className="text-sm text-muted-foreground mb-1">{stat.title}</p>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                    <div className="flex items-center mt-2">
+                    <p className="text-xs text-muted-foreground">{stat.title}</p>
+                    <p className="text-xl sm:text-2xl font-bold mt-1">{stat.value}</p>
+                    <div className="flex items-center mt-1">
                       {stat.trend === 'up' ? (
                         <TrendingUp className="w-4 h-4 text-secondary mr-1" />
                       ) : (
                         <TrendingDown className="w-4 h-4 text-destructive mr-1" />
                       )}
-                      <span className={`text-sm ${stat.trend === 'up' ? 'text-secondary' : 'text-destructive'}`}>
+                      <span className={`text-xs ${stat.trend === 'up' ? 'text-secondary' : 'text-destructive'}`}>
                         {stat.change}
                       </span>
                     </div>
                   </div>
-                  <div className={`${stat.bgColor} p-3 rounded-lg`}>
-                    <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                  <div className={`${stat.bgColor} p-2 rounded-lg`}>
+                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
                   </div>
                 </div>
               </CardContent>
@@ -120,24 +120,24 @@ export default function AdminDashboard() {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Recent Activity - Takes 2 columns */}
           <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Recent Activity</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+            <CardContent className="pt-0">
+              <div className="space-y-2">
                 {recentActivities.map((activity, index) => (
-                  <div key={index} className="flex items-start gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="bg-primary/10 p-2 rounded-lg">
-                      <activity.icon className="w-5 h-5 text-primary" />
+                  <div key={index} className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="bg-primary/10 p-1.5 rounded-lg">
+                      <activity.icon className="w-4 h-4 text-primary" />
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{activity.action}</p>
-                      <p className="text-sm text-muted-foreground">{activity.name}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{activity.action}</p>
+                      <p className="text-xs text-muted-foreground truncate">{activity.name}</p>
                     </div>
-                    <span className="text-xs text-muted-foreground">{activity.time}</span>
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">{activity.time}</span>
                   </div>
                 ))}
               </div>
@@ -146,11 +146,11 @@ export default function AdminDashboard() {
 
           {/* Quick Actions */}
           <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Quick Actions</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
+            <CardContent className="pt-0">
+              <div className="space-y-2">
                 {quickActions.map((action) => (
                   <Button
                     key={action.label}
@@ -168,11 +168,11 @@ export default function AdminDashboard() {
 
         {/* Attendance Chart Placeholder */}
         <Card>
-          <CardHeader>
-            <CardTitle>Attendance Trend (Last 7 Days)</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Attendance Trend (Last 7 Days)</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-64 flex items-center justify-center bg-muted/50 rounded-lg">
+          <CardContent className="pt-0">
+            <div className="h-48 sm:h-64 flex items-center justify-center bg-muted/50 rounded-lg">
               <p className="text-muted-foreground">Chart will be implemented with Recharts</p>
             </div>
           </CardContent>
