@@ -45,6 +45,7 @@ import ParentFees from "./pages/parent/Fees";
 import ParentAssignments from "./pages/parent/Assignments";
 import ParentSettings from "./pages/parent/Settings";
 import ParentMessages from "./pages/parent/Messages";
+import ParentLeaveRequest from "./pages/parent/LeaveRequest";
 
 // Student pages
 import StudentSchedule from "./pages/student/Schedule";
@@ -290,6 +291,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <ParentMessages />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/parent/leave-request"
+              element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentLeaveRequest />
                 </ProtectedRoute>
               }
             />
