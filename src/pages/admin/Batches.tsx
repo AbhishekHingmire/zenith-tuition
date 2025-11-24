@@ -26,7 +26,7 @@ export default function Batches() {
     name: '',
     subjects: [] as string[],
     grade: '',
-    teacherId: '',
+    teacherIds: [] as string[],
     schedule: '',
     timing: '',
     capacity: '',
@@ -44,13 +44,22 @@ export default function Batches() {
     }));
   };
 
+  const toggleTeacher = (teacherId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      teacherIds: prev.teacherIds.includes(teacherId)
+        ? prev.teacherIds.filter(t => t !== teacherId)
+        : [...prev.teacherIds, teacherId]
+    }));
+  };
+
   const handleAddBatch = () => {
     setEditingBatch(null);
     setFormData({
       name: '',
       subjects: [],
       grade: '',
-      teacherId: '',
+      teacherIds: [],
       schedule: '',
       timing: '',
       capacity: '',
@@ -63,12 +72,11 @@ export default function Batches() {
 
   const handleEditBatch = (batch: any) => {
     setEditingBatch(batch);
-    const teacher = mockTeachers.find(t => t.name === batch.teacher);
     setFormData({
       name: batch.name,
       subjects: batch.subjects || [],
       grade: batch.grade,
-      teacherId: teacher?.id || '',
+      teacherIds: batch.teacherIds || [],
       schedule: batch.schedule,
       timing: batch.timing || '',
       capacity: String(batch.capacity),
@@ -80,14 +88,26 @@ export default function Batches() {
   };
 
   const handleSaveBatch = () => {
-    const teacher = mockTeachers.find(t => t.id === formData.teacherId);
+    // Validate teachers have at least one matching subject
+    const selectedTeachers = mockTeachers.filter(t => formData.teacherIds.includes(t.id));
+    const invalidTeachers = selectedTeachers.filter(teacher => 
+      !teacher.subjects.some(subCode => formData.subjects.includes(subCode))
+    );
+    
+    if (invalidTeachers.length > 0) {
+      toast.error(`Teacher(s) ${invalidTeachers.map(t => t.name).join(', ')} don't teach any selected subject`);
+      return;
+    }
+
+    const teacherNames = selectedTeachers.map(t => t.name).join(', ');
+    
     if (editingBatch) {
       setBatches(batches.map(b =>
         b.id === editingBatch.id
           ? { 
               ...b, 
               ...formData, 
-              teacher: teacher?.name || '',
+              teacher: teacherNames,
               capacity: Number(formData.capacity), 
               monthlyFee: Number(formData.monthlyFee) 
             }
@@ -100,8 +120,8 @@ export default function Batches() {
         name: formData.name,
         subjects: formData.subjects,
         grade: formData.grade,
-        teacher: teacher?.name || '',
-        teacherId: formData.teacherId,
+        teacher: teacherNames,
+        teacherIds: formData.teacherIds,
         schedule: formData.schedule,
         timing: formData.timing,
         enrolledStudents: 0,
@@ -265,20 +285,29 @@ export default function Batches() {
                   ))}
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="batchTeacher">Teacher *</Label>
-                <Select value={formData.teacherId} onValueChange={(value) => setFormData({ ...formData, teacherId: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select teacher" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mockTeachers.map((teacher) => (
-                      <SelectItem key={teacher.id} value={teacher.id}>
-                        {teacher.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Teachers * (Select one or more)</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 border rounded-md max-h-48 overflow-y-auto">
+                  {mockTeachers.map((teacher) => {
+                    const teacherSubjects = teacher.subjects.map(code => mockSubjects.find(s => s.code === code)?.name).filter(Boolean);
+                    return (
+                      <div key={teacher.id} className="flex items-start space-x-2">
+                        <Checkbox
+                          id={`teacher-${teacher.id}`}
+                          checked={formData.teacherIds.includes(teacher.id)}
+                          onCheckedChange={() => toggleTeacher(teacher.id)}
+                        />
+                        <label
+                          htmlFor={`teacher-${teacher.id}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                        >
+                          <div>{teacher.name}</div>
+                          <div className="text-xs text-muted-foreground">{teacherSubjects.join(', ')}</div>
+                        </label>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="batchCapacity">Capacity *</Label>
