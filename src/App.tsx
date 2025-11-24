@@ -34,6 +34,13 @@ import TeacherPerformance from "./pages/teacher/Performance";
 import TeacherSettings from "./pages/teacher/Settings";
 import ExamResults from "./pages/teacher/ExamResults";
 import TeacherMessages from "./pages/teacher/Messages";
+import TeacherSyllabus from "./pages/teacher/Syllabus";
+import TeacherSyllabusDetail from "./pages/teacher/SyllabusDetail";
+import TeacherMaterials from "./pages/teacher/Materials";
+import TeacherBehavior from "./pages/teacher/Behavior";
+import TeacherLeave from "./pages/teacher/Leave";
+import TeacherParentCommunication from "./pages/teacher/ParentCommunication";
+import TeacherPTMScheduler from "./pages/teacher/PTMScheduler";
 
 // Admin detail pages
 import StudentDetail from "./pages/admin/StudentDetail";
@@ -236,6 +243,62 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['teacher']}>
                   <TeacherMessages />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/syllabus"
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <TeacherSyllabus />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/syllabus/:id"
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <TeacherSyllabusDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/materials"
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <TeacherMaterials />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/behavior"
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <TeacherBehavior />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/leave"
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <TeacherLeave />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/parent-communication"
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <TeacherParentCommunication />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/ptm"
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <TeacherPTMScheduler />
                 </ProtectedRoute>
               }
             />
