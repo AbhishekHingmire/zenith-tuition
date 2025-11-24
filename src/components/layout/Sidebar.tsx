@@ -53,6 +53,7 @@ const getMenuItems = (role: string) => {
         { icon: FileText, label: "Academic Reports", path: "/parent/reports" },
         { icon: IndianRupee, label: "Fees", path: "/parent/fees" },
         { icon: BookOpen, label: "Assignments", path: "/parent/assignments" },
+        { icon: FileText, label: "Leave Request", path: "/parent/leave-request" },
         { icon: Settings, label: "Settings", path: "/parent/settings" },
       ];
     case 'student':
