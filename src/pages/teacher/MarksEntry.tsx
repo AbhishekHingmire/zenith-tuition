@@ -4,78 +4,43 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { calculateGrade, getGradeColor } from '@/utils/gradeCalculator';
-import { StudentMark, Grade } from '@/types/exam';
+import { StudentMark } from '@/types/exam';
 import { Save, TrendingUp, Award, BarChart3 } from 'lucide-react';
-
-// Mock data
-const mockExam = {
-  id: '1',
-  name: 'Mid-Term Exam',
-  subject: 'Mathematics',
-  batch: 'Grade 10-A',
-  date: '2024-03-15',
-  totalMarks: 100,
-  published: false,
-};
-
-const mockStudents: StudentMark[] = [
-  {
-    id: '1',
-    examId: '1',
-    studentId: 's1',
-    studentName: 'Rahul Kumar',
-    studentPhoto: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rahul',
-    admissionNo: 'STU-2024-001',
-    marksObtained: 85,
-    isAbsent: false,
-    grade: 'A',
-    remarks: '',
-  },
-  {
-    id: '2',
-    examId: '1',
-    studentId: 's2',
-    studentName: 'Priya Sharma',
-    studentPhoto: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Priya',
-    admissionNo: 'STU-2024-002',
-    marksObtained: 92,
-    isAbsent: false,
-    grade: 'A+',
-    remarks: 'Excellent performance',
-  },
-  {
-    id: '3',
-    examId: '1',
-    studentId: 's3',
-    studentName: 'Amit Patel',
-    studentPhoto: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Amit',
-    admissionNo: 'STU-2024-003',
-    isAbsent: true,
-    remarks: '',
-  },
-];
+import { mockExams, mockExamResults } from '@/data/mockData';
 
 export default function MarksEntry() {
   const { examId } = useParams();
   const { toast } = useToast();
-  const [students, setStudents] = useState<StudentMark[]>(mockStudents);
-  const [published, setPublished] = useState(mockExam.published);
+  const exam = mockExams.find((e) => e.id === examId);
+  const [students, setStudents] = useState<StudentMark[]>(
+    mockExamResults.filter((r) => r.examId === examId)
+  );
+  const [published, setPublished] = useState(exam?.published || false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  if (!exam) {
+    return (
+      <MainLayout>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold">Exam not found</h2>
+        </div>
+      </MainLayout>
+    );
+  }
 
   const updateStudentMarks = (index: number, marks: string) => {
     const marksNum = parseInt(marks);
     
-    if (marks && (isNaN(marksNum) || marksNum < 0 || marksNum > mockExam.totalMarks)) {
+    if (marks && (isNaN(marksNum) || marksNum < 0 || marksNum > exam.totalMarks)) {
       toast({
         title: 'Invalid Marks',
-        description: `Marks must be between 0 and ${mockExam.totalMarks}`,
+        description: `Marks must be between 0 and ${exam.totalMarks}`,
         variant: 'destructive',
       });
       return;
@@ -85,7 +50,7 @@ export default function MarksEntry() {
     newStudents[index] = {
       ...newStudents[index],
       marksObtained: marks ? marksNum : undefined,
-      grade: marks ? calculateGrade(marksNum, mockExam.totalMarks) : undefined,
+      grade: marks ? calculateGrade(marksNum, exam.totalMarks) : undefined,
     };
     setStudents(newStudents);
   };
@@ -145,10 +110,10 @@ export default function MarksEntry() {
     : null;
   
   const lowestScore = gradedStudents.length > 0
-    ? gradedStudents.reduce((min, s) => (s.marksObtained || 0) < min.marks ? { marks: s.marksObtained || 0, name: s.studentName } : min, { marks: mockExam.totalMarks, name: '' })
+    ? gradedStudents.reduce((min, s) => (s.marksObtained || 0) < min.marks ? { marks: s.marksObtained || 0, name: s.studentName } : min, { marks: exam.totalMarks, name: '' })
     : null;
   
-  const passedStudents = gradedStudents.filter((s) => (s.marksObtained || 0) >= mockExam.totalMarks * 0.4).length;
+  const passedStudents = gradedStudents.filter((s) => (s.marksObtained || 0) >= exam.totalMarks * 0.4).length;
   const passPercentage = gradedStudents.length > 0 ? (passedStudents / gradedStudents.length) * 100 : 0;
 
   return (
@@ -159,12 +124,12 @@ export default function MarksEntry() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-2xl">{mockExam.name}</CardTitle>
+                <CardTitle className="text-2xl">{exam.name}</CardTitle>
                 <div className="flex items-center gap-3 mt-2">
-                  <Badge variant="outline">{mockExam.subject}</Badge>
-                  <Badge variant="outline">{mockExam.batch}</Badge>
+                  <Badge variant="outline">{exam.subject}</Badge>
+                  <Badge variant="outline">{exam.batches[0]}</Badge>
                   <span className="text-sm text-gray-600">
-                    Total Marks: {mockExam.totalMarks}
+                    Total Marks: {exam.totalMarks}
                   </span>
                 </div>
               </div>
@@ -278,7 +243,7 @@ export default function MarksEntry() {
                             ref={(el) => (inputRefs.current[index] = el)}
                             type="number"
                             min="0"
-                            max={mockExam.totalMarks}
+                            max={exam.totalMarks}
                             value={student.marksObtained || ''}
                             onChange={(e) => updateStudentMarks(index, e.target.value)}
                             onKeyDown={(e) => handleKeyDown(e, index)}
@@ -345,7 +310,7 @@ export default function MarksEntry() {
                             ref={(el) => (inputRefs.current[index] = el)}
                             type="number"
                             min="0"
-                            max={mockExam.totalMarks}
+                            max={exam.totalMarks}
                             value={student.marksObtained || ''}
                             onChange={(e) => updateStudentMarks(index, e.target.value)}
                             disabled={student.isAbsent}
@@ -368,11 +333,10 @@ export default function MarksEntry() {
 
                       <div>
                         <Label className="text-xs">Remarks</Label>
-                        <Textarea
+                        <Input
                           value={student.remarks}
                           onChange={(e) => updateRemarks(index, e.target.value)}
                           placeholder="Optional remarks"
-                          rows={2}
                           className="mt-1"
                         />
                       </div>
