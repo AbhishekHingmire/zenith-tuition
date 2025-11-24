@@ -6,16 +6,41 @@ import { Plus, Edit, Trash2, ClipboardList, Eye } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { CreateExamForm } from '@/components/exams/CreateExamForm';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { mockExams } from '@/data/mockData';
 import { getExamTypeLabel, getExamTypeColor } from '@/utils/examHelpers';
+import { toast } from 'sonner';
 
 export default function Exams() {
-  const [exams] = useState(mockExams);
+  const [exams, setExams] = useState(mockExams);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [examToDelete, setExamToDelete] = useState<string | null>(null);
+  const [editingExam, setEditingExam] = useState<any>(null);
   const navigate = useNavigate();
+
+  const handleDeleteExam = (examId: string) => {
+    setExamToDelete(examId);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (examToDelete) {
+      setExams(exams.filter(e => e.id !== examToDelete));
+      toast.success('Exam deleted successfully');
+    }
+    setDeleteDialogOpen(false);
+    setExamToDelete(null);
+  };
+
+  const handleEditExam = (exam: any) => {
+    setEditingExam(exam);
+    setEditDialogOpen(true);
+  };
 
   // Mock grading progress (in real app, fetch from backend)
   const getGradingProgress = (examId: string) => {
@@ -27,15 +52,15 @@ export default function Exams() {
     <MainLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Exams & Assessments</h1>
-            <p className="text-gray-600 mt-1">Create and manage exams, enter marks and publish results</p>
+            <h1 className="text-2xl sm:text-3xl font-bold">Exams & Assessments</h1>
+            <p className="text-muted-foreground mt-1">Create and manage exams, enter marks and publish results</p>
           </div>
           
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-indigo-600 hover:bg-indigo-700">
+              <Button className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
                 <Plus className="w-5 h-5 mr-2" />
                 Create Exam
               </Button>
@@ -121,12 +146,22 @@ export default function Exams() {
                     </Button>
                   </div>
 
-                  <div className="flex gap-2 pt-2 border-t">
-                    <Button variant="ghost" size="sm" className="flex-1">
+                  <div className="flex gap-2 pt-2 border-t border-border">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={() => handleEditExam(exam)}
+                    >
                       <Edit className="w-4 h-4 mr-2" />
                       Edit
                     </Button>
-                    <Button variant="ghost" size="sm" className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="flex-1 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => handleDeleteExam(exam.id)}
+                    >
                       <Trash2 className="w-4 h-4 mr-2" />
                       Delete
                     </Button>
@@ -141,16 +176,41 @@ export default function Exams() {
         {exams.length === 0 && (
           <Card className="p-12">
             <div className="text-center">
-              <ClipboardList className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No exams created yet</h3>
-              <p className="text-gray-600 mb-6">Create your first exam to start managing assessments</p>
-              <Button className="bg-indigo-600 hover:bg-indigo-700">
+              <ClipboardList className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No exams created yet</h3>
+              <p className="text-muted-foreground mb-6">Create your first exam to start managing assessments</p>
+              <Button className="bg-primary hover:bg-primary/90">
                 <Plus className="w-5 h-5 mr-2" />
                 Create First Exam
               </Button>
             </div>
           </Card>
         )}
+
+        {/* Edit Dialog */}
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <CreateExamForm onSuccess={() => setEditDialogOpen(false)} />
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the exam and all associated marks.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </MainLayout>
   );
