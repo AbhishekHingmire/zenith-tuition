@@ -31,6 +31,10 @@ import TeacherAttendance from "./pages/teacher/Attendance";
 import TeacherAssignments from "./pages/teacher/Assignments";
 import TeacherPerformance from "./pages/teacher/Performance";
 import TeacherSettings from "./pages/teacher/Settings";
+import ExamResults from "./pages/teacher/ExamResults";
+
+// Admin detail pages
+import StudentDetail from "./pages/admin/StudentDetail";
 
 // Parent pages
 import ParentAttendance from "./pages/parent/Attendance";
@@ -131,6 +135,14 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin/students/:id"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <StudentDetail />
+                </ProtectedRoute>
+              }
+            />
             
             <Route
               path="/teacher/dashboard"
@@ -161,6 +173,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['teacher']}>
                   <MarksEntry />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/exams/:examId/results"
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <ExamResults />
                 </ProtectedRoute>
               }
             />

@@ -1,9 +1,14 @@
+import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Plus } from 'lucide-react';
+import { BookOpen, Plus, Users, Calendar } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { mockBatches } from '@/data/mockData';
 
 export default function Batches() {
+  const [batches] = useState(mockBatches);
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -18,18 +23,48 @@ export default function Batches() {
           </Button>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>All Batches</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-12">
-              <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Batch Management</h3>
-              <p className="text-gray-600">This feature is under development</p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {batches.map((batch) => (
+            <Card key={batch.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="text-lg">{batch.name}</CardTitle>
+                    <Badge variant="outline" className="mt-2">{batch.subject}</Badge>
+                  </div>
+                  <Badge className={batch.status === 'ongoing' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-700'}>
+                    {batch.status}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <Users className="w-4 h-4 text-gray-400" />
+                  <span className="text-gray-600">Teacher:</span>
+                  <span className="font-medium">{batch.teacher}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="w-4 h-4 text-gray-400" />
+                  <span className="text-gray-600">Schedule:</span>
+                  <span className="font-medium text-xs">{batch.schedule}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Users className="w-4 h-4 text-gray-400" />
+                  <span className="text-gray-600">Students:</span>
+                  <span className="font-medium">{batch.enrolledStudents}/{batch.capacity}</span>
+                </div>
+                <div className="pt-3 border-t flex gap-2">
+                  <Button size="sm" variant="outline" className="flex-1">
+                    View Details
+                  </Button>
+                  <Button size="sm" variant="outline">
+                    Edit
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </MainLayout>
   );

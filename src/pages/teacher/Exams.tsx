@@ -7,62 +7,13 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { CreateExamForm } from '@/components/exams/CreateExamForm';
-import { Exam } from '@/types/exam';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-
-// Mock data
-const mockExams: Exam[] = [
-  {
-    id: '1',
-    name: 'Mid-Term Exam',
-    type: 'mid_term',
-    subject: 'Mathematics',
-    batches: ['Grade 10-A'],
-    date: new Date('2024-03-15'),
-    duration: 120,
-    totalMarks: 100,
-    syllabus: 'Chapters 1-5: Algebra, Trigonometry, Geometry',
-    published: true,
-    createdAt: new Date('2024-02-01'),
-  },
-  {
-    id: '2',
-    name: 'Unit Test 1',
-    type: 'unit_test',
-    subject: 'Science',
-    batches: ['Grade 9-A', 'Grade 9-B'],
-    date: new Date('2024-03-20'),
-    duration: 60,
-    totalMarks: 50,
-    syllabus: 'Chapter 1-2: Physics fundamentals',
-    published: false,
-    createdAt: new Date('2024-02-10'),
-  },
-];
-
-const getExamTypeLabel = (type: string) => {
-  const labels: Record<string, string> = {
-    unit_test: 'Unit Test',
-    mid_term: 'Mid-Term',
-    final: 'Final Exam',
-    weekly_test: 'Weekly Test',
-  };
-  return labels[type] || type;
-};
-
-const getExamTypeColor = (type: string) => {
-  const colors: Record<string, string> = {
-    unit_test: 'bg-blue-100 text-blue-700',
-    mid_term: 'bg-purple-100 text-purple-700',
-    final: 'bg-red-100 text-red-700',
-    weekly_test: 'bg-amber-100 text-amber-700',
-  };
-  return colors[type] || 'bg-gray-100 text-gray-700';
-};
+import { mockExams } from '@/data/mockData';
+import { getExamTypeLabel, getExamTypeColor } from '@/utils/examHelpers';
 
 export default function Exams() {
-  const [exams] = useState<Exam[]>(mockExams);
+  const [exams] = useState(mockExams);
   const [dialogOpen, setDialogOpen] = useState(false);
   const navigate = useNavigate();
 
