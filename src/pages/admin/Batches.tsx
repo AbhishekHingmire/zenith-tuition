@@ -7,11 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { mockBatches, mockTeachers, mockSubjects } from '@/data/mockData';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
+import { ScheduleBuilder, ScheduleSlot, formatScheduleDisplay } from '@/components/ScheduleBuilder';
 
 export default function Batches() {
   const [batches, setBatches] = useState(mockBatches);
@@ -27,8 +27,7 @@ export default function Batches() {
     subjects: [] as string[],
     grade: '',
     teacherIds: [] as string[],
-    schedule: '',
-    timing: '',
+    schedules: [] as ScheduleSlot[],
     capacity: '',
     startDate: '',
     endDate: '',
@@ -60,8 +59,7 @@ export default function Batches() {
       subjects: [],
       grade: '',
       teacherIds: [],
-      schedule: '',
-      timing: '',
+      schedules: [],
       capacity: '',
       startDate: '',
       endDate: '',
@@ -77,8 +75,7 @@ export default function Batches() {
       subjects: batch.subjects || [],
       grade: batch.grade,
       teacherIds: batch.teacherIds || [],
-      schedule: batch.schedule,
-      timing: batch.timing || '',
+      schedules: batch.schedules || [],
       capacity: String(batch.capacity),
       startDate: batch.startDate,
       endDate: batch.endDate,
@@ -99,17 +96,36 @@ export default function Batches() {
       return;
     }
 
+    if (formData.schedules.length === 0) {
+      toast.error('Please add at least one schedule slot');
+      return;
+    }
+
+    const hasInvalidSchedule = formData.schedules.some(s => s.days.length === 0);
+    if (hasInvalidSchedule) {
+      toast.error('Each schedule must have at least one day selected');
+      return;
+    }
+
     const teacherNames = selectedTeachers.map(t => t.name).join(', ');
+    const scheduleDisplay = formatScheduleDisplay(formData.schedules);
     
     if (editingBatch) {
       setBatches(batches.map(b =>
         b.id === editingBatch.id
           ? { 
               ...b, 
-              ...formData, 
+              name: formData.name,
+              subjects: formData.subjects,
+              grade: formData.grade,
               teacher: teacherNames,
-              capacity: Number(formData.capacity), 
-              monthlyFee: Number(formData.monthlyFee) 
+              teacherIds: formData.teacherIds,
+              schedules: formData.schedules,
+              schedule: scheduleDisplay,
+              capacity: Number(formData.capacity),
+              startDate: formData.startDate,
+              endDate: formData.endDate,
+              monthlyFee: Number(formData.monthlyFee)
             }
           : b
       ));
@@ -122,8 +138,8 @@ export default function Batches() {
         grade: formData.grade,
         teacher: teacherNames,
         teacherIds: formData.teacherIds,
-        schedule: formData.schedule,
-        timing: formData.timing,
+        schedules: formData.schedules,
+        schedule: scheduleDisplay,
         enrolledStudents: 0,
         capacity: Number(formData.capacity),
         startDate: formData.startDate || new Date().toISOString().split('T')[0],
@@ -199,10 +215,12 @@ export default function Batches() {
                   <span className="text-muted-foreground">Teacher:</span>
                   <span className="font-medium truncate">{batch.teacher}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Schedule:</span>
-                  <span className="font-medium text-xs">{batch.schedule}</span>
+                <div className="flex items-start gap-2 text-sm">
+                  <Calendar className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <span className="text-muted-foreground">Schedule:</span>
+                    <p className="font-medium text-xs break-words">{batch.schedule}</p>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Users className="w-4 h-4 text-muted-foreground" />
@@ -329,22 +347,11 @@ export default function Batches() {
                   onChange={(e) => setFormData({ ...formData, monthlyFee: e.target.value })}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="batchTiming">Timing *</Label>
-                <Input
-                  id="batchTiming"
-                  placeholder="e.g., 9:00 AM - 10:30 AM"
-                  value={formData.timing}
-                  onChange={(e) => setFormData({ ...formData, timing: e.target.value })}
-                />
-              </div>
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="batchSchedule">Schedule *</Label>
-                <Input
-                  id="batchSchedule"
-                  placeholder="e.g., Mon, Wed, Fri - 9:00 AM to 10:30 AM"
-                  value={formData.schedule}
-                  onChange={(e) => setFormData({ ...formData, schedule: e.target.value })}
+                <Label>Schedule * (Add time slots for different days)</Label>
+                <ScheduleBuilder
+                  schedules={formData.schedules}
+                  onChange={(schedules) => setFormData({ ...formData, schedules })}
                 />
               </div>
               <div className="space-y-2">
@@ -412,12 +419,27 @@ export default function Batches() {
                     <p className="font-medium">{viewingBatch.teacher}</p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-sm text-muted-foreground">Schedule</p>
-                    <p className="font-medium text-sm">{viewingBatch.schedule}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Timing</p>
-                    <p className="font-medium">{viewingBatch.timing}</p>
+                    <p className="text-sm text-muted-foreground mb-2">Schedule</p>
+                    {viewingBatch.schedules && viewingBatch.schedules.length > 0 ? (
+                      <div className="space-y-2">
+                        {viewingBatch.schedules.map((slot: ScheduleSlot, idx: number) => (
+                          <div key={slot.id || idx} className="p-2 bg-muted/50 rounded-md">
+                            <div className="flex flex-wrap gap-1 mb-1">
+                              {slot.days.map(day => (
+                                <Badge key={day} variant="secondary" className="text-xs">
+                                  {day}
+                                </Badge>
+                              ))}
+                            </div>
+                            <p className="text-xs font-medium">
+                              {slot.startTime} - {slot.endTime}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="font-medium text-sm">{viewingBatch.schedule}</p>
+                    )}
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Capacity</p>
