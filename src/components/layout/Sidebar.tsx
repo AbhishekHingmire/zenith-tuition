@@ -42,9 +42,14 @@ const getMenuItems = (role: string) => {
       return [
         { icon: LayoutDashboard, label: "Dashboard", path: "/teacher/dashboard" },
         { icon: Calendar, label: "My Schedule", path: "/teacher/schedule" },
+        { icon: BookOpen, label: "Syllabus", path: "/teacher/syllabus" },
         { icon: FileText, label: "Exams", path: "/teacher/exams" },
         { icon: ClipboardList, label: "Attendance", path: "/teacher/attendance" },
-        { icon: BookOpen, label: "Assignments", path: "/teacher/assignments" },
+        { icon: BookOpen, label: "Materials", path: "/teacher/materials" },
+        { icon: Users, label: "Behavior", path: "/teacher/behavior" },
+        { icon: Calendar, label: "Leave", path: "/teacher/leave" },
+        { icon: MessageSquare, label: "Messages", path: "/teacher/parent-communication" },
+        { icon: Users, label: "PTM", path: "/teacher/ptm" },
         { icon: BarChart3, label: "Performance", path: "/teacher/performance" },
         { icon: Settings, label: "Settings", path: "/teacher/settings" },
       ];
