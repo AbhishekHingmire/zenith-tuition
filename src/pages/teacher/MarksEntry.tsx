@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,11 +11,12 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { calculateGrade, getGradeColor } from '@/utils/gradeCalculator';
 import { StudentMark } from '@/types/exam';
-import { Save, TrendingUp, Award, BarChart3 } from 'lucide-react';
+import { Save, TrendingUp, Award, BarChart3, ArrowLeft } from 'lucide-react';
 import { mockExams, mockExamResults } from '@/data/mockData';
 
 export default function MarksEntry() {
   const { examId } = useParams();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const exam = mockExams.find((e) => e.id === examId);
   const [students, setStudents] = useState<StudentMark[]>(
@@ -119,6 +120,16 @@ export default function MarksEntry() {
   return (
     <MainLayout>
       <div className="space-y-6">
+        {/* Back Button */}
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/teacher/exams')}
+          className="mb-2"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Exams
+        </Button>
+
         {/* Header */}
         <Card>
           <CardHeader>

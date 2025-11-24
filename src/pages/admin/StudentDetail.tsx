@@ -1,13 +1,15 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { mockStudents } from '@/data/mockData';
-import { User, Mail, Phone, MapPin, Calendar } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Calendar, ArrowLeft } from 'lucide-react';
 
 export default function StudentDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const student = mockStudents.find((s) => s.id === id);
 
   if (!student) {
@@ -23,6 +25,16 @@ export default function StudentDetail() {
   return (
     <MainLayout>
       <div className="space-y-6">
+        {/* Back Button */}
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/admin/students')}
+          className="mb-2"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Students
+        </Button>
+
         {/* Header Card */}
         <Card>
           <CardContent className="p-6">

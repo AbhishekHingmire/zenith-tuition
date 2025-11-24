@@ -1,15 +1,16 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { mockExams, mockExamResults } from '@/data/mockData';
 import { getGradeColor } from '@/utils/gradeCalculator';
-import { Award, TrendingUp, BarChart3, Download } from 'lucide-react';
+import { Award, TrendingUp, BarChart3, Download, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function ExamResults() {
   const { examId } = useParams();
+  const navigate = useNavigate();
   const exam = mockExams.find((e) => e.id === examId);
   
   if (!exam) {
@@ -39,6 +40,16 @@ export default function ExamResults() {
   return (
     <MainLayout>
       <div className="space-y-6">
+        {/* Back Button */}
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/teacher/exams')}
+          className="mb-2"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Exams
+        </Button>
+
         {/* Header */}
         <Card>
           <CardHeader>
