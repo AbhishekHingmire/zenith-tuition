@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { mockStudents } from '@/data/mockData';
+import { mockStudents, mockBatches } from '@/data/mockData';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -26,12 +27,15 @@ export default function Students() {
     email: '',
     phone: '',
     batch: '',
+    batchId: '',
     dateOfBirth: '',
     gender: '',
     address: '',
     parentName: '',
     parentPhone: '',
     parentEmail: '',
+    monthlyFee: 0,
+    timing: '',
   });
 
   const filteredStudents = students.filter(student =>
@@ -47,14 +51,30 @@ export default function Students() {
       email: '',
       phone: '',
       batch: '',
+      batchId: '',
       dateOfBirth: '',
       gender: '',
       address: '',
       parentName: '',
       parentPhone: '',
       parentEmail: '',
+      monthlyFee: 0,
+      timing: '',
     });
     setDialogOpen(true);
+  };
+
+  const handleBatchSelect = (batchId: string) => {
+    const selectedBatch = mockBatches.find(b => b.id === batchId);
+    if (selectedBatch) {
+      setFormData({
+        ...formData,
+        batchId: batchId,
+        batch: selectedBatch.name,
+        monthlyFee: selectedBatch.monthlyFee,
+        timing: selectedBatch.timing,
+      });
+    }
   };
 
   const handleEditStudent = (student: any) => {
@@ -64,12 +84,15 @@ export default function Students() {
       email: student.email,
       phone: student.phone,
       batch: student.batch,
+      batchId: '',
       dateOfBirth: student.dateOfBirth,
       gender: student.gender,
       address: student.address,
       parentName: student.parentName,
       parentPhone: student.parentPhone,
       parentEmail: student.parentEmail,
+      monthlyFee: student.monthlyFee || 0,
+      timing: '',
     });
     setDialogOpen(true);
   };
@@ -251,10 +274,33 @@ export default function Students() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="batch">Batch *</Label>
+                <Select value={formData.batchId} onValueChange={handleBatchSelect}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select batch" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockBatches.map((batch) => (
+                      <SelectItem key={batch.id} value={batch.id}>
+                        {batch.name} - ₹{batch.monthlyFee}/month
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="monthlyFee">Monthly Fee</Label>
                 <Input
-                  id="batch"
-                  value={formData.batch}
-                  onChange={(e) => setFormData({ ...formData, batch: e.target.value })}
+                  id="monthlyFee"
+                  value={`₹${formData.monthlyFee}`}
+                  disabled
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="timing">Batch Timing</Label>
+                <Input
+                  id="timing"
+                  value={formData.timing}
+                  disabled
                 />
               </div>
               <div className="space-y-2">
@@ -268,11 +314,16 @@ export default function Students() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="gender">Gender *</Label>
-                <Input
-                  id="gender"
-                  value={formData.gender}
-                  onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                />
+                <Select value={formData.gender} onValueChange={(value) => setFormData({ ...formData, gender: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="address">Address *</Label>

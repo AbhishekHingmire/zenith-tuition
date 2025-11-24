@@ -9,7 +9,8 @@ import {
   Settings,
   GraduationCap,
   ClipboardList,
-  BarChart3
+  BarChart3,
+  BookMarked
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,6 +28,7 @@ const getMenuItems = (role: string) => {
         { icon: Users, label: "Students", path: "/admin/students" },
         { icon: GraduationCap, label: "Teachers", path: "/admin/teachers" },
         { icon: BookOpen, label: "Batches", path: "/admin/batches" },
+        { icon: BookMarked, label: "Subjects", path: "/admin/subjects" },
         { icon: Calendar, label: "Attendance", path: "/admin/attendance" },
         { icon: FileText, label: "Exams", path: "/admin/exams" },
         { icon: IndianRupee, label: "Fees", path: "/admin/fees" },

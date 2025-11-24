@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Plus, Users, Calendar, Edit, Trash2 } from 'lucide-react';
+import { BookOpen, Plus, Users, Calendar, Edit, Trash2, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { mockBatches } from '@/data/mockData';
+import { mockBatches, mockTeachers, mockSubjects } from '@/data/mockData';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 
 export default function Batches() {
@@ -22,23 +24,38 @@ export default function Batches() {
 
   const [formData, setFormData] = useState({
     name: '',
-    subject: '',
+    subjects: [] as string[],
     grade: '',
-    teacher: '',
+    teacherId: '',
     schedule: '',
+    timing: '',
     capacity: '',
+    startDate: '',
+    endDate: '',
     monthlyFee: '',
   });
+
+  const toggleBatchSubject = (subjectCode: string) => {
+    setFormData(prev => ({
+      ...prev,
+      subjects: prev.subjects.includes(subjectCode)
+        ? prev.subjects.filter(s => s !== subjectCode)
+        : [...prev.subjects, subjectCode]
+    }));
+  };
 
   const handleAddBatch = () => {
     setEditingBatch(null);
     setFormData({
       name: '',
-      subject: '',
+      subjects: [],
       grade: '',
-      teacher: '',
+      teacherId: '',
       schedule: '',
+      timing: '',
       capacity: '',
+      startDate: '',
+      endDate: '',
       monthlyFee: '',
     });
     setDialogOpen(true);
@@ -46,36 +63,52 @@ export default function Batches() {
 
   const handleEditBatch = (batch: any) => {
     setEditingBatch(batch);
+    const teacher = mockTeachers.find(t => t.name === batch.teacher);
     setFormData({
       name: batch.name,
-      subject: batch.subject,
+      subjects: batch.subjects || [],
       grade: batch.grade,
-      teacher: batch.teacher,
+      teacherId: teacher?.id || '',
       schedule: batch.schedule,
+      timing: batch.timing || '',
       capacity: String(batch.capacity),
+      startDate: batch.startDate,
+      endDate: batch.endDate,
       monthlyFee: String(batch.monthlyFee),
     });
     setDialogOpen(true);
   };
 
   const handleSaveBatch = () => {
+    const teacher = mockTeachers.find(t => t.id === formData.teacherId);
     if (editingBatch) {
       setBatches(batches.map(b =>
         b.id === editingBatch.id
-          ? { ...b, ...formData, capacity: Number(formData.capacity), monthlyFee: Number(formData.monthlyFee) }
+          ? { 
+              ...b, 
+              ...formData, 
+              teacher: teacher?.name || '',
+              capacity: Number(formData.capacity), 
+              monthlyFee: Number(formData.monthlyFee) 
+            }
           : b
       ));
       toast.success('Batch updated successfully');
     } else {
       const newBatch = {
-        ...formData,
         id: `b${batches.length + 1}`,
-        teacherId: `t${batches.length + 1}`,
+        name: formData.name,
+        subjects: formData.subjects,
+        grade: formData.grade,
+        teacher: teacher?.name || '',
+        teacherId: formData.teacherId,
+        schedule: formData.schedule,
+        timing: formData.timing,
         enrolledStudents: 0,
         capacity: Number(formData.capacity),
+        startDate: formData.startDate || new Date().toISOString().split('T')[0],
+        endDate: formData.endDate || new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
         monthlyFee: Number(formData.monthlyFee),
-        startDate: new Date().toISOString().split('T')[0],
-        endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
         status: 'ongoing',
       };
       setBatches([...batches, newBatch]);
@@ -124,7 +157,16 @@ export default function Batches() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <CardTitle className="text-lg truncate">{batch.name}</CardTitle>
-                    <Badge variant="outline" className="mt-2">{batch.subject}</Badge>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {batch.subjects?.map((subCode, idx) => {
+                        const subject = mockSubjects.find(s => s.code === subCode);
+                        return (
+                          <Badge key={idx} variant="outline" className="text-xs">
+                            {subject?.name || subCode}
+                          </Badge>
+                        );
+                      })}
+                    </div>
                   </div>
                   <Badge className={batch.status === 'ongoing' ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'}>
                     {batch.status}
@@ -154,7 +196,8 @@ export default function Batches() {
                     className="flex-1"
                     onClick={() => handleViewBatch(batch)}
                   >
-                    View Details
+                    <Eye className="w-4 h-4 mr-1" />
+                    View
                   </Button>
                   <Button 
                     size="sm" 
@@ -179,7 +222,7 @@ export default function Batches() {
 
         {/* Add/Edit Dialog */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingBatch ? 'Edit Batch' : 'Create New Batch'}</DialogTitle>
             </DialogHeader>
@@ -194,45 +237,76 @@ export default function Batches() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="batchSubject">Subject *</Label>
-                <Input
-                  id="batchSubject"
-                  value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="batchGrade">Grade *</Label>
                 <Input
                   id="batchGrade"
+                  placeholder="e.g., 10"
                   value={formData.grade}
                   onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
                 />
               </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Subjects * (Select multiple)</Label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-md max-h-48 overflow-y-auto">
+                  {mockSubjects.map((subject) => (
+                    <div key={subject.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`batch-${subject.code}`}
+                        checked={formData.subjects.includes(subject.code)}
+                        onCheckedChange={() => toggleBatchSubject(subject.code)}
+                      />
+                      <label
+                        htmlFor={`batch-${subject.code}`}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        {subject.name}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="batchTeacher">Teacher *</Label>
-                <Input
-                  id="batchTeacher"
-                  value={formData.teacher}
-                  onChange={(e) => setFormData({ ...formData, teacher: e.target.value })}
-                />
+                <Select value={formData.teacherId} onValueChange={(value) => setFormData({ ...formData, teacherId: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select teacher" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockTeachers.map((teacher) => (
+                      <SelectItem key={teacher.id} value={teacher.id}>
+                        {teacher.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="batchCapacity">Capacity *</Label>
                 <Input
                   id="batchCapacity"
                   type="number"
+                  placeholder="e.g., 30"
                   value={formData.capacity}
                   onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="batchFee">Monthly Fee *</Label>
+                <Label htmlFor="batchFee">Monthly Fee (₹) *</Label>
                 <Input
                   id="batchFee"
                   type="number"
+                  placeholder="e.g., 5000"
                   value={formData.monthlyFee}
                   onChange={(e) => setFormData({ ...formData, monthlyFee: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="batchTiming">Timing *</Label>
+                <Input
+                  id="batchTiming"
+                  placeholder="e.g., 9:00 AM - 10:30 AM"
+                  value={formData.timing}
+                  onChange={(e) => setFormData({ ...formData, timing: e.target.value })}
                 />
               </div>
               <div className="space-y-2 sm:col-span-2">
@@ -242,6 +316,24 @@ export default function Batches() {
                   placeholder="e.g., Mon, Wed, Fri - 9:00 AM to 10:30 AM"
                   value={formData.schedule}
                   onChange={(e) => setFormData({ ...formData, schedule: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="batchStartDate">Start Date</Label>
+                <Input
+                  id="batchStartDate"
+                  type="date"
+                  value={formData.startDate}
+                  onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="batchEndDate">End Date</Label>
+                <Input
+                  id="batchEndDate"
+                  type="date"
+                  value={formData.endDate}
+                  onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
                 />
               </div>
             </div>
@@ -265,7 +357,16 @@ export default function Batches() {
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="text-xl font-semibold">{viewingBatch.name}</h3>
-                    <Badge variant="outline" className="mt-2">{viewingBatch.subject}</Badge>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {viewingBatch.subjects?.map((subCode: string, idx: number) => {
+                        const subject = mockSubjects.find(s => s.code === subCode);
+                        return (
+                          <Badge key={idx} variant="outline">
+                            {subject?.name || subCode}
+                          </Badge>
+                        );
+                      })}
+                    </div>
                   </div>
                   <Badge className={viewingBatch.status === 'ongoing' ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'}>
                     {viewingBatch.status}
@@ -281,9 +382,13 @@ export default function Batches() {
                     <p className="text-sm text-muted-foreground">Teacher</p>
                     <p className="font-medium">{viewingBatch.teacher}</p>
                   </div>
-                  <div>
+                  <div className="col-span-2">
                     <p className="text-sm text-muted-foreground">Schedule</p>
                     <p className="font-medium text-sm">{viewingBatch.schedule}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Timing</p>
+                    <p className="font-medium">{viewingBatch.timing}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Capacity</p>
@@ -297,18 +402,14 @@ export default function Batches() {
                     <p className="text-sm text-muted-foreground">End Date</p>
                     <p className="font-medium">{viewingBatch.endDate}</p>
                   </div>
-                  <div>
+                  <div className="col-span-2">
                     <p className="text-sm text-muted-foreground">Monthly Fee</p>
                     <p className="font-medium">₹{viewingBatch.monthlyFee.toLocaleString()}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Enrolled Students</p>
-                    <p className="font-medium">{viewingBatch.enrolledStudents} students</p>
                   </div>
                 </div>
 
                 <div className="pt-4 border-t">
-                  <p className="text-sm text-muted-foreground mb-2">Progress</p>
+                  <p className="text-sm text-muted-foreground mb-2">Enrollment Progress</p>
                   <div className="space-y-1">
                     <div className="flex justify-between text-sm">
                       <span>Enrollment</span>

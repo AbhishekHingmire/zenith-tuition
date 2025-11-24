@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import AdminStudents from "./pages/admin/Students";
 import AdminTeachers from "./pages/admin/Teachers";
 import AdminBatches from "./pages/admin/Batches";
+import AdminSubjects from "./pages/admin/Subjects";
 import AdminAttendance from "./pages/admin/Attendance";
 import AdminExams from "./pages/admin/Exams";
 import AdminFees from "./pages/admin/Fees";
@@ -92,6 +93,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <AdminBatches />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/subjects"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminSubjects />
                 </ProtectedRoute>
               }
             />
