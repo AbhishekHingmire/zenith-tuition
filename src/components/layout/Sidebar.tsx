@@ -11,7 +11,6 @@ import {
   ClipboardList,
   BarChart3,
   X,
-  UserCircle,
   LogOut,
   MessageSquare,
   HelpCircle
@@ -96,7 +95,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {/* Header with user profile */}
+        {/* Header */}
         <div className="border-b border-sidebar-border">
           {/* Logo and close button */}
           <div className="flex items-center justify-between h-16 px-6">
@@ -112,27 +111,6 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
             >
               <X className="w-5 h-5 text-sidebar-foreground" />
             </button>
-          </div>
-
-          {/* User profile section */}
-          <div className="px-6 py-4 bg-sidebar-accent/30">
-            <div className="flex items-center gap-3">
-              {user?.avatar ? (
-                <img src={user.avatar} alt={user.name} className="w-12 h-12 rounded-full" />
-              ) : (
-                <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
-                  <UserCircle className="w-6 h-6 text-primary-foreground" />
-                </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-sidebar-foreground truncate">
-                  {user?.name || 'User'}
-                </p>
-                <p className="text-xs text-muted-foreground capitalize">
-                  {user?.role || 'Guest'}
-                </p>
-              </div>
-            </div>
           </div>
         </div>
 
