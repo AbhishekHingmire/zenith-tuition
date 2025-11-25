@@ -21,7 +21,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { studentInsights } from '@/data/mockInsights';
 import { mockStudents } from '@/data/mockData';
-import { mockAssignments } from '@/data/mockStudentData';
+import { mockAssignments, mockTodaySchedule } from '@/data/mockStudentData';
 import { useState } from 'react';
 
 export default function StudentDashboard() {
@@ -53,6 +53,17 @@ export default function StudentDashboard() {
   // Collapsible states
   const [badgesOpen, setBadgesOpen] = useState(false);
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
+  const [timetableOpen, setTimetableOpen] = useState(false);
+
+  // Weekly timetable mock data
+  const weekSchedule = {
+    Monday: mockTodaySchedule,
+    Tuesday: mockTodaySchedule,
+    Wednesday: mockTodaySchedule,
+    Thursday: mockTodaySchedule,
+    Friday: mockTodaySchedule,
+    Saturday: mockTodaySchedule.slice(0, 2),
+  };
 
   return (
     <MainLayout>
@@ -227,6 +238,77 @@ export default function StudentDashboard() {
                     </div>
                   ))}
                 </div>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
+
+        {/* Timetable Section - Collapsible */}
+        <Collapsible open={timetableOpen} onOpenChange={setTimetableOpen}>
+          <Card>
+            <CollapsibleTrigger className="w-full">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-primary" />
+                    My Timetable
+                  </div>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${timetableOpen ? 'rotate-180' : ''}`} />
+                </CardTitle>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="space-y-4">
+                {/* Today's Schedule */}
+                <div>
+                  <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                    Today's Classes
+                  </h4>
+                  <div className="space-y-2">
+                    {mockTodaySchedule.map((classItem) => (
+                      <div key={classItem.id} className="flex items-center gap-3 p-2 border rounded-lg text-sm">
+                        <div className="flex-shrink-0 text-center min-w-[60px]">
+                          <div className="font-semibold text-primary">{classItem.startTime}</div>
+                          <div className="text-xs text-muted-foreground">{classItem.endTime}</div>
+                        </div>
+                        <div className="h-8 w-px bg-border" />
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium truncate">{classItem.subject}</div>
+                          <div className="text-xs text-muted-foreground truncate">{classItem.teacher} • {classItem.room}</div>
+                        </div>
+                        <Badge variant="outline" className="text-xs capitalize flex-shrink-0">
+                          {classItem.type}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Weekly Timetable */}
+                <div className="border-t pt-4">
+                  <h4 className="font-semibold text-sm mb-3">Weekly Overview</h4>
+                  <div className="space-y-3">
+                    {Object.entries(weekSchedule).map(([day, classes]) => (
+                      <div key={day} className="space-y-2">
+                        <div className="font-medium text-sm text-muted-foreground">{day}</div>
+                        <div className="space-y-1.5">
+                          {classes.map((classItem) => (
+                            <div key={`${day}-${classItem.id}`} className="flex items-center gap-2 p-2 bg-muted/30 rounded text-xs">
+                              <span className="font-medium text-primary min-w-[50px]">{classItem.startTime}</span>
+                              <span className="font-medium flex-1 truncate">{classItem.subject}</span>
+                              <span className="text-muted-foreground truncate">{classItem.room}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <Button className="w-full" variant="outline" onClick={() => navigate('/student/schedule')}>
+                  View Full Timetable
+                </Button>
               </CardContent>
             </CollapsibleContent>
           </Card>

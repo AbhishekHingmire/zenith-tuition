@@ -4,31 +4,40 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { mockExamResults } from '@/data/mockStudentData';
-import { Calendar, Clock, FileText, Download, TrendingUp, Trophy, Target } from 'lucide-react';
+import { Calendar, Clock, FileText, TrendingUp, Trophy, Target, Eye } from 'lucide-react';
 import { format } from 'date-fns';
+import { useState } from 'react';
 
 export default function StudentExams() {
+  const [selectedExam, setSelectedExam] = useState<any>(null);
+  const [resultsFilter, setResultsFilter] = useState<'all' | 'week' | 'month'>('all');
+
   const upcomingExams = [
     {
       id: '1',
       name: 'Mathematics Unit Test 4',
       subject: 'Mathematics',
       date: new Date(2025, 4, 25),
+      time: '10:00 AM - 12:00 PM',
       duration: '2 hours',
       totalMarks: 100,
       room: 'Room 101',
       syllabus: ['Chapter 4: Quadratic Equations', 'Chapter 5: Arithmetic Progressions'],
+      chapters: 'Chapters 4-5',
     },
     {
       id: '2',
       name: 'Science Mid-term',
       subject: 'Science',
       date: new Date(2025, 4, 28),
+      time: '9:00 AM - 12:00 PM',
       duration: '3 hours',
       totalMarks: 150,
       room: 'Hall A',
       syllabus: ['Physics: Chapters 1-5', 'Chemistry: Chapters 1-4', 'Biology: Chapters 1-3'],
+      chapters: 'Physics (Ch 1-5), Chemistry (Ch 1-4), Biology (Ch 1-3)',
     },
   ];
 
@@ -36,6 +45,18 @@ export default function StudentExams() {
     const diff = Math.ceil((date.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
     return diff;
   };
+
+  // Filter results based on selected filter
+  const filteredResults = mockExamResults.filter((result) => {
+    const examDate = new Date(result.date);
+    const now = new Date();
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    if (resultsFilter === 'week') return examDate >= weekAgo;
+    if (resultsFilter === 'month') return examDate >= monthAgo;
+    return true;
+  });
 
   return (
     <MainLayout>
@@ -53,63 +74,95 @@ export default function StudentExams() {
           </TabsList>
 
           {/* UPCOMING EXAMS */}
-          <TabsContent value="upcoming" className="space-y-4">
+          <TabsContent value="upcoming" className="space-y-3">
             {upcomingExams.map((exam) => {
               const daysLeft = getDaysUntil(exam.date);
 
               return (
-                <Card key={exam.id} className="border-2 border-primary/20">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="space-y-4">
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <Badge variant="destructive" className="mb-2 animate-pulse">
-                            🔥 In {daysLeft} days
+                <Card key={exam.id} className="border-l-4 border-l-primary">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Badge variant="destructive" className="text-xs">
+                            🔥 {daysLeft}d
                           </Badge>
-                          <h3 className="text-xl font-bold text-foreground mb-2">{exam.name}</h3>
-                          <Badge variant="outline">{exam.subject}</Badge>
+                          <Badge variant="outline" className="text-xs">{exam.subject}</Badge>
+                        </div>
+                        <h3 className="font-bold text-foreground mb-1 text-base">{exam.name}</h3>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {format(exam.date, 'MMM d, yyyy')}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {exam.time}
+                          </span>
                         </div>
                       </div>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button size="sm" variant="outline" className="flex-shrink-0">
+                            <Eye className="w-3 h-3 mr-1" />
+                            View
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle>{exam.name}</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-3 text-sm">
+                              <div className="flex items-center gap-2">
+                                <Calendar className="w-4 h-4 text-muted-foreground" />
+                                <div>
+                                  <div className="text-xs text-muted-foreground">Date</div>
+                                  <div className="font-medium">{format(exam.date, 'MMM d, yyyy')}</div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Clock className="w-4 h-4 text-muted-foreground" />
+                                <div>
+                                  <div className="text-xs text-muted-foreground">Time</div>
+                                  <div className="font-medium">{exam.time}</div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <FileText className="w-4 h-4 text-muted-foreground" />
+                                <div>
+                                  <div className="text-xs text-muted-foreground">Total Marks</div>
+                                  <div className="font-medium">{exam.totalMarks}</div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Target className="w-4 h-4 text-muted-foreground" />
+                                <div>
+                                  <div className="text-xs text-muted-foreground">Room</div>
+                                  <div className="font-medium">{exam.room}</div>
+                                </div>
+                              </div>
+                            </div>
 
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                          <span className="text-muted-foreground">{format(exam.date, 'MMM d, yyyy')}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                          <span className="text-muted-foreground">{exam.duration}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                          <span className="text-muted-foreground">{exam.totalMarks} marks</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Target className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                          <span className="text-muted-foreground">{exam.room}</span>
-                        </div>
-                      </div>
+                            <div className="border-t pt-4">
+                              <h4 className="font-semibold text-sm mb-2">Covered Chapters</h4>
+                              <p className="text-sm text-muted-foreground">{exam.chapters}</p>
+                            </div>
 
-                      <div className="border-t pt-4">
-                        <h4 className="font-semibold text-sm mb-2">Syllabus Covered:</h4>
-                        <ul className="space-y-1">
-                          {exam.syllabus.map((topic, idx) => (
-                            <li key={idx} className="text-sm text-muted-foreground flex items-center gap-2">
-                              <span className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0" />
-                              {topic}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row gap-2">
-                        <Button variant="outline" className="w-full sm:w-auto touch-manipulation min-h-[44px]">
-                          View Materials
-                        </Button>
-                        <Button variant="outline" className="w-full sm:w-auto touch-manipulation min-h-[44px]">
-                          Add to Calendar
-                        </Button>
-                      </div>
+                            <div className="border-t pt-4">
+                              <h4 className="font-semibold text-sm mb-2">Syllabus Details</h4>
+                              <ul className="space-y-1.5">
+                                {exam.syllabus.map((topic, idx) => (
+                                  <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                                    <span className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0 mt-1.5" />
+                                    {topic}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </CardContent>
                 </Card>
@@ -119,78 +172,90 @@ export default function StudentExams() {
 
           {/* RESULTS TAB */}
           <TabsContent value="results" className="space-y-4">
-            {mockExamResults.map((result) => {
+            {/* Filter Tabs */}
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant={resultsFilter === 'week' ? 'default' : 'outline'}
+                onClick={() => setResultsFilter('week')}
+              >
+                This Week
+              </Button>
+              <Button
+                size="sm"
+                variant={resultsFilter === 'month' ? 'default' : 'outline'}
+                onClick={() => setResultsFilter('month')}
+              >
+                This Month
+              </Button>
+              <Button
+                size="sm"
+                variant={resultsFilter === 'all' ? 'default' : 'outline'}
+                onClick={() => setResultsFilter('all')}
+              >
+                All
+              </Button>
+            </div>
+
+            {/* Results List */}
+            {filteredResults.map((result) => {
               const percentage = result.percentage;
               const gradeColor = 
-                percentage >= 90 ? 'bg-secondary text-secondary-foreground' :
+                percentage >= 90 ? 'bg-emerald-500 text-white' :
                 percentage >= 75 ? 'bg-primary text-primary-foreground' :
-                percentage >= 60 ? 'bg-accent text-accent-foreground' :
+                percentage >= 60 ? 'bg-amber-500 text-white' :
                 'bg-destructive text-destructive-foreground';
 
               return (
-                <Card key={result.id}>
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="space-y-4">
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-semibold text-foreground mb-1">
-                            {result.examName}
-                          </h3>
-                          <p className="text-sm text-muted-foreground mb-2">
-                            {result.subject} • {format(result.date, 'MMMM d, yyyy')}
-                          </p>
-                          <Badge variant="outline">{result.subject}</Badge>
+                <Card key={result.id} className="border-l-4 border-l-primary">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Badge variant="outline" className="text-xs">{result.subject}</Badge>
+                          <Badge className={`${gradeColor} text-xs px-2 py-0.5`}>
+                            {result.grade}
+                          </Badge>
                         </div>
-                        <Badge className={`${gradeColor} text-2xl px-4 py-2 whitespace-nowrap`}>
-                          {result.grade}
-                        </Badge>
+                        <h3 className="font-semibold text-foreground mb-1 text-sm">
+                          {result.examName}
+                        </h3>
+                        <p className="text-xs text-muted-foreground">
+                          {format(result.date, 'MMM d, yyyy')}
+                        </p>
                       </div>
-
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Your Score</span>
-                          <span className="text-2xl font-bold text-foreground">
-                            {result.marksObtained}/{result.totalMarks}
-                          </span>
+                      <div className="text-right flex-shrink-0">
+                        <div className="text-lg font-bold text-foreground">
+                          {result.marksObtained}/{result.totalMarks}
                         </div>
-                        <Progress value={percentage} className="h-3" />
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Percentage</span>
-                          <span className="font-semibold text-foreground">{percentage}%</span>
+                        <div className="text-xs text-muted-foreground">
+                          {percentage}%
                         </div>
-                      </div>
-
-                      {result.rank && result.totalStudents && (
-                        <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                          <div className="flex items-center gap-2">
-                            <Trophy className="w-5 h-5 text-accent" />
-                            <span className="text-sm font-medium">Rank {result.rank} / {result.totalStudents}</span>
-                          </div>
-                          {result.classAverage && (
-                            <span className="text-sm text-muted-foreground">
-                              Class Avg: {result.classAverage}%
-                            </span>
-                          )}
-                        </div>
-                      )}
-
-                      {result.teacherRemarks && (
-                        <div className="p-3 bg-secondary/10 border border-secondary/20 rounded-lg">
-                          <p className="text-sm font-medium mb-1">Teacher's Remarks:</p>
-                          <p className="text-sm text-muted-foreground">{result.teacherRemarks}</p>
-                        </div>
-                      )}
-
-                      <div className="flex flex-col sm:flex-row gap-2">
-                        <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                          <Download className="w-4 h-4 mr-2" />
-                          Download Report
-                        </Button>
-                        <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                          View Details
-                        </Button>
                       </div>
                     </div>
+
+                    <Progress value={percentage} className="h-1.5 mt-3" />
+
+                    {result.rank && result.totalStudents && (
+                      <div className="flex items-center justify-between mt-3 text-xs">
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                          <Trophy className="w-3 h-3" />
+                          Rank {result.rank}/{result.totalStudents}
+                        </div>
+                        {result.classAverage && (
+                          <span className="text-muted-foreground">
+                            Avg: {result.classAverage}%
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {result.teacherRemarks && (
+                      <div className="mt-3 p-2 bg-muted/50 rounded text-xs">
+                        <span className="font-medium">Remarks: </span>
+                        <span className="text-muted-foreground">{result.teacherRemarks}</span>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               );
