@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertCircle, Download } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
@@ -26,9 +26,9 @@ const mockStudents = [
 export default function TeacherAttendance() {
   const [selectedBatch, setSelectedBatch] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [attendanceData, setAttendanceData] = useState<Record<string, 'present' | 'absent'>>({});
+  const [attendanceData, setAttendanceData] = useState<Record<string, 'present' | 'absent' | 'late'>>({});
 
-  const markAttendance = (studentId: string, status: 'present' | 'absent') => {
+  const markAttendance = (studentId: string, status: 'present' | 'absent' | 'late') => {
     setAttendanceData(prev => ({
       ...prev,
       [studentId]: status
@@ -36,14 +36,14 @@ export default function TeacherAttendance() {
   };
 
   const markAllPresent = () => {
-    const newData: Record<string, 'present' | 'absent'> = {};
+    const newData: Record<string, 'present' | 'absent' | 'late'> = {};
     mockStudents.forEach(s => newData[s.id] = 'present');
     setAttendanceData(newData);
     toast.success('All students marked present');
   };
 
   const markAllAbsent = () => {
-    const newData: Record<string, 'present' | 'absent'> = {};
+    const newData: Record<string, 'present' | 'absent' | 'late'> = {};
     mockStudents.forEach(s => newData[s.id] = 'absent');
     setAttendanceData(newData);
     toast.success('All students marked absent');
@@ -63,9 +63,10 @@ export default function TeacherAttendance() {
     const total = mockStudents.length;
     const present = Object.values(attendanceData).filter(s => s === 'present').length;
     const absent = Object.values(attendanceData).filter(s => s === 'absent').length;
-    const unmarked = total - present - absent;
+    const late = Object.values(attendanceData).filter(s => s === 'late').length;
+    const unmarked = total - present - absent - late;
     
-    return { total, present, absent, unmarked };
+    return { total, present, absent, late, unmarked };
   };
 
   const stats = getAttendanceStats();
@@ -75,16 +76,22 @@ export default function TeacherAttendance() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Mark Attendance</h1>
-            <p className="text-muted-foreground mt-1">Record student attendance for your classes</p>
+            <h1 className="text-2xl sm:text-3xl font-bold">Attendance Management</h1>
+            <p className="text-muted-foreground mt-1">Mark and manage daily attendance</p>
           </div>
-          <Button onClick={handleSubmit} className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
-            Save Attendance
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => toast.info('Exporting attendance data...')} className="w-full sm:w-auto">
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button>
+            <Button onClick={handleSubmit} className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
+              Save Attendance
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
           <Card>
             <CardContent className="p-4">
               <p className="text-sm text-muted-foreground">Total Students</p>
@@ -101,6 +108,12 @@ export default function TeacherAttendance() {
             <CardContent className="p-4">
               <p className="text-sm text-muted-foreground">Absent</p>
               <p className="text-2xl font-bold text-destructive">{stats.absent}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground">Late</p>
+              <p className="text-2xl font-bold text-amber-600">{stats.late}</p>
             </CardContent>
           </Card>
           <Card>
@@ -205,6 +218,14 @@ export default function TeacherAttendance() {
                             onClick={() => markAttendance(student.id, 'present')}
                           >
                             <CheckCircle2 className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={attendanceData[student.id] === 'late' ? 'default' : 'outline'}
+                            className={attendanceData[student.id] === 'late' ? 'bg-amber-600 hover:bg-amber-700 text-white' : ''}
+                            onClick={() => markAttendance(student.id, 'late')}
+                          >
+                            <AlertCircle className="w-4 h-4" />
                           </Button>
                           <Button
                             size="sm"
