@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ViewButton, EditButton, DeleteButton } from '@/components/ui/action-buttons';
+import { ViewToggle } from '@/components/ui/view-toggle';
 
 export default function Students() {
   const navigate = useNavigate();
@@ -22,6 +23,13 @@ export default function Students() {
   const [editingStudent, setEditingStudent] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'normal' | 'compact'>(() => {
+    return (localStorage.getItem('students-view-mode') as 'normal' | 'compact') || 'normal';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('students-view-mode', viewMode);
+  }, [viewMode]);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -152,14 +160,17 @@ export default function Students() {
           <CardHeader className="pb-3">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <CardTitle className="text-lg">All Students ({filteredStudents.length})</CardTitle>
-              <div className="relative w-full sm:w-56">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input 
-                  placeholder="Search students..." 
-                  className="pl-10" 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className="relative flex-1 sm:w-56">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input 
+                    placeholder="Search students..." 
+                    className="pl-10" 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <ViewToggle view={viewMode} onViewChange={setViewMode} />
               </div>
             </div>
           </CardHeader>
@@ -167,32 +178,39 @@ export default function Students() {
             {/* Mobile Card View */}
             <div className="block md:hidden space-y-3">
               {filteredStudents.map((student) => (
-                <div key={student.id} className="border border-border rounded-lg p-3 space-y-2">
+                <div key={student.id} className={viewMode === 'compact' ? "border border-border rounded-lg p-2 space-y-1.5" : "border border-border rounded-lg p-3 space-y-2"}>
                   <div className="flex items-center gap-2">
                     <img
                       src={student.photo}
                       alt={student.name}
-                      className="w-10 h-10 rounded-full flex-shrink-0"
+                      className={viewMode === 'compact' ? "w-8 h-8 rounded-full flex-shrink-0" : "w-10 h-10 rounded-full flex-shrink-0"}
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm truncate">{student.name}</p>
-                      <p className="text-xs text-muted-foreground">{student.admissionNo}</p>
+                      <p className={viewMode === 'compact' ? "font-semibold text-xs truncate" : "font-semibold text-sm truncate"}>{student.name}</p>
+                      <p className="text-[11px] text-muted-foreground">{student.admissionNo}</p>
                     </div>
-                    <Badge className="bg-secondary text-secondary-foreground text-[10px] px-1.5 py-0">
-                      {student.status}
-                    </Badge>
+                    {viewMode === 'normal' && (
+                      <Badge className="bg-secondary text-secondary-foreground text-[10px] px-1.5 py-0">
+                        {student.status}
+                      </Badge>
+                    )}
                   </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-muted-foreground">Batch:</span>
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">{student.batch}</Badge>
+                  {viewMode === 'normal' && (
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-muted-foreground">Batch:</span>
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0">{student.batch}</Badge>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-muted-foreground">Attendance:</span>
+                        <span className="font-medium">{student.attendancePercentage}%</span>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-muted-foreground">Attendance:</span>
-                      <span className="font-medium">{student.attendancePercentage}%</span>
-                    </div>
-                  </div>
-                  <div className="flex gap-1.5 pt-1.5 border-t border-border">
+                  )}
+                  {viewMode === 'compact' && (
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 w-fit">{student.batch}</Badge>
+                  )}
+                  <div className={viewMode === 'compact' ? "flex gap-1" : "flex gap-1.5 pt-1.5 border-t border-border"}>
                     <Button
                       size="sm"
                       variant="outline"
