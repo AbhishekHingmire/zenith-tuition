@@ -69,23 +69,23 @@ export const BottomTabBar = ({ onMoreClick }: BottomTabBarProps) => {
               <>
                 <div className="relative">
                   <tab.icon className={cn(
-                    "w-5 h-5 mb-0.5 transition-transform",
+                    "w-4 h-4 mb-0.5 transition-transform",
                     isActive && "scale-105"
                   )} />
                   {tab.badge && tab.badge > 0 && (
                     <Badge 
                       variant="destructive" 
-                      className="absolute -top-1.5 -right-1.5 h-4 min-w-[16px] flex items-center justify-center text-[9px] px-1 py-0 animate-scale-in"
+                      className="absolute -top-1 -right-1 h-3.5 min-w-[14px] flex items-center justify-center text-[8px] px-0.5 py-0 animate-scale-in"
                     >
                       {tab.badge > 9 ? '9+' : tab.badge}
                     </Badge>
                   )}
                 </div>
-                <span className="text-[11px] font-medium transition-all leading-tight">
+                <span className="text-[10px] font-medium transition-all leading-tight">
                   {tab.label}
                 </span>
                 {isActive && (
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-0.5 bg-primary rounded-b-full animate-scale-in" />
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary rounded-b-full animate-scale-in" />
                 )}
               </>
             )}
@@ -100,8 +100,8 @@ export const BottomTabBar = ({ onMoreClick }: BottomTabBarProps) => {
             "active:scale-95"
           )}
         >
-          <MoreHorizontal className="w-5 h-5 mb-0.5" />
-          <span className="text-[11px] font-medium leading-tight">More</span>
+          <MoreHorizontal className="w-4 h-4 mb-0.5" />
+          <span className="text-[10px] font-medium leading-tight">More</span>
         </button>
       </div>
     </nav>
