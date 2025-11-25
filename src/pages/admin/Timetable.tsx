@@ -8,8 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Clock, Plus, Save, Copy } from 'lucide-react';
+import { Clock, Plus, Save, Copy, Calendar as CalendarIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { DraggableScheduleCalendar } from '@/components/admin/DraggableScheduleCalendar';
 
 const mockTimeSlots = [
   { id: '1', name: 'Period 1', startTime: '08:00', endTime: '09:00', type: 'class' },
@@ -56,11 +57,19 @@ export default function TimetableManagement() {
           </div>
         </div>
 
-        <Tabs defaultValue="slots" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-            <TabsTrigger value="slots">Time Slots</TabsTrigger>
-            <TabsTrigger value="timetable">Batch Timetable</TabsTrigger>
+        <Tabs defaultValue="visual" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3 lg:w-[600px]">
+            <TabsTrigger value="visual" className="text-xs sm:text-sm">
+              <CalendarIcon className="w-4 h-4 mr-2" />
+              Visual Calendar
+            </TabsTrigger>
+            <TabsTrigger value="slots" className="text-xs sm:text-sm">Time Slots</TabsTrigger>
+            <TabsTrigger value="timetable" className="text-xs sm:text-sm">Batch Timetable</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="visual" className="space-y-4">
+            <DraggableScheduleCalendar />
+          </TabsContent>
 
           <TabsContent value="slots" className="space-y-6">
             <div className="flex justify-end">
