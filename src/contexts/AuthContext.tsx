@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export type UserRole = 'admin' | 'teacher' | 'parent' | 'student';
+export type UserRole = 'admin' | 'teacher' | 'student';
 
 export interface User {
   id: string;
@@ -43,17 +43,6 @@ const DEMO_ACCOUNTS: Record<string, { password: string; user: User }> = {
       role: 'teacher',
       name: 'John Teacher',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Teacher'
-    }
-  },
-  'parent@demo': {
-    password: 'parent123',
-    user: {
-      id: '3',
-      username: 'parent@demo',
-      email: 'parent@school.com',
-      role: 'parent',
-      name: 'Sarah Parent',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Parent'
     }
   },
   'student@demo': {
@@ -98,9 +87,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           break;
         case 'teacher':
           navigate('/teacher/dashboard');
-          break;
-        case 'parent':
-          navigate('/parent/dashboard');
           break;
         case 'student':
           navigate('/student/dashboard');

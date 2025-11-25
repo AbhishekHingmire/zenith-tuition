@@ -24,22 +24,12 @@ export const BottomTabBar = ({ onMoreClick }: BottomTabBarProps) => {
   const getTabsForRole = () => {
     const baseUrl = user?.role === 'admin' ? '/admin' 
       : user?.role === 'teacher' ? '/teacher'
-      : user?.role === 'parent' ? '/parent'
       : '/student';
 
     if (user?.role === 'student') {
       return [
         { icon: Home, label: 'Home', to: `${baseUrl}/dashboard` },
         { icon: Calendar, label: 'Schedule', to: `${baseUrl}/schedule` },
-        { icon: ClipboardList, label: 'Tasks', to: `${baseUrl}/assignments`, badge: pendingTasks },
-        { icon: Bell, label: 'Alerts', to: `${baseUrl}/notifications`, badge: unreadNotifications },
-      ];
-    }
-
-    if (user?.role === 'parent') {
-      return [
-        { icon: Home, label: 'Home', to: `${baseUrl}/dashboard` },
-        { icon: Calendar, label: 'Events', to: `${baseUrl}/calendar` },
         { icon: ClipboardList, label: 'Tasks', to: `${baseUrl}/assignments`, badge: pendingTasks },
         { icon: Bell, label: 'Alerts', to: `${baseUrl}/notifications`, badge: unreadNotifications },
       ];

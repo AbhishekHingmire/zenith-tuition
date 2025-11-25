@@ -10,7 +10,6 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
-import ParentDashboard from "./pages/parent/Dashboard";
 import StudentDashboard from "./pages/student/Dashboard";
 import Exams from "./pages/teacher/Exams";
 import MarksEntry from "./pages/teacher/MarksEntry";
@@ -55,15 +54,6 @@ import TeacherPTMScheduler from "./pages/teacher/PTMScheduler";
 
 // Admin detail pages
 import StudentDetail from "./pages/admin/StudentDetail";
-
-// Parent pages
-import ParentAttendance from "./pages/parent/Attendance";
-import ParentReports from "./pages/parent/Reports";
-import ParentFees from "./pages/parent/Fees";
-import ParentAssignments from "./pages/parent/Assignments";
-import ParentSettings from "./pages/parent/Settings";
-import ParentLeaveRequest from "./pages/parent/LeaveRequest";
-import ParentNotifications from "./pages/parent/Notifications";
 
 // Student pages
 import StudentSchedule from "./pages/student/Schedule";
@@ -391,71 +381,6 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['teacher']}>
                   <TeacherPTMScheduler />
-                </ProtectedRoute>
-              }
-            />
-            
-            <Route
-              path="/parent/dashboard"
-              element={
-                <ProtectedRoute allowedRoles={['parent']}>
-                  <ParentDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/parent/attendance"
-              element={
-                <ProtectedRoute allowedRoles={['parent']}>
-                  <ParentAttendance />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/parent/reports"
-              element={
-                <ProtectedRoute allowedRoles={['parent']}>
-                  <ParentReports />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/parent/fees"
-              element={
-                <ProtectedRoute allowedRoles={['parent']}>
-                  <ParentFees />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/parent/assignments"
-              element={
-                <ProtectedRoute allowedRoles={['parent']}>
-                  <ParentAssignments />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/parent/settings"
-              element={
-                <ProtectedRoute allowedRoles={['parent']}>
-                  <ParentSettings />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/parent/leave-request"
-              element={
-                <ProtectedRoute allowedRoles={['parent']}>
-                  <ParentLeaveRequest />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/parent/notifications"
-              element={
-                <ProtectedRoute allowedRoles={['parent']}>
-                  <ParentNotifications />
                 </ProtectedRoute>
               }
             />
