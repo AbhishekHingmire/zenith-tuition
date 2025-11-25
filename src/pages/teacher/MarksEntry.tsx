@@ -8,21 +8,22 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
+import { toast } from 'sonner';
 import { calculateGrade, getGradeColor } from '@/utils/gradeCalculator';
 import { StudentMark } from '@/types/exam';
-import { Save, TrendingUp, Award, BarChart3, ArrowLeft } from 'lucide-react';
+import { Save, TrendingUp, Award, BarChart3, ArrowLeft, CheckCircle, Clock } from 'lucide-react';
 import { mockExams, mockExamResults } from '@/data/mockData';
 
 export default function MarksEntry() {
   const { examId } = useParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const exam = mockExams.find((e) => e.id === examId);
   const [students, setStudents] = useState<StudentMark[]>(
     mockExamResults.filter((r) => r.examId === examId)
   );
   const [published, setPublished] = useState(exam?.published || false);
+  const [isSaving, setIsSaving] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   if (!exam) {
@@ -35,15 +36,15 @@ export default function MarksEntry() {
     );
   }
 
+  const calculatePercentage = (marks: number): number => {
+    return (marks / exam.totalMarks) * 100;
+  };
+
   const updateStudentMarks = (index: number, marks: string) => {
     const marksNum = parseInt(marks);
     
     if (marks && (isNaN(marksNum) || marksNum < 0 || marksNum > exam.totalMarks)) {
-      toast({
-        title: 'Invalid Marks',
-        description: `Marks must be between 0 and ${exam.totalMarks}`,
-        variant: 'destructive',
-      });
+      toast.error(`Marks must be between 0 and ${exam.totalMarks}`);
       return;
     }
 
@@ -84,24 +85,41 @@ export default function MarksEntry() {
   };
 
   const saveAll = () => {
-    toast({
-      title: 'Marks Saved',
-      description: 'All marks have been saved successfully',
-    });
+    setIsSaving(true);
+    setTimeout(() => {
+      setIsSaving(false);
+      toast.success('All marks saved successfully', {
+        description: `Graded ${gradedStudents.length} out of ${students.length} students`,
+      });
+    }, 1000);
   };
 
   const togglePublish = () => {
-    setPublished(!published);
-    toast({
-      title: published ? 'Results Unpublished' : 'Results Published',
-      description: published
-        ? 'Results are now hidden from students'
-        : 'Students can now view their results',
-    });
+    const newPublishState = !published;
+    setPublished(newPublishState);
+    
+    if (newPublishState) {
+      const ungradedCount = students.length - gradedStudents.length;
+      if (ungradedCount > 0) {
+        toast.warning(`${ungradedCount} students haven't been graded yet`);
+      } else {
+        toast.success('Results published', {
+          description: 'Students can now view their exam results',
+        });
+      }
+    } else {
+      toast.info('Results unpublished', {
+        description: 'Results are now hidden from students',
+      });
+    }
   };
 
   // Calculate statistics
   const gradedStudents = students.filter((s) => !s.isAbsent && s.marksObtained !== undefined);
+  const absentStudents = students.filter((s) => s.isAbsent);
+  const pendingStudents = students.filter((s) => !s.isAbsent && s.marksObtained === undefined);
+  const gradingProgress = (gradedStudents.length / students.length) * 100;
+  
   const averageMarks = gradedStudents.length > 0
     ? gradedStudents.reduce((sum, s) => sum + (s.marksObtained || 0), 0) / gradedStudents.length
     : 0;
@@ -133,10 +151,10 @@ export default function MarksEntry() {
         {/* Header */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-2xl">{exam.name}</CardTitle>
-                <div className="flex items-center gap-3 mt-2">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex-1">
+                <CardTitle className="text-xl md:text-2xl">{exam.name}</CardTitle>
+                <div className="flex flex-wrap items-center gap-2 mt-2">
                   <Badge variant="outline">{exam.subject}</Badge>
                   <Badge variant="outline">{exam.batches[0]}</Badge>
                   <span className="text-sm text-muted-foreground">
@@ -144,18 +162,50 @@ export default function MarksEntry() {
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                 <div className="flex items-center gap-2">
                   <Switch checked={published} onCheckedChange={togglePublish} />
-                  <Label className="cursor-pointer">Publish Results</Label>
+                  <Label className="cursor-pointer text-sm">Publish Results</Label>
                 </div>
-                <Button onClick={saveAll} className="bg-primary hover:bg-primary/90">
+                <Button onClick={saveAll} disabled={isSaving} className="w-full sm:w-auto">
                   <Save className="w-4 h-4 mr-2" />
-                  Save All
+                  {isSaving ? 'Saving...' : 'Save All'}
                 </Button>
               </div>
             </div>
           </CardHeader>
+        </Card>
+
+        {/* Progress Card */}
+        <Card className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
+          <CardContent className="p-4 md:p-6">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-primary" />
+                  <span className="font-semibold">Grading Progress</span>
+                </div>
+                <span className="text-sm font-medium">
+                  {gradedStudents.length}/{students.length} Students
+                </span>
+              </div>
+              <Progress value={gradingProgress} className="h-2" />
+              <div className="flex flex-wrap gap-4 text-sm">
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-primary" />
+                  <span className="text-muted-foreground">Graded: {gradedStudents.length}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-destructive" />
+                  <span className="text-muted-foreground">Absent: {absentStudents.length}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-amber-500" />
+                  <span className="text-muted-foreground">Pending: {pendingStudents.length}</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
         </Card>
 
         {/* Statistics */}
@@ -227,6 +277,7 @@ export default function MarksEntry() {
                       <th className="px-4 py-3 text-left text-sm font-semibold">Sr.</th>
                       <th className="px-4 py-3 text-left text-sm font-semibold">Student</th>
                       <th className="px-4 py-3 text-center text-sm font-semibold">Marks</th>
+                      <th className="px-4 py-3 text-center text-sm font-semibold">%</th>
                       <th className="px-4 py-3 text-center text-sm font-semibold">Grade</th>
                       <th className="px-4 py-3 text-center text-sm font-semibold">Absent</th>
                       <th className="px-4 py-3 text-left text-sm font-semibold">Remarks</th>
@@ -264,10 +315,23 @@ export default function MarksEntry() {
                           />
                         </td>
                         <td className="px-4 py-4 text-center">
-                          {student.grade && (
+                          {student.marksObtained !== undefined && !student.isAbsent ? (
+                            <span className="text-sm font-medium">
+                              {calculatePercentage(student.marksObtained).toFixed(1)}%
+                            </span>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">-</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-4 text-center">
+                          {student.grade && !student.isAbsent ? (
                             <Badge className={getGradeColor(student.grade)}>
                               {student.grade}
                             </Badge>
+                          ) : student.isAbsent ? (
+                            <Badge variant="destructive">Absent</Badge>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">-</span>
                           )}
                         </td>
                         <td className="px-4 py-4 text-center">
@@ -314,7 +378,7 @@ export default function MarksEntry() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-3 gap-2">
                         <div>
                           <Label className="text-xs">Marks</Label>
                           <Input
@@ -329,12 +393,26 @@ export default function MarksEntry() {
                           />
                         </div>
                         <div>
+                          <Label className="text-xs">Percentage</Label>
+                          <div className="mt-1 h-10 flex items-center justify-center border rounded-md bg-muted/50">
+                            {student.marksObtained !== undefined && !student.isAbsent ? (
+                              <span className="text-sm font-medium">
+                                {calculatePercentage(student.marksObtained).toFixed(1)}%
+                              </span>
+                            ) : (
+                              <span className="text-sm text-muted-foreground">-</span>
+                            )}
+                          </div>
+                        </div>
+                        <div>
                           <Label className="text-xs">Grade</Label>
-                          <div className="mt-1">
-                            {student.grade ? (
+                          <div className="mt-1 h-10 flex items-center justify-center">
+                            {student.grade && !student.isAbsent ? (
                               <Badge className={getGradeColor(student.grade)}>
                                 {student.grade}
                               </Badge>
+                            ) : student.isAbsent ? (
+                              <Badge variant="destructive" className="text-xs">Absent</Badge>
                             ) : (
                               <span className="text-sm text-muted-foreground">-</span>
                             )}
