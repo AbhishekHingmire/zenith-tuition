@@ -75,11 +75,16 @@ export default function StudentSchedule() {
           </Button>
         </div>
 
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-          {/* Left Panel - Today's Timetable (40%) */}
-          <div className="lg:col-span-2">
-            <Card className="h-full">
+        {/* Tab-Based Layout */}
+        <Tabs defaultValue="today" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="today">Today's Timetable</TabsTrigger>
+            <TabsTrigger value="weekly">Weekly Timetable</TabsTrigger>
+          </TabsList>
+
+          {/* Tab 1 - Today's Timetable */}
+          <TabsContent value="today" className="mt-4">
+            <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Calendar className="w-5 h-5 text-primary" />
@@ -148,18 +153,16 @@ export default function StudentSchedule() {
                 )}
               </CardContent>
             </Card>
-          </div>
+          </TabsContent>
 
-          {/* Right Panel - Weekly Timetable with Tabs (60%) */}
-          <div className="lg:col-span-3">
-            <Card className="h-full">
+          {/* Tab 2 - Weekly Timetable */}
+          <TabsContent value="weekly" className="mt-4">
+            <Card>
               <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <Calendar className="w-5 h-5 text-primary" />
-                    Weekly Timetable
-                  </CardTitle>
-                </div>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Calendar className="w-5 h-5 text-primary" />
+                  Weekly Timetable
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue={currentDay} className="w-full">
@@ -236,8 +239,8 @@ export default function StudentSchedule() {
                 </Tabs>
               </CardContent>
             </Card>
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </MainLayout>
   );
