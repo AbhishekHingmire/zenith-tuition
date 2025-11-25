@@ -30,9 +30,8 @@ const getMenuItems = (role: string) => {
       return [
         { icon: LayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
         { icon: Users, label: "Students", path: "/admin/students" },
-        { icon: GraduationCap, label: "Teachers", path: "/admin/teachers" },
+        { icon: GraduationCap, label: "Faculty", path: "/admin/teachers" },
         { icon: BookOpen, label: "Batches", path: "/admin/batches" },
-        { icon: Calendar, label: "Academic Year", path: "/admin/academic-year" },
         { icon: Calendar, label: "Calendar", path: "/admin/calendar" },
         { icon: BookOpen, label: "Subjects", path: "/admin/subjects" },
         { icon: Calendar, label: "Timetable", path: "/admin/timetable" },
@@ -40,27 +39,23 @@ const getMenuItems = (role: string) => {
         { icon: FileText, label: "Exams", path: "/admin/exams" },
         { icon: IndianRupee, label: "Fees", path: "/admin/fees" },
         { icon: IndianRupee, label: "Finance", path: "/admin/finance" },
-        { icon: FileText, label: "Certificates", path: "/admin/certificates" },
         { icon: Users, label: "Bulk Operations", path: "/admin/bulk-operations" },
         { icon: Users, label: "Admissions", path: "/admin/admissions" },
         { icon: BarChart3, label: "Reports", path: "/admin/reports" },
         { icon: MessageSquare, label: "Notifications", path: "/admin/notifications" },
         { icon: Settings, label: "Automation", path: "/admin/automation" },
         { icon: Users, label: "User Management", path: "/admin/user-management" },
-        { icon: Settings, label: "System Settings", path: "/admin/system-settings" },
+        { icon: Settings, label: "Settings", path: "/admin/system-settings" },
       ];
     case 'teacher':
       return [
         { icon: LayoutDashboard, label: "Dashboard", path: "/teacher/dashboard" },
         { icon: Calendar, label: "My Schedule", path: "/teacher/schedule" },
-        { icon: BookOpen, label: "Syllabus", path: "/teacher/syllabus" },
         { icon: FileText, label: "Exams", path: "/teacher/exams" },
         { icon: ClipboardList, label: "Attendance", path: "/teacher/attendance" },
+        { icon: BookOpen, label: "Assignments", path: "/teacher/assignments" },
         { icon: BookOpen, label: "Materials", path: "/teacher/materials" },
-        { icon: Users, label: "Behavior", path: "/teacher/behavior" },
         { icon: Calendar, label: "Leave", path: "/teacher/leave" },
-        { icon: Users, label: "Parent Communication", path: "/teacher/parent-communication" },
-        { icon: Users, label: "PTM", path: "/teacher/ptm" },
         { icon: BarChart3, label: "Performance", path: "/teacher/performance" },
         { icon: Settings, label: "Settings", path: "/teacher/settings" },
       ];
@@ -109,7 +104,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <GraduationCap className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="text-lg font-bold text-sidebar-foreground">EduManage</span>
+              <span className="text-lg font-bold text-sidebar-foreground">Zenith Coaching</span>
             </div>
             <button
               onClick={onClose}
