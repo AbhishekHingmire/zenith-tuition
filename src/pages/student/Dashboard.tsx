@@ -4,6 +4,7 @@ import { InsightCard } from '@/components/ui/insight-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { 
   Trophy, 
   Flame, 
@@ -14,12 +15,14 @@ import {
   Award,
   Target,
   Clock,
-  Medal
+  Medal,
+  ChevronDown
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { studentInsights } from '@/data/mockInsights';
 import { mockStudents } from '@/data/mockData';
 import { mockAssignments } from '@/data/mockStudentData';
+import { useState } from 'react';
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
@@ -46,6 +49,10 @@ export default function StudentDashboard() {
     { name: 'Assignment Ace', icon: '📚', rarity: 'rare', earned: true },
     { name: 'Helpful Student', icon: '🤝', rarity: 'common', earned: false, progress: 8, max: 10 },
   ];
+
+  // Collapsible states
+  const [badgesOpen, setBadgesOpen] = useState(false);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
 
   return (
     <MainLayout>
@@ -174,47 +181,56 @@ export default function StudentDashboard() {
           </Card>
         </div>
 
-        {/* Badges Showcase */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-amber-500" />
-              Recent Achievements
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {badges.map((badge, index) => (
-                <div
-                  key={index}
-                  className={`p-4 rounded-lg border-2 text-center transition-all ${
-                    badge.earned
-                      ? badge.rarity === 'epic'
-                        ? 'border-purple-500 bg-purple-500/10'
-                        : badge.rarity === 'rare'
-                        ? 'border-blue-500 bg-blue-500/10'
-                        : 'border-gray-500 bg-gray-500/10'
-                      : 'border-dashed border-muted-foreground/30 bg-muted/30 opacity-60'
-                  }`}
-                >
-                  <div className="text-4xl mb-2">{badge.icon}</div>
-                  <h4 className="font-semibold text-sm">{badge.name}</h4>
-                  {!badge.earned && badge.progress && (
-                    <div className="mt-2">
-                      <Progress value={(badge.progress / badge.max!) * 100} className="h-1" />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {badge.progress}/{badge.max}
-                      </p>
+        {/* Badges Showcase - Collapsible */}
+        <Collapsible open={badgesOpen} onOpenChange={setBadgesOpen}>
+          <Card>
+            <CollapsibleTrigger className="w-full">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Award className="w-5 h-5 text-amber-500" />
+                    Recent Achievements
+                  </div>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${badgesOpen ? 'rotate-180' : ''}`} />
+                </CardTitle>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {badges.map((badge, index) => (
+                    <div
+                      key={index}
+                      className={`p-4 rounded-lg border-2 text-center transition-all ${
+                        badge.earned
+                          ? badge.rarity === 'epic'
+                            ? 'border-purple-500 bg-purple-500/10'
+                            : badge.rarity === 'rare'
+                            ? 'border-blue-500 bg-blue-500/10'
+                            : 'border-gray-500 bg-gray-500/10'
+                          : 'border-dashed border-muted-foreground/30 bg-muted/30 opacity-60'
+                      }`}
+                    >
+                      <div className="text-4xl mb-2">{badge.icon}</div>
+                      <h4 className="font-semibold text-sm">{badge.name}</h4>
+                      {!badge.earned && badge.progress && (
+                        <div className="mt-2">
+                          <Progress value={(badge.progress / badge.max!) * 100} className="h-1" />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {badge.progress}/{badge.max}
+                          </p>
+                        </div>
+                      )}
+                      {badge.earned && (
+                        <Badge className="mt-2" variant="secondary">Earned</Badge>
+                      )}
                     </div>
-                  )}
-                  {badge.earned && (
-                    <Badge className="mt-2" variant="secondary">Earned</Badge>
-                  )}
+                  ))}
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
 
         {/* Two Column Layout */}
         <div className="grid md:grid-cols-2 gap-6">
@@ -292,37 +308,46 @@ export default function StudentDashboard() {
           </Card>
         </div>
 
-        {/* Leaderboard Preview */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-amber-500" />
-              Class Leaderboard
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {[1, 2, 3, 4, 5].map((position) => (
-                <div key={position} className={`flex items-center gap-3 p-3 rounded-lg ${position === rank ? 'bg-primary/10 border border-primary' : 'bg-muted/30'}`}>
-                  <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-                    {position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : position}
+        {/* Leaderboard Preview - Collapsible */}
+        <Collapsible open={leaderboardOpen} onOpenChange={setLeaderboardOpen}>
+          <Card>
+            <CollapsibleTrigger className="w-full">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="w-5 h-5 text-amber-500" />
+                    Class Leaderboard
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold">{position === rank ? 'You' : `Student ${position}`}</h4>
-                    <p className="text-sm text-muted-foreground">Level {level + (5 - position)}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold">{currentXP + ((5 - position) * 200)} XP</p>
-                    <p className="text-sm text-muted-foreground">{3 + (5 - position)} badges</p>
-                  </div>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${leaderboardOpen ? 'rotate-180' : ''}`} />
+                </CardTitle>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent>
+                <div className="space-y-3">
+                  {[1, 2, 3, 4, 5].map((position) => (
+                    <div key={position} className={`flex items-center gap-3 p-3 rounded-lg ${position === rank ? 'bg-primary/10 border border-primary' : 'bg-muted/30'}`}>
+                      <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
+                        {position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : position}
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold">{position === rank ? 'You' : `Student ${position}`}</h4>
+                        <p className="text-sm text-muted-foreground">Level {level + (5 - position)}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold">{currentXP + ((5 - position) * 200)} XP</p>
+                        <p className="text-sm text-muted-foreground">{3 + (5 - position)} badges</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <Button className="w-full mt-4" variant="outline">
-              View Full Leaderboard
-            </Button>
-          </CardContent>
-        </Card>
+                <Button className="w-full mt-4" variant="outline">
+                  View Full Leaderboard
+                </Button>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
       </div>
     </MainLayout>
   );

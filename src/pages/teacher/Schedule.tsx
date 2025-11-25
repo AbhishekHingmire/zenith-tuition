@@ -1,6 +1,7 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Clock, Users, Edit, Send, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Calendar, Clock, Users, Edit, Send, AlertCircle, CheckCircle2, ChevronDown } from 'lucide-react';
 import { mockBatches } from '@/data/mockData';
 import { mockScheduleRequests } from '@/data/mockScheduleRequests';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +19,7 @@ import { ScheduleScope } from '@/types/schedule';
 export default function Schedule() {
   const [showRequestDialog, setShowRequestDialog] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState<any>(null);
+  const [requestsOpen, setRequestsOpen] = useState(false);
   const [requestForm, setRequestForm] = useState({
     days: '',
     startTime: '',
@@ -167,87 +169,96 @@ export default function Schedule() {
           </CardContent>
         </Card>
 
-        {/* Schedule Change Requests */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Schedule Change Requests</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            {myRequests.length === 0 ? (
-              <div className="text-center py-8">
-                <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground">No schedule change requests</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {myRequests.map((request) => (
-                  <div
-                    key={request.id}
-                    className="border border-border rounded-lg p-3 space-y-2"
-                  >
-                    <div className="flex items-start justify-between gap-2 flex-wrap">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-sm truncate">{request.batchName}</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          Requested {new Date(request.requestedDate).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="flex gap-1.5 flex-shrink-0">
-                        {getScopeBadge(request.scope)}
-                        {getStatusBadge(request.status)}
-                      </div>
-                    </div>
-
-                    {request.conflictInfo?.hasConflict && (
-                      <div className="flex items-start gap-2 p-2 bg-amber-50 border border-amber-200 rounded text-xs">
-                        <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-amber-900">Conflict Detected</p>
-                          <p className="text-amber-700 mt-0.5">
-                            {request.conflictInfo.conflictingBatchName} - {request.conflictInfo.conflictingTeacherName}
-                          </p>
-                          {request.conflictInfo.peerApprovalRequired && (
-                            <p className="mt-1">
-                              <span className="font-medium">Peer Approval:</span>{' '}
-                              {request.conflictInfo.peerApprovalStatus === 'pending' && 'Waiting for teacher approval'}
-                              {request.conflictInfo.peerApprovalStatus === 'approved' && '✓ Approved by peer'}
-                              {request.conflictInfo.peerApprovalStatus === 'rejected' && '✗ Rejected by peer'}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                      <div className="space-y-1 p-2 bg-muted/50 rounded">
-                        <p className="font-medium text-muted-foreground">Current:</p>
-                        <p>{request.currentSchedule.days.join(', ')}</p>
-                        <p>{request.currentSchedule.startTime} - {request.currentSchedule.endTime}</p>
-                      </div>
-                      <div className="space-y-1 p-2 bg-primary/5 rounded">
-                        <p className="font-medium text-muted-foreground">Requested:</p>
-                        <p>{request.requestedSchedule.days.join(', ')}</p>
-                        <p>{request.requestedSchedule.startTime} - {request.requestedSchedule.endTime}</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1 text-xs">
-                      <p className="font-medium text-muted-foreground">Reason:</p>
-                      <p className="text-foreground">{request.reason}</p>
-                    </div>
-
-                    {request.reviewComments && (
-                      <div className="space-y-1 pt-2 border-t border-border text-xs">
-                        <p className="font-medium text-muted-foreground">Admin Response:</p>
-                        <p className="text-foreground">{request.reviewComments}</p>
-                      </div>
-                    )}
+        {/* Schedule Change Requests - Collapsible */}
+        <Collapsible open={requestsOpen} onOpenChange={setRequestsOpen}>
+          <Card>
+            <CollapsibleTrigger className="w-full">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center justify-between text-base">
+                  <span>Schedule Change Requests</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${requestsOpen ? 'rotate-180' : ''}`} />
+                </CardTitle>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="pt-0">
+                {myRequests.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">No schedule change requests</p>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                ) : (
+                  <div className="space-y-3">
+                    {myRequests.map((request) => (
+                      <div
+                        key={request.id}
+                        className="border border-border rounded-lg p-3 space-y-2"
+                      >
+                        <div className="flex items-start justify-between gap-2 flex-wrap">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-sm truncate">{request.batchName}</h3>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              Requested {new Date(request.requestedDate).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div className="flex gap-1.5 flex-shrink-0">
+                            {getScopeBadge(request.scope)}
+                            {getStatusBadge(request.status)}
+                          </div>
+                        </div>
+
+                        {request.conflictInfo?.hasConflict && (
+                          <div className="flex items-start gap-2 p-2 bg-amber-50 border border-amber-200 rounded text-xs">
+                            <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-amber-900">Conflict Detected</p>
+                              <p className="text-amber-700 mt-0.5">
+                                {request.conflictInfo.conflictingBatchName} - {request.conflictInfo.conflictingTeacherName}
+                              </p>
+                              {request.conflictInfo.peerApprovalRequired && (
+                                <p className="mt-1">
+                                  <span className="font-medium">Peer Approval:</span>{' '}
+                                  {request.conflictInfo.peerApprovalStatus === 'pending' && 'Waiting for teacher approval'}
+                                  {request.conflictInfo.peerApprovalStatus === 'approved' && '✓ Approved by peer'}
+                                  {request.conflictInfo.peerApprovalStatus === 'rejected' && '✗ Rejected by peer'}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                          <div className="space-y-1 p-2 bg-muted/50 rounded">
+                            <p className="font-medium text-muted-foreground">Current:</p>
+                            <p>{request.currentSchedule.days.join(', ')}</p>
+                            <p>{request.currentSchedule.startTime} - {request.currentSchedule.endTime}</p>
+                          </div>
+                          <div className="space-y-1 p-2 bg-primary/5 rounded">
+                            <p className="font-medium text-muted-foreground">Requested:</p>
+                            <p>{request.requestedSchedule.days.join(', ')}</p>
+                            <p>{request.requestedSchedule.startTime} - {request.requestedSchedule.endTime}</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1 text-xs">
+                          <p className="font-medium text-muted-foreground">Reason:</p>
+                          <p className="text-foreground">{request.reason}</p>
+                        </div>
+
+                        {request.reviewComments && (
+                          <div className="space-y-1 pt-2 border-t border-border text-xs">
+                            <p className="font-medium text-muted-foreground">Admin Response:</p>
+                            <p className="text-foreground">{request.reviewComments}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
 
         {/* Request Change Dialog */}
         <Dialog open={showRequestDialog} onOpenChange={setShowRequestDialog}>
