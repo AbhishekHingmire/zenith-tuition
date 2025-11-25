@@ -2,27 +2,119 @@ import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Plus, Search, Edit, Trash2, Eye } from 'lucide-react';
+import { Users, Plus, Search, Edit, Trash2, Eye, TrendingUp, TrendingDown, CheckCircle, XCircle, Clock, Calendar, BookOpen } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { mockStudents, mockBatches } from '@/data/mockData';
+import { mockBatches } from '@/data/mockData';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ViewButton, EditButton, DeleteButton } from '@/components/ui/action-buttons';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
 
 export default function Students() {
-  const navigate = useNavigate();
-  const [students, setStudents] = useState(mockStudents);
+  const [students, setStudents] = useState([
+    { 
+      id: "1", 
+      name: "Rahul Sharma", 
+      admissionNo: "ADM001",
+      batch: "Grade 10-A", 
+      phone: "9876543210", 
+      parentPhone: "9876543211", 
+      email: "rahul@example.com", 
+      status: "Active", 
+      photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Rahul",
+      attendancePercentage: 85,
+      attendance: { present: 85, absent: 10, late: 5, percentage: 85 },
+      scores: [
+        { subject: "Mathematics", marks: 85, total: 100, grade: "A", trend: "+5" },
+        { subject: "Physics", marks: 78, total: 100, grade: "B+", trend: "-2" },
+        { subject: "Chemistry", marks: 92, total: 100, grade: "A+", trend: "+8" }
+      ],
+      recentActivity: [
+        { date: "2025-05-20", type: "Assignment Submitted", subject: "Mathematics" },
+        { date: "2025-05-19", type: "Exam Completed", subject: "Physics" },
+        { date: "2025-05-18", type: "Present", subject: "All Classes" }
+      ],
+      dateOfBirth: "2009-05-15",
+      gender: "Male",
+      address: "123 Main St, Mumbai",
+      parentName: "Mr. Sharma",
+      parentEmail: "sharma@example.com",
+      monthlyFee: 5000
+    },
+    { 
+      id: "2", 
+      name: "Priya Patel", 
+      admissionNo: "ADM002",
+      batch: "Grade 10-A", 
+      phone: "9876543220", 
+      parentPhone: "9876543221", 
+      email: "priya@example.com", 
+      status: "Active", 
+      photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Priya",
+      attendancePercentage: 92,
+      attendance: { present: 92, absent: 5, late: 3, percentage: 92 },
+      scores: [
+        { subject: "Mathematics", marks: 95, total: 100, grade: "A+", trend: "+3" },
+        { subject: "Physics", marks: 88, total: 100, grade: "A", trend: "+5" },
+        { subject: "Chemistry", marks: 90, total: 100, grade: "A+", trend: "+2" }
+      ],
+      recentActivity: [
+        { date: "2025-05-20", type: "Assignment Submitted", subject: "Chemistry" },
+        { date: "2025-05-19", type: "Present", subject: "All Classes" },
+        { date: "2025-05-18", type: "Top Score", subject: "Mathematics" }
+      ],
+      dateOfBirth: "2009-08-22",
+      gender: "Female",
+      address: "456 Park Ave, Mumbai",
+      parentName: "Mrs. Patel",
+      parentEmail: "patel@example.com",
+      monthlyFee: 5000
+    },
+    { 
+      id: "3", 
+      name: "Amit Kumar", 
+      admissionNo: "ADM003",
+      batch: "Grade 11-B", 
+      phone: "9876543230", 
+      parentPhone: "9876543231", 
+      email: "amit@example.com", 
+      status: "Active", 
+      photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Amit",
+      attendancePercentage: 78,
+      attendance: { present: 78, absent: 18, late: 4, percentage: 78 },
+      scores: [
+        { subject: "Mathematics", marks: 72, total: 100, grade: "B", trend: "-3" },
+        { subject: "Physics", marks: 68, total: 100, grade: "B-", trend: "-5" },
+        { subject: "Chemistry", marks: 75, total: 100, grade: "B+", trend: "+1" }
+      ],
+      recentActivity: [
+        { date: "2025-05-20", type: "Absent", subject: "Chemistry" },
+        { date: "2025-05-19", type: "Assignment Late", subject: "Physics" },
+        { date: "2025-05-18", type: "Present", subject: "Mathematics" }
+      ],
+      dateOfBirth: "2008-12-10",
+      gender: "Male",
+      address: "789 River Rd, Pune",
+      parentName: "Mr. Kumar",
+      parentEmail: "kumar@example.com",
+      monthlyFee: 5000
+    },
+  ]);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
-  
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewingStudent, setViewingStudent] = useState<any>(null);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -113,6 +205,9 @@ export default function Students() {
         monthlyFee: 5000,
         status: 'active',
         attendancePercentage: 0,
+        attendance: { present: 0, absent: 0, late: 0, percentage: 0 },
+        scores: [],
+        recentActivity: []
       };
       setStudents([...students, newStudent]);
       toast.success('Student added successfully');
@@ -132,6 +227,11 @@ export default function Students() {
     }
     setDeleteDialogOpen(false);
     setStudentToDelete(null);
+  };
+
+  const handleViewStudent = (student: any) => {
+    setViewingStudent(student);
+    setViewDialogOpen(true);
   };
 
   return (
@@ -169,11 +269,10 @@ export default function Students() {
               {filteredStudents.map((student) => (
                 <div key={student.id} className="border border-border rounded-lg p-3 space-y-2">
                   <div className="flex items-center gap-2">
-                    <img
-                      src={student.photo}
-                      alt={student.name}
-                      className="w-10 h-10 rounded-full flex-shrink-0"
-                    />
+                    <Avatar className="w-10 h-10">
+                      <AvatarImage src={student.photo} />
+                      <AvatarFallback>{student.name[0]}</AvatarFallback>
+                    </Avatar>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm truncate">{student.name}</p>
                       <p className="text-[11px] text-muted-foreground">{student.admissionNo}</p>
@@ -197,7 +296,7 @@ export default function Students() {
                       size="sm"
                       variant="outline"
                       className="flex-1 h-7 text-[11px]"
-                      onClick={() => navigate(`/admin/students/${student.id}`)}
+                      onClick={() => handleViewStudent(student)}
                     >
                       <Eye className="w-3 h-3 mr-1" />
                       View
@@ -242,11 +341,10 @@ export default function Students() {
                     <tr key={student.id} className="hover:bg-muted/50">
                       <td className="px-3 py-2">
                         <div className="flex items-center gap-2">
-                          <img
-                            src={student.photo}
-                            alt={student.name}
-                            className="w-8 h-8 rounded-full"
-                          />
+                          <Avatar className="w-8 h-8">
+                            <AvatarImage src={student.photo} />
+                            <AvatarFallback>{student.name[0]}</AvatarFallback>
+                          </Avatar>
                           <div className="min-w-0">
                             <p className="font-medium text-sm truncate">{student.name}</p>
                             <p className="text-xs text-muted-foreground truncate">{student.email}</p>
@@ -268,7 +366,7 @@ export default function Students() {
                       </td>
                       <td className="px-3 py-2">
                         <div className="flex items-center justify-center gap-1.5">
-                          <ViewButton onClick={() => navigate(`/admin/students/${student.id}`)} />
+                          <ViewButton onClick={() => handleViewStudent(student)} />
                           <EditButton onClick={() => handleEditStudent(student)} />
                           <DeleteButton onClick={() => handleDeleteStudent(student.id)} />
                         </div>
@@ -336,14 +434,6 @@ export default function Students() {
                   disabled
                 />
               </div>
-              <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="timing">Batch Timing</Label>
-                <Input
-                  id="timing"
-                  value={formData.timing}
-                  disabled
-                />
-              </div>
               <div className="space-y-2">
                 <Label htmlFor="dob">Date of Birth *</Label>
                 <Input
@@ -406,6 +496,213 @@ export default function Students() {
                 {editingStudent ? 'Update' : 'Add'} Student
               </Button>
             </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* View Student Details Dialog */}
+        <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Student Details</DialogTitle>
+            </DialogHeader>
+            {viewingStudent && (
+              <div className="space-y-4">
+                {/* Student Header */}
+                <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage src={viewingStudent.photo} />
+                    <AvatarFallback>{viewingStudent.name[0]}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg">{viewingStudent.name}</h3>
+                    <p className="text-sm text-muted-foreground">{viewingStudent.admissionNo} • {viewingStudent.batch}</p>
+                  </div>
+                  <Badge variant={viewingStudent.status === "Active" ? "default" : "secondary"}>
+                    {viewingStudent.status}
+                  </Badge>
+                </div>
+
+                <Tabs defaultValue="overview" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="overview">Overview</TabsTrigger>
+                    <TabsTrigger value="attendance">Attendance</TabsTrigger>
+                    <TabsTrigger value="scores">Scores</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="overview" className="space-y-3">
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base">Contact Information</CardTitle>
+                      </CardHeader>
+                      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <p className="text-muted-foreground text-xs">Email</p>
+                          <p className="font-medium">{viewingStudent.email}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground text-xs">Phone</p>
+                          <p className="font-medium">{viewingStudent.phone}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground text-xs">Parent Phone</p>
+                          <p className="font-medium">{viewingStudent.parentPhone}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground text-xs">Batch</p>
+                          <p className="font-medium">{viewingStudent.batch}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base">Recent Activity</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          {viewingStudent.recentActivity?.map((activity: any, index: number) => (
+                            <div key={index} className="flex items-start gap-2 text-sm">
+                              <div className={`p-1 rounded-full ${
+                                activity.type.includes('Present') || activity.type.includes('Submitted') || activity.type.includes('Top') 
+                                  ? 'bg-secondary/20' 
+                                  : activity.type.includes('Absent') || activity.type.includes('Late')
+                                  ? 'bg-destructive/20'
+                                  : 'bg-muted'
+                              }`}>
+                                {activity.type.includes('Present') || activity.type.includes('Submitted') ? (
+                                  <CheckCircle className="h-3 w-3 text-secondary" />
+                                ) : activity.type.includes('Absent') ? (
+                                  <XCircle className="h-3 w-3 text-destructive" />
+                                ) : activity.type.includes('Late') ? (
+                                  <Clock className="h-3 w-3 text-destructive" />
+                                ) : (
+                                  <BookOpen className="h-3 w-3" />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-xs">{activity.type}</p>
+                                <p className="text-muted-foreground text-[10px]">{activity.subject} • {activity.date}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="attendance" className="space-y-3">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <Card>
+                        <CardContent className="pt-4 pb-3">
+                          <div className="text-center">
+                            <CheckCircle className="h-6 w-6 mx-auto mb-1 text-secondary" />
+                            <p className="text-xl font-bold">{viewingStudent.attendance?.present || 0}</p>
+                            <p className="text-[10px] text-muted-foreground">Present</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardContent className="pt-4 pb-3">
+                          <div className="text-center">
+                            <XCircle className="h-6 w-6 mx-auto mb-1 text-destructive" />
+                            <p className="text-xl font-bold">{viewingStudent.attendance?.absent || 0}</p>
+                            <p className="text-[10px] text-muted-foreground">Absent</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardContent className="pt-4 pb-3">
+                          <div className="text-center">
+                            <Clock className="h-6 w-6 mx-auto mb-1 text-amber-500" />
+                            <p className="text-xl font-bold">{viewingStudent.attendance?.late || 0}</p>
+                            <p className="text-[10px] text-muted-foreground">Late</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardContent className="pt-4 pb-3">
+                          <div className="text-center">
+                            <Calendar className="h-6 w-6 mx-auto mb-1 text-primary" />
+                            <p className="text-xl font-bold">{viewingStudent.attendance?.percentage || 0}%</p>
+                            <p className="text-[10px] text-muted-foreground">Attendance</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base">Attendance Progress</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Progress value={viewingStudent.attendance?.percentage || 0} className="h-2" />
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {viewingStudent.attendance?.percentage >= 85 
+                            ? "Excellent attendance record!" 
+                            : viewingStudent.attendance?.percentage >= 75 
+                            ? "Good attendance, keep it up!" 
+                            : "Attendance needs improvement"}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="scores" className="space-y-2">
+                    <div className="space-y-2">
+                      {viewingStudent.scores?.map((score: any, index: number) => (
+                        <Card key={index}>
+                          <CardContent className="pt-4 pb-3">
+                            <div className="flex items-center justify-between mb-2">
+                              <div>
+                                <h4 className="font-semibold text-sm">{score.subject}</h4>
+                                <p className="text-xs text-muted-foreground">
+                                  {score.marks}/{score.total} marks
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <Badge variant="secondary" className="mb-1 text-xs">
+                                  Grade {score.grade}
+                                </Badge>
+                                <div className="flex items-center gap-1 text-xs">
+                                  {score.trend.startsWith('+') ? (
+                                    <TrendingUp className="h-3 w-3 text-secondary" />
+                                  ) : (
+                                    <TrendingDown className="h-3 w-3 text-destructive" />
+                                  )}
+                                  <span className={score.trend.startsWith('+') ? 'text-secondary' : 'text-destructive'}>
+                                    {score.trend}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <Progress value={(score.marks / score.total) * 100} className="h-1.5" />
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                    
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base">Overall Performance</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <p className="text-muted-foreground text-xs">Average Score</p>
+                            <p className="text-xl font-bold">
+                              {Math.round(viewingStudent.scores?.reduce((acc: number, s: any) => acc + (s.marks / s.total) * 100, 0) / (viewingStudent.scores?.length || 1)) || 0}%
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground text-xs">Subjects</p>
+                            <p className="text-xl font-bold">{viewingStudent.scores?.length || 0}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
 
