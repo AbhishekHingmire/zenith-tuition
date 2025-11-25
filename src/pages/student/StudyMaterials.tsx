@@ -53,50 +53,53 @@ export default function StudyMaterials() {
           <p className="text-sm text-muted-foreground mt-1">Access notes, videos, and practice materials</p>
         </div>
 
-        {/* Compact Filters - Max 80px height */}
+        {/* Search & Filters - Separate Rows on Mobile/Tablet */}
         <Card>
-          <CardContent className="p-3">
+          <CardContent className="p-3 space-y-3">
+            {/* Search Bar - Full Width Row */}
+            <div className="relative w-full">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search materials by title, chapter, or tags..." 
+                className="pl-8 h-10 text-sm w-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            
+            {/* Filters Row */}
             <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input 
-                  placeholder="Search..." 
-                  className="pl-8 h-9 text-sm"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
               <Select value={filterSubject} onValueChange={setFilterSubject}>
-                <SelectTrigger className="w-28 h-9 text-xs">
+                <SelectTrigger className="flex-1 h-9 text-xs">
                   <SelectValue placeholder="Subject" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="all">All Subjects</SelectItem>
                   {subjects.map(subject => (
                     <SelectItem key={subject} value={subject}>{subject}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="w-24 h-9 text-xs">
+                <SelectTrigger className="flex-1 h-9 text-xs">
                   <SelectValue placeholder="Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="pdf">PDF</SelectItem>
                   <SelectItem value="video">Video</SelectItem>
                   <SelectItem value="notes">Notes</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={filterDifficulty} onValueChange={setFilterDifficulty}>
-                <SelectTrigger className="w-24 h-9 text-xs">
+                <SelectTrigger className="flex-1 h-9 text-xs">
                   <SelectValue placeholder="Level" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="all">All Levels</SelectItem>
                   <SelectItem value="beginner">Basic</SelectItem>
-                  <SelectItem value="intermediate">Inter</SelectItem>
-                  <SelectItem value="advanced">Adv</SelectItem>
+                  <SelectItem value="intermediate">Intermediate</SelectItem>
+                  <SelectItem value="advanced">Advanced</SelectItem>
                 </SelectContent>
               </Select>
             </div>
