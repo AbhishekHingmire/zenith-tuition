@@ -15,7 +15,6 @@ import {
 const ROLE_COLORS = {
   admin: 'bg-indigo-100 text-indigo-700 border-indigo-300',
   teacher: 'bg-emerald-100 text-emerald-700 border-emerald-300',
-  parent: 'bg-amber-100 text-amber-700 border-amber-300',
   student: 'bg-blue-100 text-blue-700 border-blue-300',
 };
 
@@ -60,7 +59,6 @@ export default function Login() {
     const credentials = {
       admin: { username: 'admin@demo', password: 'admin123' },
       teacher: { username: 'teacher@demo', password: 'teacher123' },
-      parent: { username: 'parent@demo', password: 'parent123' },
       student: { username: 'student@demo', password: 'student123' },
     };
     
@@ -129,8 +127,8 @@ export default function Login() {
             {/* Role Selection */}
             <div className="space-y-2">
               <Label htmlFor="role">Select Role</Label>
-              <div className="grid grid-cols-2 gap-2">
-                {(['admin', 'teacher', 'parent', 'student'] as UserRole[]).map((r) => (
+              <div className="grid grid-cols-3 gap-2">
+                {(['admin', 'teacher', 'student'] as UserRole[]).map((r) => (
                   <button
                     key={r}
                     type="button"
@@ -186,7 +184,7 @@ export default function Login() {
             </CollapsibleTrigger>
             
             <CollapsibleContent className="mt-4 space-y-2">
-              {(['admin', 'teacher', 'parent', 'student'] as UserRole[]).map((demoRole) => (
+              {(['admin', 'teacher', 'student'] as UserRole[]).map((demoRole) => (
                 <button
                   key={demoRole}
                   type="button"
