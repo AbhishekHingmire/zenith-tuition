@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { mockExamResults } from '@/data/mockStudentData';
-import { Calendar, Clock, FileText, TrendingUp, Trophy, Target, Eye } from 'lucide-react';
+import { Calendar, Clock, TrendingUp, Trophy } from 'lucide-react';
 import { format } from 'date-fns';
 import { useState } from 'react';
 
@@ -79,83 +79,67 @@ export default function StudentExams() {
               const daysLeft = getDaysUntil(exam.date);
 
               return (
-                <Card key={exam.id} className="border-l-4 border-l-primary">
+                <Card key={exam.id} className="border-l-4 border-l-primary hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center justify-between gap-3">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Badge variant="destructive" className="text-xs">
-                            🔥 {daysLeft}d
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="destructive" className="text-xs font-semibold">
+                            {daysLeft}d
                           </Badge>
-                          <Badge variant="outline" className="text-xs">{exam.subject}</Badge>
                         </div>
-                        <h3 className="font-bold text-foreground mb-1 text-base">{exam.name}</h3>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {format(exam.date, 'MMM d, yyyy')}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {exam.time}
-                          </span>
+                        <h3 className="font-bold text-foreground text-base mb-1">{exam.name}</h3>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Clock className="w-3 h-3" />
+                          <span>{format(exam.date, 'MMM d, yyyy')} • {exam.time}</span>
                         </div>
                       </div>
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button size="sm" variant="outline" className="flex-shrink-0">
-                            <Eye className="w-3 h-3 mr-1" />
-                            View
+                          <Button size="sm" variant="outline" className="flex-shrink-0 h-9">
+                            View Details
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                        <DialogContent className="max-w-md mx-4">
                           <DialogHeader>
-                            <DialogTitle>{exam.name}</DialogTitle>
+                            <DialogTitle className="text-lg">{exam.name}</DialogTitle>
                           </DialogHeader>
                           <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-3 text-sm">
-                              <div className="flex items-center gap-2">
-                                <Calendar className="w-4 h-4 text-muted-foreground" />
-                                <div>
-                                  <div className="text-xs text-muted-foreground">Date</div>
-                                  <div className="font-medium">{format(exam.date, 'MMM d, yyyy')}</div>
-                                </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="space-y-1">
+                                <div className="text-xs text-muted-foreground">Date</div>
+                                <div className="font-semibold text-sm">{format(exam.date, 'MMM d, yyyy')}</div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <Clock className="w-4 h-4 text-muted-foreground" />
-                                <div>
-                                  <div className="text-xs text-muted-foreground">Time</div>
-                                  <div className="font-medium">{exam.time}</div>
-                                </div>
+                              <div className="space-y-1">
+                                <div className="text-xs text-muted-foreground">Time</div>
+                                <div className="font-semibold text-sm">{exam.time}</div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <FileText className="w-4 h-4 text-muted-foreground" />
-                                <div>
-                                  <div className="text-xs text-muted-foreground">Total Marks</div>
-                                  <div className="font-medium">{exam.totalMarks}</div>
-                                </div>
+                              <div className="space-y-1">
+                                <div className="text-xs text-muted-foreground">Duration</div>
+                                <div className="font-semibold text-sm">{exam.duration}</div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <Target className="w-4 h-4 text-muted-foreground" />
-                                <div>
-                                  <div className="text-xs text-muted-foreground">Room</div>
-                                  <div className="font-medium">{exam.room}</div>
-                                </div>
+                              <div className="space-y-1">
+                                <div className="text-xs text-muted-foreground">Total Marks</div>
+                                <div className="font-semibold text-sm">{exam.totalMarks}</div>
+                              </div>
+                              <div className="space-y-1">
+                                <div className="text-xs text-muted-foreground">Room</div>
+                                <div className="font-semibold text-sm">{exam.room}</div>
                               </div>
                             </div>
 
-                            <div className="border-t pt-4">
+                            <div className="border-t pt-3">
                               <h4 className="font-semibold text-sm mb-2">Covered Chapters</h4>
-                              <p className="text-sm text-muted-foreground">{exam.chapters}</p>
+                              <p className="text-sm text-muted-foreground leading-relaxed">{exam.chapters}</p>
                             </div>
 
-                            <div className="border-t pt-4">
+                            <div className="border-t pt-3">
                               <h4 className="font-semibold text-sm mb-2">Syllabus Details</h4>
-                              <ul className="space-y-1.5">
+                              <ul className="space-y-2">
                                 {exam.syllabus.map((topic, idx) => (
                                   <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
-                                    <span className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0 mt-1.5" />
-                                    {topic}
+                                    <span className="w-1 h-1 bg-primary rounded-full flex-shrink-0 mt-2" />
+                                    <span className="flex-1">{topic}</span>
                                   </li>
                                 ))}
                               </ul>
@@ -171,95 +155,106 @@ export default function StudentExams() {
           </TabsContent>
 
           {/* RESULTS TAB */}
-          <TabsContent value="results" className="space-y-4">
+          <TabsContent value="results" className="space-y-3">
             {/* Filter Tabs */}
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant={resultsFilter === 'week' ? 'default' : 'outline'}
-                onClick={() => setResultsFilter('week')}
-              >
-                This Week
-              </Button>
-              <Button
-                size="sm"
-                variant={resultsFilter === 'month' ? 'default' : 'outline'}
-                onClick={() => setResultsFilter('month')}
-              >
-                This Month
-              </Button>
-              <Button
-                size="sm"
-                variant={resultsFilter === 'all' ? 'default' : 'outline'}
-                onClick={() => setResultsFilter('all')}
-              >
-                All
-              </Button>
-            </div>
+            <Card className="p-3">
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant={resultsFilter === 'week' ? 'default' : 'outline'}
+                  onClick={() => setResultsFilter('week')}
+                  className="flex-1"
+                >
+                  This Week
+                </Button>
+                <Button
+                  size="sm"
+                  variant={resultsFilter === 'month' ? 'default' : 'outline'}
+                  onClick={() => setResultsFilter('month')}
+                  className="flex-1"
+                >
+                  This Month
+                </Button>
+                <Button
+                  size="sm"
+                  variant={resultsFilter === 'all' ? 'default' : 'outline'}
+                  onClick={() => setResultsFilter('all')}
+                  className="flex-1"
+                >
+                  All
+                </Button>
+              </div>
+            </Card>
 
             {/* Results List */}
-            {filteredResults.map((result) => {
-              const percentage = result.percentage;
-              const gradeColor = 
-                percentage >= 90 ? 'bg-emerald-500 text-white' :
-                percentage >= 75 ? 'bg-primary text-primary-foreground' :
-                percentage >= 60 ? 'bg-amber-500 text-white' :
-                'bg-destructive text-destructive-foreground';
+            {filteredResults.length === 0 ? (
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <p className="text-muted-foreground text-sm">No results found for this period</p>
+                </CardContent>
+              </Card>
+            ) : (
+              filteredResults.map((result) => {
+                const percentage = result.percentage;
+                const gradeColor = 
+                  percentage >= 90 ? 'bg-emerald-500' :
+                  percentage >= 75 ? 'bg-primary' :
+                  percentage >= 60 ? 'bg-amber-500' :
+                  'bg-destructive';
 
-              return (
-                <Card key={result.id} className="border-l-4 border-l-primary">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Badge variant="outline" className="text-xs">{result.subject}</Badge>
-                          <Badge className={`${gradeColor} text-xs px-2 py-0.5`}>
-                            {result.grade}
-                          </Badge>
+                return (
+                  <Card key={result.id} className="border-l-4 border-l-primary">
+                    <CardContent className="p-3">
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0">{result.subject}</Badge>
+                            <div className={`${gradeColor} text-white text-xs font-bold px-2 py-0.5 rounded`}>
+                              {result.grade}
+                            </div>
+                          </div>
+                          <h3 className="font-semibold text-foreground text-sm leading-tight">
+                            {result.examName}
+                          </h3>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">
+                            {format(result.date, 'MMM d, yyyy')}
+                          </p>
                         </div>
-                        <h3 className="font-semibold text-foreground mb-1 text-sm">
-                          {result.examName}
-                        </h3>
-                        <p className="text-xs text-muted-foreground">
-                          {format(result.date, 'MMM d, yyyy')}
-                        </p>
+                        <div className="text-right flex-shrink-0">
+                          <div className="text-base font-bold text-foreground">
+                            {result.marksObtained}<span className="text-xs text-muted-foreground">/{result.totalMarks}</span>
+                          </div>
+                          <div className="text-[10px] text-muted-foreground">
+                            {percentage}%
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-right flex-shrink-0">
-                        <div className="text-lg font-bold text-foreground">
-                          {result.marksObtained}/{result.totalMarks}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {percentage}%
-                        </div>
-                      </div>
-                    </div>
 
-                    <Progress value={percentage} className="h-1.5 mt-3" />
+                      <Progress value={percentage} className="h-1 mb-2" />
 
-                    {result.rank && result.totalStudents && (
-                      <div className="flex items-center justify-between mt-3 text-xs">
-                        <div className="flex items-center gap-1 text-muted-foreground">
-                          <Trophy className="w-3 h-3" />
-                          Rank {result.rank}/{result.totalStudents}
-                        </div>
+                      <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                        {result.rank && result.totalStudents && (
+                          <div className="flex items-center gap-1">
+                            <Trophy className="w-3 h-3" />
+                            Rank {result.rank}/{result.totalStudents}
+                          </div>
+                        )}
                         {result.classAverage && (
-                          <span className="text-muted-foreground">
-                            Avg: {result.classAverage}%
-                          </span>
+                          <span>Class Avg: {result.classAverage}%</span>
                         )}
                       </div>
-                    )}
 
-                    {result.teacherRemarks && (
-                      <div className="mt-3 p-2 bg-muted/50 rounded text-xs">
-                        <span className="font-medium">Remarks: </span>
-                        <span className="text-muted-foreground">{result.teacherRemarks}</span>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
+                      {result.teacherRemarks && (
+                        <div className="mt-2 p-2 bg-muted/50 rounded text-[10px]">
+                          <span className="font-medium">Remarks: </span>
+                          <span className="text-muted-foreground">{result.teacherRemarks}</span>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })
+            )}
           </TabsContent>
 
           {/* PERFORMANCE ANALYSIS */}
