@@ -43,7 +43,6 @@ export const BottomTabBar = ({ onMoreClick }: BottomTabBarProps) => {
         { icon: Home, label: 'Home', to: '/student/dashboard' },
         { icon: Calendar, label: 'Timetable', to: '/student/schedule' },
         { icon: ClipboardList, label: 'Assignments', to: '/student/assignments', badge: pendingTasks },
-        { icon: Bell, label: 'Alerts', to: '/student/notifications', badge: unreadNotifications },
       ];
     }
 
