@@ -291,7 +291,7 @@ export default function UserManagement() {
                     'View Fees', 'Manage Fees', 'View Reports',
                     'Manage Teachers', 'View Analytics', 'System Settings',
                     'Manage Batches', 'Manage Subjects', 'Manage Exams',
-                    'Send Messages', 'Generate Certificates', 'Manage Calendar'
+                    'Send WhatsApp Notifications', 'Generate Certificates', 'Manage Calendar'
                   ].map((permission) => (
                     <div key={permission} className="flex items-center space-x-2 p-2 border rounded">
                       <Shield className="w-4 h-4 text-muted-foreground" />
