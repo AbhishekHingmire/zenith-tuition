@@ -31,7 +31,7 @@ const getMenuItems = (role: string) => {
         { icon: Users, label: "Students", path: "/admin/students" },
         { icon: GraduationCap, label: "Faculty", path: "/admin/teachers" },
         { icon: BookOpen, label: "Batches", path: "/admin/batches" },
-        { icon: Calendar, label: "Schedule", path: "/admin/schedule" },
+        { icon: Calendar, label: "Timetable", path: "/admin/schedule" },
         { icon: ClipboardList, label: "Attendance", path: "/admin/attendance" },
         { icon: FileText, label: "Exams", path: "/admin/exams" },
         { icon: IndianRupee, label: "Finance", path: "/admin/finance" },
@@ -42,7 +42,7 @@ const getMenuItems = (role: string) => {
     case 'teacher':
       return [
         { icon: LayoutDashboard, label: "Dashboard", path: "/teacher/dashboard" },
-        { icon: Calendar, label: "My Schedule", path: "/teacher/schedule" },
+        { icon: Calendar, label: "My Timetable", path: "/teacher/schedule" },
         { icon: FileText, label: "Exams", path: "/teacher/exams" },
         { icon: ClipboardList, label: "Attendance", path: "/teacher/attendance" },
         { icon: BookOpen, label: "Assignments", path: "/teacher/assignments" },
@@ -54,7 +54,7 @@ const getMenuItems = (role: string) => {
     case 'student':
       return [
         { icon: LayoutDashboard, label: "Dashboard", path: "/student/dashboard" },
-        { icon: Calendar, label: "My Schedule", path: "/student/schedule" },
+        { icon: Calendar, label: "My Timetable", path: "/student/schedule" },
         { icon: BookOpen, label: "Assignments", path: "/student/assignments" },
         { icon: FileText, label: "Exams", path: "/student/exams" },
         { icon: FileText, label: "Study Materials", path: "/student/study-materials" },

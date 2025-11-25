@@ -33,7 +33,7 @@ export const BottomTabBar = ({ onMoreClick }: BottomTabBarProps) => {
     if (user?.role === 'teacher') {
       return [
         { icon: Home, label: 'Home', to: '/teacher/dashboard' },
-        { icon: Calendar, label: 'Schedule', to: '/teacher/schedule' },
+        { icon: Calendar, label: 'Timetable', to: '/teacher/schedule' },
         { icon: ClipboardList, label: 'Tasks', to: '/teacher/assignments', badge: pendingTasks },
       ];
     }
@@ -41,7 +41,7 @@ export const BottomTabBar = ({ onMoreClick }: BottomTabBarProps) => {
     if (user?.role === 'student') {
       return [
         { icon: Home, label: 'Home', to: '/student/dashboard' },
-        { icon: Calendar, label: 'Schedule', to: '/student/schedule' },
+        { icon: Calendar, label: 'Timetable', to: '/student/schedule' },
         { icon: ClipboardList, label: 'Tasks', to: '/student/assignments', badge: pendingTasks },
         { icon: Bell, label: 'Alerts', to: '/student/notifications', badge: unreadNotifications },
       ];
