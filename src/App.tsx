@@ -25,7 +25,6 @@ import AdminExams from "./pages/admin/Exams";
 import AdminFees from "./pages/admin/Fees";
 import AdminReports from "./pages/admin/Reports";
 import AdminSettings from "./pages/admin/Settings";
-import AdminMessages from "./pages/admin/Messages";
 import AdminAcademicYear from "./pages/admin/AcademicYear";
 import AdminCalendar from "./pages/admin/Calendar";
 import AdminSubjects from "./pages/admin/Subjects";
@@ -46,7 +45,6 @@ import TeacherAssignments from "./pages/teacher/Assignments";
 import TeacherPerformance from "./pages/teacher/Performance";
 import TeacherSettings from "./pages/teacher/Settings";
 import ExamResults from "./pages/teacher/ExamResults";
-import TeacherMessages from "./pages/teacher/Messages";
 import TeacherSyllabus from "./pages/teacher/Syllabus";
 import TeacherSyllabusDetail from "./pages/teacher/SyllabusDetail";
 import TeacherMaterials from "./pages/teacher/Materials";
@@ -64,8 +62,8 @@ import ParentReports from "./pages/parent/Reports";
 import ParentFees from "./pages/parent/Fees";
 import ParentAssignments from "./pages/parent/Assignments";
 import ParentSettings from "./pages/parent/Settings";
-import ParentMessages from "./pages/parent/Messages";
 import ParentLeaveRequest from "./pages/parent/LeaveRequest";
+import ParentNotifications from "./pages/parent/Notifications";
 
 // Student pages
 import StudentSchedule from "./pages/student/Schedule";
@@ -73,9 +71,9 @@ import StudentAssignments from "./pages/student/Assignments";
 import StudentExams from "./pages/student/Exams";
 import StudentAttendance from "./pages/student/Attendance";
 import StudentSettings from "./pages/student/Settings";
-import StudentMessages from "./pages/student/Messages";
 import StudentStudyMaterials from "./pages/student/StudyMaterials";
 import StudentDoubts from "./pages/student/Doubts";
+import StudentNotifications from "./pages/student/Notifications";
 
 const queryClient = new QueryClient();
 
@@ -168,14 +166,6 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <StudentDetail />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/messages"
-              element={
-                <ProtectedRoute allowedRoles={['admin']}>
-                  <AdminMessages />
                 </ProtectedRoute>
               }
             />
@@ -349,14 +339,6 @@ const App = () => (
               }
             />
             <Route
-              path="/teacher/messages"
-              element={
-                <ProtectedRoute allowedRoles={['teacher']}>
-                  <TeacherMessages />
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/teacher/syllabus"
               element={
                 <ProtectedRoute allowedRoles={['teacher']}>
@@ -470,10 +452,10 @@ const App = () => (
               }
             />
             <Route
-              path="/parent/leave-request"
+              path="/parent/notifications"
               element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <ParentLeaveRequest />
+                  <ParentNotifications />
                 </ProtectedRoute>
               }
             />
@@ -527,14 +509,6 @@ const App = () => (
               }
             />
             <Route
-              path="/student/messages"
-              element={
-                <ProtectedRoute allowedRoles={['student']}>
-                  <StudentMessages />
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/student/study-materials"
               element={
                 <ProtectedRoute allowedRoles={['student']}>
@@ -547,6 +521,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['student']}>
                   <StudentDoubts />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/notifications"
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <StudentNotifications />
                 </ProtectedRoute>
               }
             />
