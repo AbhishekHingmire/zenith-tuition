@@ -24,12 +24,10 @@ import AdminExams from "./pages/admin/Exams";
 import AdminFees from "./pages/admin/Fees";
 import AdminReports from "./pages/admin/Reports";
 import AdminSettings from "./pages/admin/Settings";
-import AdminAcademicYear from "./pages/admin/AcademicYear";
 import AdminCalendar from "./pages/admin/Calendar";
 import AdminSubjects from "./pages/admin/Subjects";
 import AdminTimetable from "./pages/admin/Timetable";
 import AdminAutomation from "./pages/admin/Automation";
-import AdminCertificates from "./pages/admin/Certificates";
 import AdminFinance from "./pages/admin/Finance";
 import AdminBulkOperations from "./pages/admin/BulkOperations";
 import AdminUserManagement from "./pages/admin/UserManagement";
@@ -44,13 +42,8 @@ import TeacherAssignments from "./pages/teacher/Assignments";
 import TeacherPerformance from "./pages/teacher/Performance";
 import TeacherSettings from "./pages/teacher/Settings";
 import ExamResults from "./pages/teacher/ExamResults";
-import TeacherSyllabus from "./pages/teacher/Syllabus";
-import TeacherSyllabusDetail from "./pages/teacher/SyllabusDetail";
 import TeacherMaterials from "./pages/teacher/Materials";
-import TeacherBehavior from "./pages/teacher/Behavior";
 import TeacherLeave from "./pages/teacher/Leave";
-import TeacherParentCommunication from "./pages/teacher/ParentCommunication";
-import TeacherPTMScheduler from "./pages/teacher/PTMScheduler";
 
 // Admin detail pages
 import StudentDetail from "./pages/admin/StudentDetail";
@@ -160,14 +153,6 @@ const App = () => (
               }
             />
             <Route
-              path="/admin/academic-year"
-              element={
-                <ProtectedRoute allowedRoles={['admin']}>
-                  <AdminAcademicYear />
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/admin/calendar"
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
@@ -196,14 +181,6 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <AdminAutomation />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/certificates"
-              element={
-                <ProtectedRoute allowedRoles={['admin']}>
-                  <AdminCertificates />
                 </ProtectedRoute>
               }
             />
@@ -329,22 +306,6 @@ const App = () => (
               }
             />
             <Route
-              path="/teacher/syllabus"
-              element={
-                <ProtectedRoute allowedRoles={['teacher']}>
-                  <TeacherSyllabus />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/teacher/syllabus/:id"
-              element={
-                <ProtectedRoute allowedRoles={['teacher']}>
-                  <TeacherSyllabusDetail />
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/teacher/materials"
               element={
                 <ProtectedRoute allowedRoles={['teacher']}>
@@ -353,34 +314,10 @@ const App = () => (
               }
             />
             <Route
-              path="/teacher/behavior"
-              element={
-                <ProtectedRoute allowedRoles={['teacher']}>
-                  <TeacherBehavior />
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/teacher/leave"
               element={
                 <ProtectedRoute allowedRoles={['teacher']}>
                   <TeacherLeave />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/teacher/parent-communication"
-              element={
-                <ProtectedRoute allowedRoles={['teacher']}>
-                  <TeacherParentCommunication />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/teacher/ptm"
-              element={
-                <ProtectedRoute allowedRoles={['teacher']}>
-                  <TeacherPTMScheduler />
                 </ProtectedRoute>
               }
             />
