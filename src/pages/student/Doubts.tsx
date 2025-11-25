@@ -94,36 +94,39 @@ export default function Doubts() {
           </Button>
         </div>
 
-        {/* Compact Search & Filter */}
+        {/* Search & Filters - Separate Rows on Mobile/Tablet */}
         <Card>
-          <CardContent className="p-3">
+          <CardContent className="p-3 space-y-3">
+            {/* Search Bar - Full Width Row */}
+            <div className="relative w-full">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search doubts by question, description, or tags..." 
+                className="pl-8 h-10 text-sm w-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            
+            {/* Filters Row */}
             <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input 
-                  placeholder="Search doubts..." 
-                  className="pl-8 h-9 text-sm"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
               <Select value={filterSubject} onValueChange={setFilterSubject}>
-                <SelectTrigger className="w-28 h-9 text-xs">
+                <SelectTrigger className="flex-1 h-9 text-xs">
                   <SelectValue placeholder="Subject" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="all">All Subjects</SelectItem>
                   {subjects.map(subject => (
                     <SelectItem key={subject} value={subject}>{subject}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-28 h-9 text-xs">
+                <SelectTrigger className="flex-1 h-9 text-xs">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="answered">Answered</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
                 </SelectContent>
