@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { mockExamResults } from '@/data/mockStudentData';
-import { Calendar, Clock, TrendingUp, Trophy } from 'lucide-react';
+import { Calendar, Clock, TrendingUp, Trophy, Target, Check, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { useState } from 'react';
 
@@ -294,28 +294,34 @@ export default function StudentExams() {
                   {/* Strengths & Weaknesses */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="p-4 bg-secondary/10 border border-secondary/20 rounded-lg">
-                      <h4 className="font-semibold text-secondary mb-3">Strengths 💪</h4>
+                      <h4 className="font-semibold text-secondary mb-3 flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4" />
+                        Strengths
+                      </h4>
                       <ul className="space-y-2 text-sm">
                         <li className="flex items-start gap-2">
-                          <span className="text-secondary">✓</span>
+                          <Check className="w-4 h-4 text-secondary flex-shrink-0 mt-0.5" />
                           <span>English - Consistently scoring &gt;90%</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <span className="text-secondary">✓</span>
+                          <Check className="w-4 h-4 text-secondary flex-shrink-0 mt-0.5" />
                           <span>Mathematics - Strong problem solving</span>
                         </li>
                       </ul>
                     </div>
 
                     <div className="p-4 bg-accent/10 border border-accent/20 rounded-lg">
-                      <h4 className="font-semibold text-accent mb-3">Focus Areas 🎯</h4>
+                      <h4 className="font-semibold text-accent mb-3 flex items-center gap-2">
+                        <Target className="w-4 h-4" />
+                        Focus Areas
+                      </h4>
                       <ul className="space-y-2 text-sm">
                         <li className="flex items-start gap-2">
-                          <span className="text-accent">→</span>
+                          <ArrowRight className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
                           <span>Physics - Practice more numericals</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <span className="text-accent">→</span>
+                          <ArrowRight className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
                           <span>Chemistry - Revise chemical equations</span>
                         </li>
                       </ul>

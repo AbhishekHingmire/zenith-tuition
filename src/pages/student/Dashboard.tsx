@@ -10,17 +10,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Trophy, 
   Flame, 
-  Star, 
   TrendingUp, 
   BookOpen,
   Calendar,
   Award,
-  Target,
   Clock,
-  Medal,
   ChevronDown,
   CheckCircle2,
-  XCircle
+  XCircle,
+  FileText,
+  CalendarDays
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { studentInsights } from '@/data/mockInsights';
@@ -47,15 +46,7 @@ export default function StudentDashboard() {
   const rank = 5;
   const totalStudents = 30;
 
-  const badges = [
-    { name: 'Perfect Week', icon: '🎯', rarity: 'rare', earned: true },
-    { name: 'Top Scorer', icon: '🏆', rarity: 'epic', earned: true },
-    { name: 'Assignment Ace', icon: '📚', rarity: 'rare', earned: true },
-    { name: 'Helpful Student', icon: '🤝', rarity: 'common', earned: false, progress: 8, max: 10 },
-  ];
-
   // Collapsible states
-  const [badgesOpen, setBadgesOpen] = useState(false);
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [statsDialogOpen, setStatsDialogOpen] = useState(false);
 
@@ -107,9 +98,8 @@ export default function StudentDashboard() {
         <div className="bg-gradient-to-r from-primary/20 to-secondary/20 rounded-lg p-6 border border-primary/30">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-                Welcome back, {student.name}! 
-                <span className="text-2xl">👋</span>
+              <h1 className="text-3xl font-bold text-foreground">
+                Welcome back, {student.name}!
               </h1>
               <p className="text-muted-foreground mt-1">Keep up the great work and stay motivated!</p>
             </div>
@@ -203,7 +193,7 @@ export default function StudentDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Badges</p>
-                  <p className="text-2xl font-bold text-foreground">{badges.filter(b => b.earned).length}</p>
+                  <p className="text-2xl font-bold text-foreground">3</p>
                 </div>
                 <Award className="text-amber-500" />
               </div>
@@ -211,57 +201,6 @@ export default function StudentDashboard() {
             </CardContent>
           </Card>
         </div>
-
-        {/* Badges Showcase - Collapsible */}
-        <Collapsible open={badgesOpen} onOpenChange={setBadgesOpen}>
-          <Card>
-            <CollapsibleTrigger className="w-full">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Award className="w-5 h-5 text-amber-500" />
-                    Recent Achievements
-                  </div>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${badgesOpen ? 'rotate-180' : ''}`} />
-                </CardTitle>
-              </CardHeader>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {badges.map((badge, index) => (
-                    <div
-                      key={index}
-                      className={`p-4 rounded-lg border-2 text-center transition-all ${
-                        badge.earned
-                          ? badge.rarity === 'epic'
-                            ? 'border-purple-500 bg-purple-500/10'
-                            : badge.rarity === 'rare'
-                            ? 'border-blue-500 bg-blue-500/10'
-                            : 'border-gray-500 bg-gray-500/10'
-                          : 'border-dashed border-muted-foreground/30 bg-muted/30 opacity-60'
-                      }`}
-                    >
-                      <div className="text-4xl mb-2">{badge.icon}</div>
-                      <h4 className="font-semibold text-sm">{badge.name}</h4>
-                      {!badge.earned && badge.progress && (
-                        <div className="mt-2">
-                          <Progress value={(badge.progress / badge.max!) * 100} className="h-1" />
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {badge.progress}/{badge.max}
-                          </p>
-                        </div>
-                      )}
-                      {badge.earned && (
-                        <Badge className="mt-2" variant="secondary">Earned</Badge>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </CollapsibleContent>
-          </Card>
-        </Collapsible>
 
         {/* Two Column Layout */}
         <div className="grid md:grid-cols-2 gap-6">
@@ -290,8 +229,14 @@ export default function StudentDashboard() {
                       </Badge>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>📅 {new Date(assignment.dueDate).toLocaleDateString()}</span>
-                      <span>📝 {assignment.totalMarks} marks</span>
+                      <span className="flex items-center gap-1">
+                        <CalendarDays className="w-3 h-3" />
+                        {new Date(assignment.dueDate).toLocaleDateString()}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <FileText className="w-3 h-3" />
+                        {assignment.totalMarks} marks
+                      </span>
                     </div>
                   </div>
                 );
@@ -326,8 +271,14 @@ export default function StudentDashboard() {
                       </Badge>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>📅 {new Date(exam.date).toLocaleDateString()}</span>
-                      <span>📝 {exam.totalMarks} marks</span>
+                      <span className="flex items-center gap-1">
+                        <CalendarDays className="w-3 h-3" />
+                        {new Date(exam.date).toLocaleDateString()}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <FileText className="w-3 h-3" />
+                        {exam.totalMarks} marks
+                      </span>
                     </div>
                   </div>
                 );
@@ -358,8 +309,13 @@ export default function StudentDashboard() {
                 <div className="space-y-3">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((position) => (
                     <div key={position} className={`flex items-center gap-3 p-3 rounded-lg ${position === rank ? 'bg-primary/10 border border-primary' : 'bg-muted/30'}`}>
-                      <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-                        {position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : position}
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
+                        position === 1 ? 'bg-amber-500 text-white' : 
+                        position === 2 ? 'bg-gray-400 text-white' : 
+                        position === 3 ? 'bg-amber-700 text-white' : 
+                        'bg-primary text-primary-foreground'
+                      }`}>
+                        {position <= 3 ? <Trophy className="w-5 h-5" /> : position}
                       </div>
                       <div className="flex-1">
                         <h4 className="font-semibold">{position === rank ? 'You' : `Student ${position}`}</h4>
