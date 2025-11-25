@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,6 @@ import { mockTeachers, mockSubjects } from '@/data/mockData';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { ViewToggle } from '@/components/ui/view-toggle';
 
 export default function Teachers() {
   const [teachers, setTeachers] = useState(mockTeachers);
@@ -23,13 +22,6 @@ export default function Teachers() {
   const [teacherToDelete, setTeacherToDelete] = useState<string | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewingTeacher, setViewingTeacher] = useState<any>(null);
-  const [viewMode, setViewMode] = useState<'normal' | 'compact'>(() => {
-    return (localStorage.getItem('teachers-view-mode') as 'normal' | 'compact') || 'normal';
-  });
-
-  useEffect(() => {
-    localStorage.setItem('teachers-view-mode', viewMode);
-  }, [viewMode]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -140,131 +132,89 @@ export default function Teachers() {
           <CardHeader className="pb-3">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <CardTitle className="text-lg">All Teachers ({filteredTeachers.length})</CardTitle>
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <div className="relative flex-1 sm:w-56">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input 
-                    placeholder="Search teachers..." 
-                    className="pl-10"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-                <ViewToggle view={viewMode} onViewChange={setViewMode} />
+              <div className="relative w-full sm:w-56">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Search teachers..." 
+                  className="pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className={viewMode === 'compact' ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {filteredTeachers.map((teacher) => (
-                <div key={teacher.id} className={viewMode === 'compact' ? "border border-border rounded-lg p-2 hover:shadow-md transition-shadow bg-card" : "border border-border rounded-lg p-3 hover:shadow-md transition-shadow bg-card"}>
-                    <div className={viewMode === 'compact' ? "flex items-center gap-1.5 mb-1.5" : "flex items-center gap-2 mb-2"}>
-                      <img
-                        src={teacher.photo}
-                        alt={teacher.name}
-                        className={viewMode === 'compact' ? "w-8 h-8 rounded-full flex-shrink-0" : "w-10 h-10 rounded-full flex-shrink-0"}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h3 className={viewMode === 'compact' ? "font-semibold text-xs truncate" : "font-semibold text-sm truncate"}>{teacher.name}</h3>
-                        <p className="text-[10px] text-muted-foreground truncate">{teacher.employeeId}</p>
-                      </div>
-                    </div>
-                    
-                    {viewMode === 'normal' ? (
-                      <>
-                        <div className="space-y-1.5 mb-2">
-                          <div>
-                            <p className="text-[11px] text-muted-foreground">Subjects</p>
-                            <div className="flex gap-1 mt-0.5 flex-wrap">
-                              {teacher.subjects.slice(0, 2).map((subCode, idx) => {
-                                const subject = mockSubjects.find(s => s.code === subCode);
-                                return (
-                                  <Badge key={idx} variant="outline" className="text-[10px] px-1.5 py-0">{subject?.name || subCode}</Badge>
-                                );
-                              })}
-                              {teacher.subjects.length > 2 && (
-                                <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                                  +{teacher.subjects.length - 2}
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-[11px] text-muted-foreground">Batches</p>
-                              <p className="text-xs font-medium">{teacher.assignedBatches.length}</p>
-                            </div>
-                            <Badge className="bg-secondary text-secondary-foreground text-[10px] px-1.5 py-0">
-                              {teacher.status}
-                            </Badge>
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="mb-1.5">
-                        <p className="text-[10px] text-muted-foreground">{teacher.subjects.length} subjects • {teacher.assignedBatches.length} batches</p>
-                      </div>
-                    )}
-
-                    <div className={viewMode === 'compact' ? "flex gap-1" : "flex gap-1.5 pt-2 border-t border-border"}>
-                      {viewMode === 'normal' ? (
-                        <>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="flex-1 h-7 text-[11px]"
-                            onClick={() => handleViewTeacher(teacher)}
-                          >
-                            <Eye className="w-3 h-3 mr-1" />
-                            View
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            className="h-7 px-2"
-                            onClick={() => handleEditTeacher(teacher)}
-                          >
-                            <Edit className="w-3 h-3" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="text-destructive hover:bg-destructive/10 h-7 px-2"
-                            onClick={() => handleDeleteTeacher(teacher.id)}
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="flex-1 h-6 text-[10px] px-1"
-                            onClick={() => handleViewTeacher(teacher)}
-                          >
-                            <Eye className="w-3 h-3" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            className="h-6 px-1.5"
-                            onClick={() => handleEditTeacher(teacher)}
-                          >
-                            <Edit className="w-3 h-3" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="text-destructive hover:bg-destructive/10 h-6 px-1.5"
-                            onClick={() => handleDeleteTeacher(teacher.id)}
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </>
-                      )}
+                <div key={teacher.id} className="border border-border rounded-lg p-3 hover:shadow-md transition-shadow bg-card">
+                  <div className="flex items-center gap-2 mb-2">
+                    <img
+                      src={teacher.photo}
+                      alt={teacher.name}
+                      className="w-10 h-10 rounded-full flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm truncate">{teacher.name}</h3>
+                      <p className="text-[10px] text-muted-foreground truncate">{teacher.employeeId}</p>
                     </div>
                   </div>
+                  
+                  <div className="space-y-1.5 mb-2">
+                    <div>
+                      <p className="text-[11px] text-muted-foreground">Subjects</p>
+                      <div className="flex gap-1 mt-0.5 flex-wrap">
+                        {teacher.subjects.slice(0, 2).map((subCode, idx) => {
+                          const subject = mockSubjects.find(s => s.code === subCode);
+                          return (
+                            <Badge key={idx} variant="outline" className="text-[10px] px-1.5 py-0">{subject?.name || subCode}</Badge>
+                          );
+                        })}
+                        {teacher.subjects.length > 2 && (
+                          <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                            +{teacher.subjects.length - 2}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-[11px] text-muted-foreground">Batches</p>
+                        <p className="text-xs font-medium">{teacher.assignedBatches.length}</p>
+                      </div>
+                      <Badge className="bg-secondary text-secondary-foreground text-[10px] px-1.5 py-0">
+                        {teacher.status}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-1.5 pt-2 border-t border-border">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1 h-7 text-[11px]"
+                      onClick={() => handleViewTeacher(teacher)}
+                    >
+                      <Eye className="w-3 h-3 mr-1" />
+                      View
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="h-7 px-2"
+                      onClick={() => handleEditTeacher(teacher)}
+                    >
+                      <Edit className="w-3 h-3" />
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="text-destructive hover:bg-destructive/10 h-7 px-2"
+                      onClick={() => handleDeleteTeacher(teacher.id)}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
               ))}
             </div>
           </CardContent>
