@@ -8,15 +8,13 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
-  User, 
   Bell, 
   Palette, 
   Shield, 
   Info, 
   LogOut,
   Moon,
-  Globe,
-  Phone
+  Globe
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -38,36 +36,6 @@ export default function StudentSettings() {
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Settings</h1>
           <p className="text-sm text-muted-foreground mt-1">Manage your profile and preferences</p>
         </div>
-
-        {/* Profile Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <User className="w-5 h-5" />
-              Profile Settings
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" defaultValue="Rahul Kumar" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue="rahul.kumar@example.com" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input id="phone" defaultValue="+91 98765 43210" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="dob">Date of Birth</Label>
-              <Input id="dob" defaultValue="15/08/2005" disabled />
-              <p className="text-xs text-muted-foreground">Contact admin to change</p>
-            </div>
-            <Button onClick={handleSave}>Save Profile</Button>
-          </CardContent>
-        </Card>
 
         {/* Notification Preferences */}
         <Card>
