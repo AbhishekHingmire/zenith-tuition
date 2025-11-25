@@ -34,7 +34,7 @@ export const BottomTabBar = ({ onMoreClick }: BottomTabBarProps) => {
       return [
         { icon: Home, label: 'Home', to: '/teacher/dashboard' },
         { icon: Calendar, label: 'Timetable', to: '/teacher/schedule' },
-        { icon: ClipboardList, label: 'Tasks', to: '/teacher/assignments', badge: pendingTasks },
+        { icon: ClipboardList, label: 'Assignments', to: '/teacher/assignments', badge: pendingTasks },
       ];
     }
 
@@ -42,7 +42,7 @@ export const BottomTabBar = ({ onMoreClick }: BottomTabBarProps) => {
       return [
         { icon: Home, label: 'Home', to: '/student/dashboard' },
         { icon: Calendar, label: 'Timetable', to: '/student/schedule' },
-        { icon: ClipboardList, label: 'Tasks', to: '/student/assignments', badge: pendingTasks },
+        { icon: ClipboardList, label: 'Assignments', to: '/student/assignments', badge: pendingTasks },
         { icon: Bell, label: 'Alerts', to: '/student/notifications', badge: unreadNotifications },
       ];
     }
