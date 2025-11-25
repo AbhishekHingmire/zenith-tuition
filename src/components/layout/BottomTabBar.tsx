@@ -69,7 +69,7 @@ export const BottomTabBar = ({ onMoreClick }: BottomTabBarProps) => {
               <>
                 <div className="relative">
                   <tab.icon className={cn(
-                    "w-4 h-4 mb-0.5 transition-transform",
+                    "w-5 h-5 mb-0.5 transition-transform",
                     isActive && "scale-105"
                   )} />
                   {tab.badge && tab.badge > 0 && (
@@ -81,7 +81,7 @@ export const BottomTabBar = ({ onMoreClick }: BottomTabBarProps) => {
                     </Badge>
                   )}
                 </div>
-                <span className="text-[10px] font-medium transition-all leading-tight">
+                <span className="text-[11px] font-medium transition-all leading-tight">
                   {tab.label}
                 </span>
                 {isActive && (
@@ -100,8 +100,8 @@ export const BottomTabBar = ({ onMoreClick }: BottomTabBarProps) => {
             "active:scale-95"
           )}
         >
-          <MoreHorizontal className="w-4 h-4 mb-0.5" />
-          <span className="text-[10px] font-medium leading-tight">More</span>
+          <MoreHorizontal className="w-5 h-5 mb-0.5" />
+          <span className="text-[11px] font-medium leading-tight">More</span>
         </button>
       </div>
     </nav>

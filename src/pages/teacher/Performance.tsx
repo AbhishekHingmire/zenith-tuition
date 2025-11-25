@@ -57,9 +57,9 @@ const mockPerformanceData = {
     avgTurnaroundTime: 2,
     submissionRate: 85
   },
-  parentCommunication: {
-    messagesResponded: 42,
-    totalMessages: 45,
+  whatsappCommunication: {
+    queriesResponded: 42,
+    totalQueries: 45,
     avgResponseTime: 4,
     pendingQueries: 3
   }
@@ -328,30 +328,30 @@ export default function Performance() {
             </CardContent>
           </Card>
 
-          {/* Parent Communication */}
+          {/* WhatsApp Communication */}
           <Card>
             <CardHeader>
-              <CardTitle>Parent Communication</CardTitle>
+              <CardTitle>WhatsApp Communication</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Messages Responded</p>
+                  <p className="text-sm text-muted-foreground">Queries Responded</p>
                   <p className="text-2xl font-bold">
-                    {mockPerformanceData.parentCommunication.messagesResponded}/
-                    {mockPerformanceData.parentCommunication.totalMessages}
+                    {mockPerformanceData.whatsappCommunication.queriesResponded}/
+                    {mockPerformanceData.whatsappCommunication.totalQueries}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Pending Queries</p>
-                  <p className="text-2xl font-bold text-primary">{mockPerformanceData.parentCommunication.pendingQueries}</p>
+                  <p className="text-2xl font-bold text-primary">{mockPerformanceData.whatsappCommunication.pendingQueries}</p>
                 </div>
               </div>
               <div className="pt-4 border-t">
                 <p className="text-sm text-muted-foreground">Average Response Time</p>
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4" />
-                  <span className="text-xl font-bold">{mockPerformanceData.parentCommunication.avgResponseTime} hours</span>
+                  <span className="text-xl font-bold">{mockPerformanceData.whatsappCommunication.avgResponseTime} hours</span>
                 </div>
               </div>
             </CardContent>
