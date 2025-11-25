@@ -11,9 +11,9 @@ const todayClasses = [
 ];
 
 const pendingTasks = [
-  { task: 'Grade Math Assignment - Grade 10', count: 25, dueDate: 'Today' },
-  { task: 'Mark Attendance - Science Batch', count: 1, dueDate: 'Today' },
-  { task: 'Enter Marks - Unit Test', count: 28, dueDate: 'Tomorrow' },
+  { task: 'Grade Math Assignment - Grade 10', count: 25, dueDate: 'Today', link: '/teacher/assignments' },
+  { task: 'Mark Attendance - Science Batch', count: 1, dueDate: 'Today', link: '/teacher/attendance' },
+  { task: 'Enter Marks - Unit Test', count: 28, dueDate: 'Tomorrow', link: '/teacher/marks-entry' },
 ];
 
 const announcements = [
@@ -59,7 +59,11 @@ export default function TeacherDashboard() {
                       <span>{cls.room}</span>
                     </div>
                   </div>
-                  <Button size="sm" className="bg-primary hover:bg-primary/90 text-xs ml-2">
+                  <Button 
+                    size="sm" 
+                    className="bg-primary hover:bg-primary/90 text-xs ml-2"
+                    onClick={() => navigate('/teacher/attendance', { state: { batch: cls.batch } })}
+                  >
                     Start
                   </Button>
                 </div>
@@ -88,7 +92,12 @@ export default function TeacherDashboard() {
                           {task.count} item{task.count > 1 ? 's' : ''} • Due: {task.dueDate}
                         </p>
                       </div>
-                      <Button size="sm" variant="outline" className="text-xs h-7 flex-shrink-0">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-xs h-7 flex-shrink-0"
+                        onClick={() => navigate(task.link)}
+                      >
                         View
                       </Button>
                     </div>
