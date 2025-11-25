@@ -40,13 +40,6 @@ const mockPerformanceData = {
     { batch: 'Grade 11-B', avgScore: 72, trend: '-2%', students: 40 },
     { batch: 'Grade 9-C', avgScore: 85, trend: '+8%', students: 45 }
   ],
-  syllabusCompletion: {
-    overall: 68,
-    status: 'on-track',
-    chaptersCompleted: 24,
-    chaptersPlanned: 35,
-    projectedDate: '2025-03-15'
-  },
   attendanceTracking: {
     markingConsistency: 95,
     classesMissed: 2,
@@ -239,34 +232,6 @@ export default function Performance() {
         </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Syllabus Completion */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Syllabus Completion</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Overall Progress</span>
-                  <Badge 
-                    variant="secondary" 
-                    className={mockPerformanceData.syllabusCompletion.status === 'on-track' ? 'bg-secondary/20' : ''}
-                  >
-                    {mockPerformanceData.syllabusCompletion.status === 'on-track' ? 'On Track' : 'Behind'}
-                  </Badge>
-                </div>
-                <Progress value={mockPerformanceData.syllabusCompletion.overall} className="h-3" />
-                <p className="text-sm text-muted-foreground mt-2">
-                  {mockPerformanceData.syllabusCompletion.chaptersCompleted} of {mockPerformanceData.syllabusCompletion.chaptersPlanned} chapters completed
-                </p>
-              </div>
-              <div className="pt-4 border-t">
-                <p className="text-sm text-muted-foreground">Projected Completion</p>
-                <p className="font-semibold">{mockPerformanceData.syllabusCompletion.projectedDate}</p>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Attendance Tracking */}
           <Card>
             <CardHeader>
