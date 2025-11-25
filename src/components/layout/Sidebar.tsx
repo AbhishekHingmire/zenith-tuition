@@ -31,21 +31,13 @@ const getMenuItems = (role: string) => {
         { icon: Users, label: "Students", path: "/admin/students" },
         { icon: GraduationCap, label: "Faculty", path: "/admin/teachers" },
         { icon: BookOpen, label: "Batches", path: "/admin/batches" },
-        { icon: Calendar, label: "Calendar", path: "/admin/calendar" },
-        { icon: BookOpen, label: "Subjects", path: "/admin/subjects" },
-        { icon: Calendar, label: "Timetable", path: "/admin/timetable" },
-        { icon: Calendar, label: "Schedule Requests", path: "/admin/schedule-requests" },
+        { icon: Calendar, label: "Schedule", path: "/admin/schedule" },
         { icon: ClipboardList, label: "Attendance", path: "/admin/attendance" },
         { icon: FileText, label: "Exams", path: "/admin/exams" },
-        { icon: IndianRupee, label: "Fees", path: "/admin/fees" },
         { icon: IndianRupee, label: "Finance", path: "/admin/finance" },
-        { icon: Users, label: "Bulk Operations", path: "/admin/bulk-operations" },
-        { icon: Users, label: "Admissions", path: "/admin/admissions" },
         { icon: BarChart3, label: "Reports", path: "/admin/reports" },
         { icon: MessageSquare, label: "Notifications", path: "/admin/notifications" },
-        { icon: Settings, label: "Automation", path: "/admin/automation" },
-        { icon: Users, label: "User Management", path: "/admin/user-management" },
-        { icon: Settings, label: "Settings", path: "/admin/system-settings" },
+        { icon: Settings, label: "Settings", path: "/admin/settings" },
       ];
     case 'teacher':
       return [
