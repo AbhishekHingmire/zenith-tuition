@@ -1,7 +1,8 @@
-import { Home, Calendar, ClipboardList, Grid } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { cn } from "@/lib/utils";
+import { Home, Calendar, ClipboardList, MoreHorizontal, Bell } from 'lucide-react';
+import { NavLink } from '@/components/NavLink';
+import { useAuth } from '@/contexts/AuthContext';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 interface BottomTabBarProps {
   onMoreClick: () => void;
@@ -15,87 +16,96 @@ interface TabItem {
 }
 
 export const BottomTabBar = ({ onMoreClick }: BottomTabBarProps) => {
-  const navigate = useNavigate();
-  const location = useLocation();
   const { user } = useAuth();
+  
+  const pendingTasks = 5;
+  const unreadNotifications = 3;
+  
+  const getTabsForRole = () => {
+    const baseUrl = user?.role === 'admin' ? '/admin' 
+      : user?.role === 'teacher' ? '/teacher'
+      : user?.role === 'parent' ? '/parent'
+      : '/student';
 
-  const getTabItems = (role: string): TabItem[] => {
-    switch (role) {
-      case 'admin':
-        return [
-          { icon: Home, label: 'Dashboard', path: '/admin/dashboard' },
-          { icon: Calendar, label: 'Calendar', path: '/admin/calendar' },
-          { icon: ClipboardList, label: 'Students', path: '/admin/students' },
-        ];
-      case 'teacher':
-        return [
-          { icon: Home, label: 'Dashboard', path: '/teacher/dashboard' },
-          { icon: Calendar, label: 'Schedule', path: '/teacher/schedule' },
-          { icon: ClipboardList, label: 'Assignments', path: '/teacher/assignments', badge: 5 },
-        ];
-      case 'parent':
-        return [
-          { icon: Home, label: 'Dashboard', path: '/parent/dashboard' },
-          { icon: Calendar, label: 'Attendance', path: '/parent/attendance' },
-          { icon: ClipboardList, label: 'Assignments', path: '/parent/assignments' },
-        ];
-      case 'student':
-        return [
-          { icon: Home, label: 'Dashboard', path: '/student/dashboard' },
-          { icon: Calendar, label: 'Schedule', path: '/student/schedule' },
-          { icon: ClipboardList, label: 'Assignments', path: '/student/assignments', badge: 3 },
-        ];
-      default:
-        return [];
+    if (user?.role === 'student') {
+      return [
+        { icon: Home, label: 'Home', to: `${baseUrl}/dashboard` },
+        { icon: Calendar, label: 'Schedule', to: `${baseUrl}/schedule` },
+        { icon: ClipboardList, label: 'Tasks', to: `${baseUrl}/assignments`, badge: pendingTasks },
+        { icon: Bell, label: 'Alerts', to: `${baseUrl}/notifications`, badge: unreadNotifications },
+      ];
     }
+
+    if (user?.role === 'parent') {
+      return [
+        { icon: Home, label: 'Home', to: `${baseUrl}/dashboard` },
+        { icon: Calendar, label: 'Events', to: `${baseUrl}/calendar` },
+        { icon: ClipboardList, label: 'Tasks', to: `${baseUrl}/assignments`, badge: pendingTasks },
+        { icon: Bell, label: 'Alerts', to: `${baseUrl}/notifications`, badge: unreadNotifications },
+      ];
+    }
+
+    return [
+      { icon: Home, label: 'Home', to: `${baseUrl}/dashboard` },
+      { icon: Calendar, label: 'Schedule', to: `${baseUrl}/schedule` },
+      { icon: ClipboardList, label: 'Tasks', to: `${baseUrl}/assignments`, badge: pendingTasks },
+    ];
   };
 
-  const tabItems = user ? getTabItems(user.role) : [];
-
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
+  const tabs = getTabsForRole();
 
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border shadow-lg">
-      <div className="flex items-center justify-around px-1 py-2 safe-area-bottom max-w-full overflow-x-auto">
-        {tabItems.map((item) => {
-          const Icon = item.icon;
-          const active = isActive(item.path);
-          
-          return (
-            <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              className={cn(
-                "flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-lg transition-all min-h-[44px] min-w-[60px] flex-1 max-w-[80px] relative touch-manipulation",
-                active
-                  ? "text-primary bg-primary/10"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              )}
-            >
-              <div className="relative">
-                <Icon className="w-5 h-5 flex-shrink-0" />
-                {item.badge && item.badge > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-1">
-                    {item.badge > 9 ? '9+' : item.badge}
-                  </span>
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border z-40 safe-area-bottom shadow-lg">
+      <div className="flex items-center justify-around h-16 px-2">
+        {tabs.map((tab) => (
+          <NavLink
+            key={tab.to}
+            to={tab.to}
+            className={cn(
+              "relative flex flex-col items-center justify-center flex-1 h-full touch-manipulation transition-all duration-200",
+              "min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground"
+            )}
+            activeClassName="!text-primary scale-110 font-semibold"
+          >
+            {({ isActive }) => (
+              <>
+                <div className="relative">
+                  <tab.icon className={cn(
+                    "w-6 h-6 mb-1 transition-transform",
+                    isActive && "scale-110"
+                  )} />
+                  {tab.badge && tab.badge > 0 && (
+                    <Badge 
+                      variant="destructive" 
+                      className="absolute -top-1 -right-2 h-5 min-w-[20px] flex items-center justify-center text-[10px] px-1 animate-scale-in"
+                    >
+                      {tab.badge > 9 ? '9+' : tab.badge}
+                    </Badge>
+                  )}
+                </div>
+                <span className="text-[10px] font-medium transition-all">
+                  {tab.label}
+                </span>
+                {isActive && (
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-primary rounded-b-full animate-scale-in" />
                 )}
-              </div>
-              <span className="text-[10px] font-medium truncate w-full text-center">{item.label}</span>
-            </button>
-          );
-        })}
+              </>
+            )}
+          </NavLink>
+        ))}
         
-        {/* More button */}
         <button
           onClick={onMoreClick}
-          className="flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-lg transition-all min-h-[44px] min-w-[60px] flex-1 max-w-[80px] text-muted-foreground hover:text-foreground hover:bg-muted/50 touch-manipulation"
+          className={cn(
+            "flex flex-col items-center justify-center flex-1 h-full transition-all duration-200",
+            "text-muted-foreground hover:text-primary min-w-[44px] min-h-[44px]",
+            "active:scale-95"
+          )}
         >
-          <Grid className="w-5 h-5 flex-shrink-0" />
+          <MoreHorizontal className="w-6 h-6 mb-1" />
           <span className="text-[10px] font-medium">More</span>
         </button>
       </div>
-    </div>
+    </nav>
   );
 };

@@ -1,5 +1,9 @@
-import { Menu, Search, Bell, User, LogOut } from "lucide-react";
+import { Menu, Bell, Search, Sun, Moon, User, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,8 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface NavbarProps {
   onMenuClick: () => void;
@@ -17,95 +20,117 @@ interface NavbarProps {
 
 export const Navbar = ({ onMenuClick }: NavbarProps) => {
   const { user, logout } = useAuth();
+  const { theme, setTheme, effectiveTheme } = useTheme();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  const getUserInitials = () => {
+    if (!user?.name) return "U";
+    return user.name
+      .split(" ")
+      .map(n => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const toggleTheme = () => {
+    setTheme(effectiveTheme === 'light' ? 'dark' : 'light');
+  };
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-card border-b border-border">
-      <div className="flex items-center justify-between px-4 lg:px-6 py-4">
-        {/* Left section */}
-        <div className="flex items-center gap-4 flex-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden"
-            onClick={onMenuClick}
-          >
-            <Menu className="w-5 h-5" />
-          </Button>
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-border bg-background/95 backdrop-blur-sm px-4 sm:px-6">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="lg:hidden hover-scale"
+        onClick={onMenuClick}
+      >
+        <Menu className="h-5 w-5" />
+      </Button>
 
-          {/* Search bar */}
-          <div className="relative hidden md:flex flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
+      <div className="flex-1 flex items-center gap-4">
+        <h1 className="text-lg font-semibold hidden sm:block bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          EduManage
+        </h1>
+        
+        <div className="hidden md:flex flex-1 max-w-md">
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <input
               type="search"
-              placeholder="Search students, courses..."
-              className="pl-10 bg-muted/50"
+              placeholder="Search students, teachers, assignments... (Ctrl+K)"
+              className="w-full pl-10 pr-4 py-2 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary transition-all"
             />
           </div>
         </div>
+      </div>
 
-        {/* Right section */}
-        <div className="flex items-center gap-2">
-          {/* Search button for mobile */}
-          <Button variant="ghost" size="icon" className="md:hidden">
-            <Search className="w-5 h-5" />
-          </Button>
+      <div className="flex items-center gap-2">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={toggleTheme}
+          className="hover-scale"
+        >
+          {effectiveTheme === 'light' ? (
+            <Moon className="h-5 w-5" />
+          ) : (
+            <Sun className="h-5 w-5" />
+          )}
+        </Button>
 
-          {/* Notifications */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80 bg-popover">
-              <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <div className="flex flex-col gap-1">
-                  <p className="text-sm font-medium">New student enrolled</p>
-                  <p className="text-xs text-muted-foreground">John Doe joined Grade 10A</p>
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <div className="flex flex-col gap-1">
-                  <p className="text-sm font-medium">Fee payment received</p>
-                  <p className="text-xs text-muted-foreground">Payment from Jane Smith</p>
-                </div>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* User profile */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="gap-2">
-                {user?.avatar ? (
-                  <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full" />
-                ) : (
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-primary-foreground" />
-                  </div>
-                )}
-                <div className="hidden md:flex flex-col items-start">
-                  <span className="text-sm font-medium">{user?.name || 'User'}</span>
-                  <span className="text-xs text-muted-foreground capitalize">{user?.role || 'Guest'}</span>
-                </div>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-popover">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={logout} className="text-destructive cursor-pointer">
-                <LogOut className="mr-2 h-4 w-4" />
-                Log out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <Button variant="ghost" size="icon" className="relative hover-scale">
+          <Bell className="h-5 w-5" />
+          <Badge 
+            variant="destructive" 
+            className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px] animate-scale-in"
+          >
+            3
+          </Badge>
+        </Button>
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-10 w-10 rounded-full hover-scale">
+              <Avatar className="h-10 w-10 border-2 border-primary/20">
+                <AvatarImage src={user?.avatar} />
+                <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                  {getUserInitials()}
+                </AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 animate-scale-in">
+            <DropdownMenuLabel>
+              <div>
+                <p className="font-semibold">{user?.name || "User"}</p>
+                <p className="text-xs text-muted-foreground">{user?.email}</p>
+                <Badge variant="outline" className="mt-1 capitalize text-xs">
+                  {user?.role}
+                </Badge>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
+              <User className="mr-2 h-4 w-4" />
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/settings')} className="cursor-pointer">
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive">
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );
