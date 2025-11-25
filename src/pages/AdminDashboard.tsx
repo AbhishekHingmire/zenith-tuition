@@ -15,6 +15,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { InsightCard } from '@/components/ui/insight-card';
+import { insights, predictions } from '@/data/comprehensiveMockData';
 
 // Mock data for charts
 const attendanceData = [
@@ -53,6 +55,7 @@ const performanceSnapshots = [
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
+  const [dismissedInsights, setDismissedInsights] = useState<string[]>([]);
   const [financialView, setFinancialView] = useState<'month' | 'quarter' | 'year'>('month');
 
   const criticalAlerts = [
@@ -168,6 +171,14 @@ export default function AdminDashboard() {
     toast.success('Alert dismissed');
   };
 
+  const handleDismissInsight = (insightId: string) => {
+    setDismissedInsights([...dismissedInsights, insightId]);
+  };
+
+  const activeInsights = insights.admin.filter(
+    insight => !dismissedInsights.includes(insight.id)
+  );
+
   return (
     <MainLayout>
       <div className="space-y-3">
@@ -196,7 +207,7 @@ export default function AdminDashboard() {
                     <Button 
                       size="sm" 
                       variant="outline" 
-                      className="h-7 text-xs"
+                      className="h-7 text-xs hover-scale"
                       onClick={() => navigate(alert.link)}
                     >
                       {alert.action}
@@ -222,12 +233,63 @@ export default function AdminDashboard() {
           <p className="text-xs text-muted-foreground mt-1">Welcome back! Here's what's happening today.</p>
         </div>
 
+        {/* AI Insights Section */}
+        {activeInsights.length > 0 && (
+          <div className="space-y-2">
+            <h2 className="text-base font-semibold flex items-center gap-2">
+              <Target className="w-4 h-4" />
+              AI-Powered Insights
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {activeInsights.map((insight) => (
+                <InsightCard
+                  key={insight.id}
+                  type={insight.type as any}
+                  icon={insight.icon}
+                  title={insight.title}
+                  message={insight.message}
+                  action={insight.action}
+                  onActionClick={() => navigate(insight.link)}
+                  onDismiss={() => handleDismissInsight(insight.id)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Predictions Section */}
+        <Card className="border-l-4 border-l-primary bg-gradient-to-r from-primary/5 to-transparent">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Activity className="w-4 h-4" />
+              ML-Powered Predictions
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="space-y-3">
+              {predictions.admin.map((prediction) => (
+                <div key={prediction.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="text-sm font-medium">{prediction.title}</h4>
+                      <Badge variant="secondary" className="text-xs">
+                        {prediction.confidence}% confidence
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{prediction.message}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* KPI Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {stats.map((stat) => (
             <Card 
               key={stat.title} 
-              className="cursor-pointer hover:shadow-md transition-shadow"
+              className="cursor-pointer hover:shadow-md transition-all hover-scale"
               onClick={stat.action}
             >
               <CardContent className="p-3">
@@ -288,7 +350,7 @@ export default function AdminDashboard() {
               </div>
               <Badge variant="secondary" className="text-xs">Safe</Badge>
             </div>
-            <Button variant="outline" size="sm" className="w-full h-8 text-xs" onClick={() => navigate('/admin/finance')}>
+            <Button variant="outline" size="sm" className="w-full h-8 text-xs hover-scale" onClick={() => navigate('/admin/finance')}>
               View Detailed Report
             </Button>
           </CardContent>
@@ -349,7 +411,7 @@ export default function AdminDashboard() {
                     <Button
                       key={action.label}
                       onClick={action.action}
-                      className={`h-auto py-3 flex-col ${action.color}`}
+                      className={`h-auto py-3 flex-col hover-scale ${action.color}`}
                       size="sm"
                     >
                       <action.icon className="w-5 h-5 mb-1" />
@@ -445,7 +507,7 @@ export default function AdminDashboard() {
                   </div>
                 ))}
               </div>
-              <Button variant="outline" size="sm" className="w-full mt-3 h-7 text-xs" onClick={() => navigate('/admin/calendar')}>
+              <Button variant="outline" size="sm" className="w-full mt-3 h-7 text-xs hover-scale" onClick={() => navigate('/admin/calendar')}>
                 View Full Calendar
               </Button>
             </CardContent>
