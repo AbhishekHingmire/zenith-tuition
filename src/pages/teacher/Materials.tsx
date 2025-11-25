@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { 
   Upload, 
   FileText, 
@@ -19,9 +20,27 @@ import {
   Edit, 
   Trash2,
   Plus,
-  BarChart3
+  BarChart3,
+  X
 } from 'lucide-react';
 import { toast } from 'sonner';
+
+type Material = {
+  id: string;
+  title: string;
+  subject: string;
+  batches: string[];
+  chapter: string;
+  type: string;
+  uploadDate: Date;
+  views: number;
+  downloads: number;
+  rating: number;
+  description?: string;
+  tags?: string;
+  difficulty?: string;
+  externalLink?: string;
+};
 
 const mockMaterials = [
   {
@@ -51,8 +70,12 @@ const mockMaterials = [
 ];
 
 export default function Materials() {
-  const [materials, setMaterials] = useState(mockMaterials);
+  const [materials, setMaterials] = useState<Material[]>(mockMaterials);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
   const [selectedBatches, setSelectedBatches] = useState<string[]>([]);
   
   const [formData, setFormData] = useState({
@@ -103,9 +126,73 @@ export default function Materials() {
     toast.success('Material uploaded successfully!');
   };
 
-  const handleDelete = (id: string) => {
-    setMaterials(materials.filter(m => m.id !== id));
-    toast.success('Material deleted');
+  const handleView = (material: Material) => {
+    setSelectedMaterial(material);
+    setViewOpen(true);
+  };
+
+  const handleEditClick = (material: Material) => {
+    setSelectedMaterial(material);
+    setFormData({
+      title: material.title,
+      subject: material.subject,
+      chapter: material.chapter,
+      type: material.type,
+      description: material.description || '',
+      tags: material.tags || '',
+      difficulty: material.difficulty || '',
+      externalLink: material.externalLink || '',
+    });
+    setSelectedBatches(material.batches);
+    setEditOpen(true);
+  };
+
+  const handleEditSave = () => {
+    if (!selectedMaterial) return;
+    
+    const updatedMaterials = materials.map(m =>
+      m.id === selectedMaterial.id
+        ? {
+            ...m,
+            title: formData.title,
+            subject: formData.subject,
+            chapter: formData.chapter,
+            type: formData.type,
+            batches: selectedBatches,
+            description: formData.description,
+            tags: formData.tags,
+            difficulty: formData.difficulty,
+            externalLink: formData.externalLink,
+          }
+        : m
+    );
+    setMaterials(updatedMaterials);
+    setEditOpen(false);
+    setFormData({
+      title: '',
+      subject: '',
+      chapter: '',
+      type: '',
+      description: '',
+      tags: '',
+      difficulty: '',
+      externalLink: '',
+    });
+    setSelectedBatches([]);
+    toast.success('Material updated successfully!');
+  };
+
+  const handleDeleteClick = (material: Material) => {
+    setSelectedMaterial(material);
+    setDeleteOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (!selectedMaterial) return;
+    setMaterials(materials.filter(m => m.id !== selectedMaterial.id));
+    setDeleteOpen(false);
+    setSelectedMaterial(null);
+    toast.success('Material deleted successfully!');
   };
 
   const getTypeIcon = (type: string) => {
@@ -141,100 +228,101 @@ export default function Materials() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Card>
-            <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground mb-1">Total Materials</p>
-              <p className="text-2xl font-bold">{materials.length}</p>
+            <CardContent className="p-3">
+              <p className="text-xs text-muted-foreground mb-0.5">Total Materials</p>
+              <p className="text-xl font-bold">{materials.length}</p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground mb-1">Total Views</p>
-              <p className="text-2xl font-bold">
+            <CardContent className="p-3">
+              <p className="text-xs text-muted-foreground mb-0.5">Total Views</p>
+              <p className="text-xl font-bold">
                 {materials.reduce((sum, m) => sum + m.views, 0)}
               </p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground mb-1">Downloads</p>
-              <p className="text-2xl font-bold">
+            <CardContent className="p-3">
+              <p className="text-xs text-muted-foreground mb-0.5">Downloads</p>
+              <p className="text-xl font-bold">
                 {materials.reduce((sum, m) => sum + m.downloads, 0)}
               </p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground mb-1">Avg. Rating</p>
-              <p className="text-2xl font-bold">4.7</p>
+            <CardContent className="p-3">
+              <p className="text-xs text-muted-foreground mb-0.5">Avg. Rating</p>
+              <p className="text-xl font-bold">4.7</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Materials List */}
         <Card>
-          <CardHeader>
-            <CardTitle>My Uploaded Materials</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">My Uploaded Materials</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="pt-0">
+            <div className="space-y-3">
               {materials.map((material) => (
                 <div
                   key={material.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-border rounded-lg hover:shadow-md transition-shadow"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 border border-border rounded-lg hover:border-primary/50 transition-colors"
                 >
-                  <div className="flex items-start gap-4 flex-1">
-                    <div className={`${getTypeColor(material.type)} p-3 rounded-lg`}>
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <div className={`${getTypeColor(material.type)} p-2 rounded-lg flex-shrink-0`}>
                       {getTypeIcon(material.type)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-lg mb-1">{material.title}</h3>
-                      <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-2">
+                      <h3 className="font-semibold text-sm mb-1 truncate">{material.title}</h3>
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-1">
                         <span>{material.subject}</span>
                         <span>•</span>
                         <span>{material.chapter}</span>
-                        <span>•</span>
-                        <span>{material.uploadDate.toLocaleDateString()}</span>
+                        <span className="hidden sm:inline">•</span>
+                        <span className="hidden sm:inline">{material.uploadDate.toLocaleDateString()}</span>
                       </div>
                       <div className="flex flex-wrap gap-1">
-                        {material.batches.map((batch, idx) => (
-                          <Badge key={idx} variant="outline" className="text-xs">
+                        {material.batches.slice(0, 2).map((batch, idx) => (
+                          <Badge key={idx} variant="outline" className="text-xs px-1.5 py-0">
                             {batch}
                           </Badge>
                         ))}
+                        {material.batches.length > 2 && (
+                          <Badge variant="outline" className="text-xs px-1.5 py-0">
+                            +{material.batches.length - 2}
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center justify-between sm:justify-end gap-3">
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1">
-                        <Eye className="w-4 h-4" />
-                        {material.views}
+                        <Eye className="w-3 h-3" />
+                        <span>{material.views}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Download className="w-4 h-4" />
-                        {material.downloads}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <BarChart3 className="w-4 h-4" />
-                        {material.rating}★
+                        <Download className="w-3 h-3" />
+                        <span>{material.downloads}</span>
                       </div>
                     </div>
 
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="ghost">
+                    <div className="flex gap-1">
+                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleView(material)}>
                         <Eye className="w-4 h-4" />
                       </Button>
-                      <Button size="sm" variant="ghost">
+                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleEditClick(material)}>
                         <Edit className="w-4 h-4" />
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => handleDelete(material.id)}
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => handleDeleteClick(material)}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -394,6 +482,214 @@ export default function Materials() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* View Dialog */}
+        <Dialog open={viewOpen} onOpenChange={setViewOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Material Details</DialogTitle>
+            </DialogHeader>
+            {selectedMaterial && (
+              <div className="space-y-4 py-4">
+                <div className="flex items-start gap-4">
+                  <div className={`${getTypeColor(selectedMaterial.type)} p-3 rounded-lg`}>
+                    {getTypeIcon(selectedMaterial.type)}
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-xl font-bold mb-2">{selectedMaterial.title}</h2>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {selectedMaterial.batches.map((batch, idx) => (
+                        <Badge key={idx} variant="outline">{batch}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Subject</p>
+                    <p className="font-medium">{selectedMaterial.subject}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Chapter</p>
+                    <p className="font-medium">{selectedMaterial.chapter}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Type</p>
+                    <p className="font-medium capitalize">{selectedMaterial.type}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Upload Date</p>
+                    <p className="font-medium">{selectedMaterial.uploadDate.toLocaleDateString()}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center p-3 border rounded-lg">
+                    <Eye className="w-5 h-5 mx-auto mb-1 text-primary" />
+                    <p className="text-2xl font-bold">{selectedMaterial.views}</p>
+                    <p className="text-xs text-muted-foreground">Views</p>
+                  </div>
+                  <div className="text-center p-3 border rounded-lg">
+                    <Download className="w-5 h-5 mx-auto mb-1 text-secondary" />
+                    <p className="text-2xl font-bold">{selectedMaterial.downloads}</p>
+                    <p className="text-xs text-muted-foreground">Downloads</p>
+                  </div>
+                  <div className="text-center p-3 border rounded-lg">
+                    <BarChart3 className="w-5 h-5 mx-auto mb-1 text-accent" />
+                    <p className="text-2xl font-bold">{selectedMaterial.rating}</p>
+                    <p className="text-xs text-muted-foreground">Rating</p>
+                  </div>
+                </div>
+
+                {selectedMaterial.description && (
+                  <div>
+                    <Label className="text-sm font-semibold">Description</Label>
+                    <p className="text-sm text-muted-foreground mt-1">{selectedMaterial.description}</p>
+                  </div>
+                )}
+
+                {selectedMaterial.tags && (
+                  <div>
+                    <Label className="text-sm font-semibold">Tags</Label>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {selectedMaterial.tags.split(',').map((tag, idx) => (
+                        <Badge key={idx} variant="secondary">{tag.trim()}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectedMaterial.externalLink && (
+                  <div>
+                    <Label className="text-sm font-semibold">External Link</Label>
+                    <a
+                      href={selectedMaterial.externalLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-primary hover:underline mt-1 flex items-center gap-1"
+                    >
+                      <LinkIcon className="w-3 h-3" />
+                      {selectedMaterial.externalLink}
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
+            <DialogFooter>
+              <Button onClick={() => setViewOpen(false)}>Close</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Dialog */}
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Material</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-title">Material Title *</Label>
+                <Input
+                  id="edit-title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-subject">Subject *</Label>
+                  <Select value={formData.subject} onValueChange={(value) => setFormData({ ...formData, subject: value })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Mathematics">Mathematics</SelectItem>
+                      <SelectItem value="Physics">Physics</SelectItem>
+                      <SelectItem value="Chemistry">Chemistry</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-chapter">Chapter/Topic *</Label>
+                  <Input
+                    id="edit-chapter"
+                    value={formData.chapter}
+                    onChange={(e) => setFormData({ ...formData, chapter: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Select Batches *</Label>
+                <div className="grid grid-cols-2 gap-3 p-4 border rounded-md">
+                  {batches.map((batch) => (
+                    <div key={batch} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`edit-${batch}`}
+                        checked={selectedBatches.includes(batch)}
+                        onCheckedChange={() => toggleBatch(batch)}
+                      />
+                      <label htmlFor={`edit-${batch}`} className="text-sm cursor-pointer">
+                        {batch}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-type">Material Type *</Label>
+                <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pdf">PDF Notes</SelectItem>
+                    <SelectItem value="video">Video</SelectItem>
+                    <SelectItem value="test">Practice Test</SelectItem>
+                    <SelectItem value="notes">Reference Notes</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-description">Description</Label>
+                <Textarea
+                  id="edit-description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  rows={3}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
+              <Button onClick={handleEditSave}>Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation */}
+        <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Material</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete "{selectedMaterial?.title}"? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </MainLayout>
   );
