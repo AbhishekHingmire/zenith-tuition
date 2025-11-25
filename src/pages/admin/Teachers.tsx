@@ -144,69 +144,74 @@ export default function Teachers() {
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {filteredTeachers.map((teacher) => (
-                <div key={teacher.id} className="border border-border rounded-lg p-4 hover:shadow-lg transition-shadow bg-card">
-                    <div className="flex items-center gap-3 mb-3">
+                <div key={teacher.id} className="border border-border rounded-lg p-3 hover:shadow-md transition-shadow bg-card">
+                    <div className="flex items-center gap-2 mb-2">
                       <img
                         src={teacher.photo}
                         alt={teacher.name}
-                        className="w-12 h-12 rounded-full"
+                        className="w-10 h-10 rounded-full flex-shrink-0"
                       />
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-base truncate">{teacher.name}</h3>
-                        <p className="text-xs text-muted-foreground">{teacher.employeeId}</p>
+                        <h3 className="font-semibold text-sm truncate">{teacher.name}</h3>
+                        <p className="text-[11px] text-muted-foreground">{teacher.employeeId}</p>
                       </div>
                     </div>
                     
-                    <div className="space-y-1.5 mb-3">
+                    <div className="space-y-1.5 mb-2">
                       <div>
-                        <p className="text-xs text-muted-foreground">Subjects</p>
+                        <p className="text-[11px] text-muted-foreground">Subjects</p>
                         <div className="flex gap-1 mt-0.5 flex-wrap">
-                          {teacher.subjects.map((subCode, idx) => {
+                          {teacher.subjects.slice(0, 2).map((subCode, idx) => {
                             const subject = mockSubjects.find(s => s.code === subCode);
                             return (
-                              <Badge key={idx} variant="outline" className="text-xs">{subject?.name || subCode}</Badge>
+                              <Badge key={idx} variant="outline" className="text-[10px] px-1.5 py-0">{subject?.name || subCode}</Badge>
                             );
                           })}
+                          {teacher.subjects.length > 2 && (
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                              +{teacher.subjects.length - 2}
+                            </Badge>
+                          )}
                         </div>
                       </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Batches</p>
-                        <p className="text-sm font-medium">{teacher.assignedBatches.length} batches</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Status</p>
-                        <Badge className="bg-secondary text-secondary-foreground text-xs">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-[11px] text-muted-foreground">Batches</p>
+                          <p className="text-xs font-medium">{teacher.assignedBatches.length}</p>
+                        </div>
+                        <Badge className="bg-secondary text-secondary-foreground text-[10px] px-1.5 py-0">
                           {teacher.status}
                         </Badge>
                       </div>
                     </div>
 
-                    <div className="flex gap-1.5 pt-3 border-t border-border">
+                    <div className="flex gap-1.5 pt-2 border-t border-border">
                       <Button 
                         size="sm" 
                         variant="outline" 
-                        className="flex-1"
+                        className="flex-1 h-7 text-[11px]"
                         onClick={() => handleViewTeacher(teacher)}
                       >
-                        <Eye className="w-4 h-4 mr-2" />
+                        <Eye className="w-3 h-3 mr-1" />
                         View
                       </Button>
                       <Button 
                         size="sm" 
                         variant="outline"
+                        className="h-7 px-2"
                         onClick={() => handleEditTeacher(teacher)}
                       >
-                        <Edit className="w-4 h-4" />
+                        <Edit className="w-3 h-3" />
                       </Button>
                       <Button 
                         size="sm" 
                         variant="outline" 
-                        className="text-destructive hover:bg-destructive/10"
+                        className="text-destructive hover:bg-destructive/10 h-7 px-2"
                         onClick={() => handleDeleteTeacher(teacher.id)}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3 h-3" />
                       </Button>
                     </div>
                   </div>

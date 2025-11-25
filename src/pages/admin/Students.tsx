@@ -164,23 +164,83 @@ export default function Students() {
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="overflow-x-auto -mx-4 sm:mx-0">
-              <table className="w-full min-w-[800px]">
+            {/* Mobile Card View */}
+            <div className="block md:hidden space-y-3">
+              {filteredStudents.map((student) => (
+                <div key={student.id} className="border border-border rounded-lg p-3 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={student.photo}
+                      alt={student.name}
+                      className="w-10 h-10 rounded-full flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm truncate">{student.name}</p>
+                      <p className="text-xs text-muted-foreground">{student.admissionNo}</p>
+                    </div>
+                    <Badge className="bg-secondary text-secondary-foreground text-[10px] px-1.5 py-0">
+                      {student.status}
+                    </Badge>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-muted-foreground">Batch:</span>
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">{student.batch}</Badge>
+                    </div>
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-muted-foreground">Attendance:</span>
+                      <span className="font-medium">{student.attendancePercentage}%</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-1.5 pt-1.5 border-t border-border">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1 h-7 text-[11px]"
+                      onClick={() => navigate(`/admin/students/${student.id}`)}
+                    >
+                      <Eye className="w-3 h-3 mr-1" />
+                      View
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 px-2"
+                      onClick={() => handleEditStudent(student)}
+                    >
+                      <Edit className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-destructive hover:bg-destructive/10 h-7 px-2"
+                      onClick={() => handleDeleteStudent(student.id)}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
                 <thead className="bg-muted/50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium">Student</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium">Admission No</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium">Batch</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium">Parent Contact</th>
-                    <th className="px-4 py-3 text-center text-xs font-medium">Attendance</th>
-                    <th className="px-4 py-3 text-center text-xs font-medium">Status</th>
-                    <th className="px-4 py-3 text-center text-xs font-medium">Actions</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium">Student</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium">Admission No</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium">Batch</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium">Parent Contact</th>
+                    <th className="px-3 py-2 text-center text-xs font-medium">Attendance</th>
+                    <th className="px-3 py-2 text-center text-xs font-medium">Status</th>
+                    <th className="px-3 py-2 text-center text-xs font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {filteredStudents.map((student) => (
                     <tr key={student.id} className="hover:bg-muted/50">
-                      <td className="px-4 py-3">
+                      <td className="px-3 py-2">
                         <div className="flex items-center gap-2">
                           <img
                             src={student.photo}
@@ -193,20 +253,20 @@ export default function Students() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-xs">{student.admissionNo}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-3 py-2 text-xs">{student.admissionNo}</td>
+                      <td className="px-3 py-2">
                         <Badge variant="outline" className="text-xs">{student.batch}</Badge>
                       </td>
-                      <td className="px-4 py-3 text-xs">{student.parentPhone}</td>
-                      <td className="px-4 py-3 text-center">
+                      <td className="px-3 py-2 text-xs">{student.parentPhone}</td>
+                      <td className="px-3 py-2 text-center">
                         <span className="text-xs font-medium">{student.attendancePercentage}%</span>
                       </td>
-                      <td className="px-4 py-3 text-center">
+                      <td className="px-3 py-2 text-center">
                         <Badge className="bg-secondary text-secondary-foreground text-xs">
                           {student.status}
                         </Badge>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-3 py-2">
                         <div className="flex items-center justify-center gap-1.5">
                           <ViewButton onClick={() => navigate(`/admin/students/${student.id}`)} />
                           <EditButton onClick={() => handleEditStudent(student)} />
