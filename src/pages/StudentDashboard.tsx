@@ -98,7 +98,7 @@ export default function StudentDashboard() {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
           {/* Timetable - Takes 2 columns on large screens */}
           <div className="lg:col-span-2">
             <InteractiveTimetable schedule={mockTodaySchedule} />

@@ -24,12 +24,11 @@ export default function StudentDetail() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Back Button */}
         <Button
           variant="ghost"
           onClick={() => navigate('/admin/students')}
-          className="mb-2"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Students
@@ -37,17 +36,17 @@ export default function StudentDetail() {
 
         {/* Header Card */}
         <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-6">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
               <img
                 src={student.photo}
                 alt={student.name}
-                className="w-24 h-24 rounded-full"
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full"
               />
-              <div className="flex-1">
-                <h1 className="text-2xl font-bold">{student.name}</h1>
-                <p className="text-muted-foreground">{student.admissionNo}</p>
-                <div className="flex items-center gap-4 mt-2">
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold truncate">{student.name}</h1>
+                <p className="text-sm text-muted-foreground">{student.admissionNo}</p>
+                <div className="flex flex-wrap items-center gap-2 mt-2">
                   <Badge variant="outline">{student.batch}</Badge>
                   <Badge className="bg-secondary text-secondary-foreground">
                     {student.status}
@@ -60,20 +59,20 @@ export default function StudentDetail() {
 
         {/* Tabs */}
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="attendance">Attendance</TabsTrigger>
-            <TabsTrigger value="fees">Fee History</TabsTrigger>
-            <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+            <TabsTrigger value="attendance" className="text-xs sm:text-sm">Attendance</TabsTrigger>
+            <TabsTrigger value="fees" className="text-xs sm:text-sm">Fees</TabsTrigger>
+            <TabsTrigger value="performance" className="text-xs sm:text-sm">Performance</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-4">
+          <TabsContent value="overview" className="space-y-3">
             <Card>
-              <CardHeader>
-                <CardTitle>Personal Information</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Personal Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-2 gap-4">
+              <CardContent className="pt-0 space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex items-center gap-2">
                     <User className="w-4 h-4 text-muted-foreground" />
                     <div>
@@ -114,11 +113,11 @@ export default function StudentDetail() {
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle>Parent Information</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Parent Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-2 gap-4">
+              <CardContent className="pt-0 space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Parent Name</p>
                     <p className="font-medium">{student.parentName}</p>

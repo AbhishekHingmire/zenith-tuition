@@ -77,7 +77,7 @@ export default function Reports() {
         </div>
 
         {/* Overview Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
           <Card>
             <CardContent className="p-3">
               <div className="flex items-center gap-2">
@@ -92,53 +92,53 @@ export default function Reports() {
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-secondary/10 p-2 rounded-lg">
-                  <BookOpen className="w-5 h-5 text-secondary" />
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2">
+                <div className="bg-secondary/10 p-1.5 rounded-lg">
+                  <BookOpen className="w-4 h-4 text-secondary" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Teachers</p>
-                  <p className="text-2xl font-bold">{totalTeachers}</p>
+                  <p className="text-xs text-muted-foreground">Teachers</p>
+                  <p className="text-lg sm:text-xl font-bold">{totalTeachers}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-amber-100 p-2 rounded-lg">
-                  <FileText className="w-5 h-5 text-amber-700" />
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2">
+                <div className="bg-accent/10 p-1.5 rounded-lg">
+                  <FileText className="w-4 h-4 text-accent" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Batches</p>
-                  <p className="text-2xl font-bold">{totalBatches}</p>
+                  <p className="text-xs text-muted-foreground">Batches</p>
+                  <p className="text-lg sm:text-xl font-bold">{totalBatches}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-emerald-100 p-2 rounded-lg">
-                  <TrendingUp className="w-5 h-5 text-emerald-700" />
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2">
+                <div className="bg-secondary/10 p-1.5 rounded-lg">
+                  <TrendingUp className="w-4 h-4 text-secondary" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Attendance</p>
-                  <p className="text-2xl font-bold">{avgAttendance}%</p>
+                  <p className="text-xs text-muted-foreground">Attendance</p>
+                  <p className="text-lg sm:text-xl font-bold">{avgAttendance}%</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-purple-100 p-2 rounded-lg">
-                  <IndianRupee className="w-5 h-5 text-purple-700" />
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2">
+                <div className="bg-accent/10 p-1.5 rounded-lg">
+                  <IndianRupee className="w-4 h-4 text-accent" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Revenue</p>
-                  <p className="text-2xl font-bold">₹{(totalRevenue / 100000).toFixed(1)}L</p>
+                  <p className="text-xs text-muted-foreground">Revenue</p>
+                  <p className="text-lg sm:text-xl font-bold">₹{(totalRevenue / 100000).toFixed(1)}L</p>
                 </div>
               </div>
             </CardContent>

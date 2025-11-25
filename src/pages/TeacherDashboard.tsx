@@ -100,26 +100,26 @@ export default function TeacherDashboard() {
 
           {/* Announcements */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Bell className="w-5 h-5 mr-2 text-amber-600" />
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center text-lg">
+                <Bell className="w-4 h-4 mr-2 text-accent" />
                 Recent Announcements
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
+            <CardContent className="pt-0">
+              <div className="space-y-2">
                 {announcements.map((announcement, index) => (
-                  <div key={index} className="p-3 border border-gray-200 rounded-lg">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900">{announcement.title}</p>
-                        <p className="text-sm text-gray-600 mt-1">{announcement.date}</p>
+                  <div key={index} className="p-3 border border-border rounded-lg hover:border-primary/50 transition-colors">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">{announcement.title}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{announcement.date}</p>
                       </div>
                       <span
-                        className={`text-xs px-2 py-1 rounded-full ${
+                        className={`text-xs px-2 py-1 rounded-full flex-shrink-0 ${
                           announcement.priority === 'high'
-                            ? 'bg-red-100 text-red-700'
-                            : 'bg-blue-100 text-blue-700'
+                            ? 'bg-destructive/10 text-destructive'
+                            : 'bg-primary/10 text-primary'
                         }`}
                       >
                         {announcement.priority}
@@ -134,29 +134,38 @@ export default function TeacherDashboard() {
 
         {/* Quick Actions */}
         <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Quick Actions</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Button className="bg-indigo-600 hover:bg-indigo-700">
-                <CheckSquare className="w-5 h-5 mr-2" />
-                Mark Attendance
+              <Button 
+                onClick={() => navigate('/teacher/attendance')}
+                className="bg-primary hover:bg-primary/90 h-auto py-3 flex-col gap-1"
+              >
+                <CheckSquare className="w-5 h-5" />
+                <span className="text-xs">Mark Attendance</span>
               </Button>
-              <Button className="bg-emerald-600 hover:bg-emerald-700">
-                <BookOpen className="w-5 h-5 mr-2" />
-                Post Assignment
+              <Button 
+                onClick={() => navigate('/teacher/assignments')}
+                className="bg-secondary hover:bg-secondary/90 h-auto py-3 flex-col gap-1"
+              >
+                <BookOpen className="w-5 h-5" />
+                <span className="text-xs">Post Assignment</span>
               </Button>
               <Button
                 onClick={() => navigate('/teacher/exams')}
-                className="bg-amber-600 hover:bg-amber-700"
+                className="bg-accent hover:bg-accent/90 h-auto py-3 flex-col gap-1"
               >
-                <CheckSquare className="w-5 h-5 mr-2" />
-                Manage Exams
+                <CheckSquare className="w-5 h-5" />
+                <span className="text-xs">Manage Exams</span>
               </Button>
-              <Button className="bg-purple-600 hover:bg-purple-700">
-                <Users className="w-5 h-5 mr-2" />
-                View Students
+              <Button 
+                onClick={() => navigate('/teacher/performance')}
+                className="bg-primary hover:bg-primary/90 h-auto py-3 flex-col gap-1"
+              >
+                <Users className="w-5 h-5" />
+                <span className="text-xs">View Students</span>
               </Button>
             </div>
           </CardContent>
