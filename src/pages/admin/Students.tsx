@@ -12,6 +12,7 @@ import { mockStudents, mockBatches } from '@/data/mockData';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { ViewButton, EditButton, DeleteButton } from '@/components/ui/action-buttons';
 
 export default function Students() {
   const navigate = useNavigate();
@@ -165,21 +166,21 @@ export default function Students() {
           <CardContent className="pt-0">
             <div className="overflow-x-auto -mx-4 sm:mx-0">
               <table className="w-full min-w-[800px]">
-                <thead className="bg-muted">
+                <thead className="bg-muted/50">
                   <tr>
-                    <th className="px-3 py-2 text-left text-xs font-semibold">Student</th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold">Admission No</th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold">Batch</th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold">Parent Contact</th>
-                    <th className="px-3 py-2 text-center text-xs font-semibold">Attendance</th>
-                    <th className="px-3 py-2 text-center text-xs font-semibold">Status</th>
-                    <th className="px-3 py-2 text-center text-xs font-semibold">Actions</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium">Student</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium">Admission No</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium">Batch</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium">Parent Contact</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium">Attendance</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium">Status</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {filteredStudents.map((student) => (
                     <tr key={student.id} className="hover:bg-muted/50">
-                      <td className="px-3 py-3">
+                      <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <img
                             src={student.photo}
@@ -192,43 +193,24 @@ export default function Students() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-3 py-3 text-xs">{student.admissionNo}</td>
-                      <td className="px-3 py-3">
+                      <td className="px-4 py-3 text-xs">{student.admissionNo}</td>
+                      <td className="px-4 py-3">
                         <Badge variant="outline" className="text-xs">{student.batch}</Badge>
                       </td>
-                      <td className="px-3 py-3 text-xs">{student.parentPhone}</td>
-                      <td className="px-3 py-3 text-center">
+                      <td className="px-4 py-3 text-xs">{student.parentPhone}</td>
+                      <td className="px-4 py-3 text-center">
                         <span className="text-xs font-medium">{student.attendancePercentage}%</span>
                       </td>
-                      <td className="px-3 py-3 text-center">
+                      <td className="px-4 py-3 text-center">
                         <Badge className="bg-secondary text-secondary-foreground text-xs">
                           {student.status}
                         </Badge>
                       </td>
-                      <td className="px-3 py-3">
-                        <div className="flex items-center justify-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => navigate(`/admin/students/${student.id}`)}
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="ghost"
-                            onClick={() => handleEditStudent(student)}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => handleDeleteStudent(student.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <ViewButton onClick={() => navigate(`/admin/students/${student.id}`)} />
+                          <EditButton onClick={() => handleEditStudent(student)} />
+                          <DeleteButton onClick={() => handleDeleteStudent(student.id)} />
                         </div>
                       </td>
                     </tr>

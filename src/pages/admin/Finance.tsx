@@ -12,13 +12,15 @@ import {
   IndianRupee, 
   TrendingUp, 
   TrendingDown, 
-  Plus, 
+  Plus,
   Download, 
   BarChart3,
   Receipt,
   DollarSign
 } from 'lucide-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
+import { EditButton, DeleteButton } from '@/components/ui/action-buttons';
 
 const mockFinanceData = {
   totalRevenue: 500000,
@@ -215,32 +217,32 @@ export default function Finance() {
                 <CardTitle>Expense List</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="p-3 text-left font-medium">Date</th>
-                        <th className="p-3 text-left font-medium">Category</th>
-                        <th className="p-3 text-left font-medium">Vendor</th>
-                        <th className="p-3 text-left font-medium">Payment Mode</th>
-                        <th className="p-3 text-left font-medium">Amount</th>
-                        <th className="p-3 text-left font-medium">Actions</th>
+                <div className="overflow-x-auto -mx-4 sm:mx-0">
+                  <table className="w-full min-w-[700px]">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-medium">Date</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium">Category</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium">Vendor</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium">Payment Mode</th>
+                        <th className="px-4 py-3 text-right text-xs font-medium">Amount</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium">Actions</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-border">
                       {mockExpenses.map((expense) => (
-                        <tr key={expense.id} className="border-b hover:bg-muted/50">
-                          <td className="p-3">{new Date(expense.date).toLocaleDateString()}</td>
-                          <td className="p-3">
-                            <Badge variant="outline">{expense.category}</Badge>
+                        <tr key={expense.id} className="hover:bg-muted/50">
+                          <td className="px-4 py-3 text-sm">{new Date(expense.date).toLocaleDateString()}</td>
+                          <td className="px-4 py-3">
+                            <Badge variant="outline" className="text-xs">{expense.category}</Badge>
                           </td>
-                          <td className="p-3">{expense.vendor}</td>
-                          <td className="p-3">{expense.mode}</td>
-                          <td className="p-3 font-semibold">₹{expense.amount.toLocaleString()}</td>
-                          <td className="p-3">
-                            <div className="flex gap-2">
-                              <Button variant="ghost" size="sm">Edit</Button>
-                              <Button variant="ghost" size="sm" className="text-destructive">Delete</Button>
+                          <td className="px-4 py-3 text-sm">{expense.vendor}</td>
+                          <td className="px-4 py-3 text-sm">{expense.mode}</td>
+                          <td className="px-4 py-3 text-sm font-semibold text-right">₹{expense.amount.toLocaleString()}</td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center justify-center gap-1.5">
+                              <EditButton onClick={() => toast.info('Edit expense feature')} />
+                              <DeleteButton onClick={() => toast.info('Delete expense feature')} />
                             </div>
                           </td>
                         </tr>

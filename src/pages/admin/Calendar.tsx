@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Calendar as CalendarIcon, Plus, Download, Clock } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { toast } from 'sonner';
+import { EditButton, DeleteButton } from '@/components/ui/action-buttons';
 
 const mockHolidays = [
   { id: '1', name: 'Independence Day', date: '2024-08-15', type: 'public', description: 'National Holiday' },
@@ -203,35 +204,35 @@ export default function CalendarManagement() {
             <CardTitle>All Holidays & Events</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="p-3 text-left font-medium">Name</th>
-                    <th className="p-3 text-left font-medium">Date(s)</th>
-                    <th className="p-3 text-left font-medium">Type</th>
-                    <th className="p-3 text-left font-medium">Description</th>
-                    <th className="p-3 text-left font-medium">Actions</th>
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <table className="w-full min-w-[600px]">
+                <thead className="bg-muted/50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium">Name</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium">Date(s)</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium">Type</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium">Description</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-border">
                   {mockHolidays.map((holiday) => (
-                    <tr key={holiday.id} className="border-b hover:bg-muted/50">
-                      <td className="p-3 font-medium">{holiday.name}</td>
-                      <td className="p-3">
+                    <tr key={holiday.id} className="hover:bg-muted/50">
+                      <td className="px-4 py-3 font-medium text-sm">{holiday.name}</td>
+                      <td className="px-4 py-3 text-sm">
                         {new Date(holiday.date).toLocaleDateString()}
                         {holiday.endDate && ` - ${new Date(holiday.endDate).toLocaleDateString()}`}
                       </td>
-                      <td className="p-3">
-                        <Badge className={getTypeColor(holiday.type)}>
+                      <td className="px-4 py-3">
+                        <Badge className={getTypeColor(holiday.type)} variant="outline">
                           {holiday.type}
                         </Badge>
                       </td>
-                      <td className="p-3 text-sm text-muted-foreground">{holiday.description}</td>
-                      <td className="p-3">
-                        <div className="flex gap-2">
-                          <Button variant="ghost" size="sm">Edit</Button>
-                          <Button variant="ghost" size="sm" className="text-destructive">Delete</Button>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">{holiday.description}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <EditButton onClick={() => toast.info('Edit holiday feature')} />
+                          <DeleteButton onClick={() => toast.info('Delete holiday feature')} />
                         </div>
                       </td>
                     </tr>
