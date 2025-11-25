@@ -56,30 +56,37 @@ export default function Notifications() {
         </div>
 
         {/* Alerts Panel */}
-        <div>
-          <h2 className="text-lg font-semibold mb-4">Critical Alerts Requiring Action</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {mockAlerts.map((alert) => (
-              <Card key={alert.id} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <AlertCircle className="w-5 h-5 text-destructive" />
-                      <Badge className={getPriorityColor(alert.priority)}>
-                        {alert.priority.toUpperCase()}
-                      </Badge>
-                    </div>
-                    <span className="text-2xl font-bold text-primary">{alert.count}</span>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <AlertCircle className="w-4 h-4" />
+              Critical Alerts
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y">
+              {mockAlerts.map((alert) => (
+                <div key={alert.id} className="flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors">
+                  <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                    alert.priority === 'critical' ? 'bg-destructive' :
+                    alert.priority === 'high' ? 'bg-amber-500' :
+                    alert.priority === 'medium' ? 'bg-blue-500' :
+                    'bg-gray-500'
+                  }`} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{alert.title}</p>
                   </div>
-                  <h3 className="font-semibold mb-2">{alert.title}</h3>
-                  <Button variant="outline" className="w-full" size="sm">
+                  <Badge variant="secondary" className="text-xs px-2 py-0.5 font-semibold">
+                    {alert.count}
+                  </Badge>
+                  <Button variant="ghost" size="sm" className="text-xs h-7 px-2">
                     {alert.action}
                   </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Notification Feed */}
         <Card>
