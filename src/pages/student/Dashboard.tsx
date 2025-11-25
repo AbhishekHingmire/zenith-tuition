@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Trophy, 
   Flame, 
@@ -16,7 +18,9 @@ import {
   Target,
   Clock,
   Medal,
-  ChevronDown
+  ChevronDown,
+  CheckCircle2,
+  XCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { studentInsights } from '@/data/mockInsights';
@@ -53,6 +57,48 @@ export default function StudentDashboard() {
   // Collapsible states
   const [badgesOpen, setBadgesOpen] = useState(false);
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
+  const [statsDialogOpen, setStatsDialogOpen] = useState(false);
+
+  // Stats data
+  const statsData = {
+    attendance: {
+      overall: 87,
+      present: 78,
+      absent: 8,
+      leave: 4,
+      subjects: [
+        { name: 'Mathematics', percentage: 90 },
+        { name: 'Science', percentage: 85 },
+        { name: 'English', percentage: 88 },
+        { name: 'Computer Science', percentage: 92 },
+      ]
+    },
+    assignments: {
+      total: 45,
+      completed: 38,
+      pending: 7,
+      avgScore: 85,
+      onTime: 36,
+      late: 2
+    },
+    exams: {
+      totalExams: 12,
+      avgScore: 88,
+      highest: 98,
+      lowest: 72,
+      recentExams: [
+        { name: 'Math Mid-Term', score: 95, total: 100, date: '2024-01-15' },
+        { name: 'Science Quiz', score: 88, total: 100, date: '2024-01-10' },
+        { name: 'English Essay', score: 82, total: 100, date: '2024-01-05' },
+      ]
+    },
+    subjects: [
+      { name: 'Mathematics', score: 92, grade: 'A+', trend: '+5%' },
+      { name: 'Science', score: 88, grade: 'A', trend: '+3%' },
+      { name: 'English', score: 85, grade: 'A', trend: '+2%' },
+      { name: 'Computer Science', score: 95, grade: 'A+', trend: '+7%' },
+    ]
+  };
 
   return (
     <MainLayout>
@@ -100,7 +146,7 @@ export default function StudentDashboard() {
                   <p className="text-sm text-muted-foreground">{currentXP} / {nextLevelXP} XP</p>
                 </div>
               </div>
-              <Button size="sm" variant="outline" onClick={() => navigate('/student/performance')}>
+              <Button size="sm" variant="outline" onClick={() => setStatsDialogOpen(true)}>
                 View Stats
               </Button>
             </div>
@@ -108,16 +154,6 @@ export default function StudentDashboard() {
             <p className="text-xs text-muted-foreground mt-2">
               {nextLevelXP - currentXP} XP to Level {level + 1}
             </p>
-          </CardContent>
-        </Card>
-
-        {/* View Stats Button */}
-        <Card>
-          <CardContent className="p-6">
-            <Button className="w-full" variant="outline" onClick={() => navigate('/student/performance')}>
-              <TrendingUp className="w-5 h-5 mr-2" />
-              View My Stats
-            </Button>
           </CardContent>
         </Card>
 
@@ -344,6 +380,277 @@ export default function StudentDashboard() {
           </Card>
         </Collapsible>
       </div>
+
+      {/* Stats Dialog */}
+      <Dialog open={statsDialogOpen} onOpenChange={setStatsDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5" />
+              My Complete Statistics
+            </DialogTitle>
+          </DialogHeader>
+
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="attendance">Attendance</TabsTrigger>
+              <TabsTrigger value="assignments">Assignments</TabsTrigger>
+              <TabsTrigger value="exams">Exams</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview" className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-foreground">{statsData.attendance.overall}%</p>
+                      <p className="text-sm text-muted-foreground mt-1">Attendance</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-foreground">{statsData.assignments.avgScore}%</p>
+                      <p className="text-sm text-muted-foreground mt-1">Avg Assignment Score</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-foreground">{statsData.exams.avgScore}%</p>
+                      <p className="text-sm text-muted-foreground mt-1">Avg Exam Score</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-foreground">#{rank}</p>
+                      <p className="text-sm text-muted-foreground mt-1">Class Rank</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Subject-wise Performance</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {statsData.subjects.map((subject, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 border border-border rounded-lg">
+                      <div className="flex-1">
+                        <h4 className="font-semibold">{subject.name}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Progress value={subject.score} className="h-2 flex-1" />
+                          <span className="text-sm text-muted-foreground">{subject.score}%</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 ml-4">
+                        <Badge variant="secondary">{subject.grade}</Badge>
+                        <span className="text-sm text-green-500">{subject.trend}</span>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="attendance" className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-2xl font-bold text-foreground">{statsData.attendance.overall}%</p>
+                        <p className="text-sm text-muted-foreground">Overall</p>
+                      </div>
+                      <CheckCircle2 className="w-8 h-8 text-green-500" />
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-2xl font-bold text-foreground">{statsData.attendance.present}</p>
+                        <p className="text-sm text-muted-foreground">Present</p>
+                      </div>
+                      <CheckCircle2 className="w-8 h-8 text-green-500" />
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-2xl font-bold text-foreground">{statsData.attendance.absent}</p>
+                        <p className="text-sm text-muted-foreground">Absent</p>
+                      </div>
+                      <XCircle className="w-8 h-8 text-red-500" />
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-2xl font-bold text-foreground">{statsData.attendance.leave}</p>
+                        <p className="text-sm text-muted-foreground">Leave</p>
+                      </div>
+                      <Calendar className="w-8 h-8 text-amber-500" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Subject-wise Attendance</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {statsData.attendance.subjects.map((subject, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 border border-border rounded-lg">
+                      <div className="flex-1">
+                        <h4 className="font-semibold">{subject.name}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Progress value={subject.percentage} className="h-2 flex-1" />
+                          <span className="text-sm text-muted-foreground">{subject.percentage}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="assignments" className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-foreground">{statsData.assignments.total}</p>
+                      <p className="text-sm text-muted-foreground mt-1">Total Assignments</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-green-500">{statsData.assignments.completed}</p>
+                      <p className="text-sm text-muted-foreground mt-1">Completed</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-amber-500">{statsData.assignments.pending}</p>
+                      <p className="text-sm text-muted-foreground mt-1">Pending</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Performance</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Average Score</span>
+                      <span className="text-lg font-bold">{statsData.assignments.avgScore}%</span>
+                    </div>
+                    <Progress value={statsData.assignments.avgScore} className="h-2" />
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Submission Stats</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">On Time</span>
+                      <span className="text-lg font-bold text-green-500">{statsData.assignments.onTime}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Late</span>
+                      <span className="text-lg font-bold text-red-500">{statsData.assignments.late}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="exams" className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-foreground">{statsData.exams.totalExams}</p>
+                      <p className="text-sm text-muted-foreground mt-1">Total Exams</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-foreground">{statsData.exams.avgScore}%</p>
+                      <p className="text-sm text-muted-foreground mt-1">Average Score</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-green-500">{statsData.exams.highest}%</p>
+                      <p className="text-sm text-muted-foreground mt-1">Highest Score</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-amber-500">{statsData.exams.lowest}%</p>
+                      <p className="text-sm text-muted-foreground mt-1">Lowest Score</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Recent Exam Results</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {statsData.exams.recentExams.map((exam, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 border border-border rounded-lg">
+                      <div className="flex-1">
+                        <h4 className="font-semibold">{exam.name}</h4>
+                        <p className="text-sm text-muted-foreground">{new Date(exam.date).toLocaleDateString()}</p>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <p className="font-bold">{exam.score}/{exam.total}</p>
+                          <p className="text-sm text-muted-foreground">{Math.round((exam.score/exam.total)*100)}%</p>
+                        </div>
+                        <Badge variant={exam.score >= 90 ? 'default' : exam.score >= 75 ? 'secondary' : 'destructive'}>
+                          {exam.score >= 90 ? 'A+' : exam.score >= 75 ? 'B' : 'C'}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   );
 }
