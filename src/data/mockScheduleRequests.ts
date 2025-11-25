@@ -1,0 +1,70 @@
+import { ScheduleChangeRequest } from '@/types/schedule';
+
+export const mockScheduleRequests: ScheduleChangeRequest[] = [
+  {
+    id: 'req1',
+    teacherId: 't1',
+    teacherName: 'Dr. John Smith',
+    batchId: 'b1',
+    batchName: 'Grade 10 - Mathematics',
+    currentSchedule: {
+      days: ['Mon', 'Wed', 'Fri'],
+      startTime: '09:00',
+      endTime: '10:30',
+    },
+    requestedSchedule: {
+      days: ['Mon', 'Wed', 'Fri'],
+      startTime: '10:00',
+      endTime: '11:30',
+    },
+    reason: 'Need to attend administrative meeting in the morning. Request 1 hour delay.',
+    status: 'pending',
+    requestedDate: new Date(Date.now() - 2 * 60 * 60 * 1000),
+  },
+  {
+    id: 'req2',
+    teacherId: 't2',
+    teacherName: 'Ms. Sarah Johnson',
+    batchId: 'b2',
+    batchName: 'Grade 9 - Biology',
+    currentSchedule: {
+      days: ['Tue', 'Thu'],
+      startTime: '11:00',
+      endTime: '12:30',
+    },
+    requestedSchedule: {
+      days: ['Tue', 'Thu'],
+      startTime: '14:00',
+      endTime: '15:30',
+    },
+    reason: 'Personal appointment in the morning. Request afternoon slot.',
+    status: 'approved',
+    requestedDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
+    reviewedDate: new Date(Date.now() - 12 * 60 * 60 * 1000),
+    reviewedBy: 'Admin',
+    reviewComments: 'Approved. Afternoon slot is available.',
+  },
+  {
+    id: 'req3',
+    teacherId: 't1',
+    teacherName: 'Dr. John Smith',
+    batchId: 'b3',
+    batchName: 'Grade 11 - Physics',
+    currentSchedule: {
+      days: ['Mon', 'Wed', 'Fri'],
+      startTime: '14:00',
+      endTime: '15:30',
+    },
+    requestedSchedule: {
+      days: ['Tue', 'Thu', 'Sat'],
+      startTime: '14:00',
+      endTime: '15:30',
+    },
+    reason: 'Monday and Wednesday conflict with another batch. Request alternate days.',
+    status: 'rejected',
+    requestedDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+    reviewedDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+    reviewedBy: 'Admin',
+    reviewComments: 'Rejected. Requested days already have other batches scheduled.',
+  },
+];

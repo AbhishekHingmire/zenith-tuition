@@ -34,6 +34,7 @@ const getMenuItems = (role: string) => {
         { icon: Calendar, label: "Calendar", path: "/admin/calendar" },
         { icon: BookOpen, label: "Subjects", path: "/admin/subjects" },
         { icon: Calendar, label: "Timetable", path: "/admin/timetable" },
+        { icon: Calendar, label: "Schedule Requests", path: "/admin/schedule-requests" },
         { icon: ClipboardList, label: "Attendance", path: "/admin/attendance" },
         { icon: FileText, label: "Exams", path: "/admin/exams" },
         { icon: IndianRupee, label: "Fees", path: "/admin/fees" },
