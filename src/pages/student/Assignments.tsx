@@ -20,7 +20,7 @@ export default function StudentAssignments() {
     <MainLayout>
       <div className="space-y-4 pb-20 md:pb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">My Assignments</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Assignments</h1>
           <p className="text-sm text-muted-foreground mt-1">Track your assignments and submissions</p>
         </div>
 
