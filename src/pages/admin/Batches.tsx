@@ -186,71 +186,68 @@ export default function Batches() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {batches.map((batch) => (
-            <Card key={batch.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-3">
+            <Card key={batch.id} className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2 px-3 pt-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <CardTitle className="text-base truncate">{batch.name}</CardTitle>
-                    <div className="flex flex-wrap gap-1 mt-1.5">
-                      {batch.subjects?.map((subCode, idx) => {
+                    <CardTitle className="text-sm truncate">{batch.name}</CardTitle>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {batch.subjects?.slice(0, 2).map((subCode, idx) => {
                         const subject = mockSubjects.find(s => s.code === subCode);
                         return (
-                          <Badge key={idx} variant="outline" className="text-xs">
+                          <Badge key={idx} variant="outline" className="text-[10px] px-1.5 py-0">
                             {subject?.name || subCode}
                           </Badge>
                         );
                       })}
+                      {batch.subjects?.length > 2 && (
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                          +{batch.subjects.length - 2}
+                        </Badge>
+                      )}
                     </div>
                   </div>
-                  <Badge className={batch.status === 'ongoing' ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'}>
+                  <Badge className={batch.status === 'ongoing' ? 'bg-secondary text-secondary-foreground text-[10px] px-1.5 py-0' : 'bg-muted text-muted-foreground text-[10px] px-1.5 py-0'}>
                     {batch.status}
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-2 pt-0">
-                <div className="flex items-center gap-2 text-xs">
-                  <Users className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                  <span className="text-muted-foreground">Teacher:</span>
+              <CardContent className="space-y-1.5 pt-0 px-3 pb-3">
+                <div className="flex items-center gap-1.5 text-[11px]">
+                  <Users className="w-3 h-3 text-muted-foreground flex-shrink-0" />
                   <span className="font-medium truncate">{batch.teacher}</span>
                 </div>
-                <div className="flex items-start gap-2 text-xs">
-                  <Calendar className="w-3.5 h-3.5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <span className="text-muted-foreground">Schedule:</span>
-                    <p className="font-medium break-words">{batch.schedule}</p>
-                  </div>
+                <div className="flex items-center gap-1.5 text-[11px]">
+                  <Users className="w-3 h-3 text-muted-foreground flex-shrink-0" />
+                  <span className="text-muted-foreground">{batch.enrolledStudents}/{batch.capacity} Students</span>
                 </div>
-                <div className="flex items-center gap-2 text-xs">
-                  <Users className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                  <span className="text-muted-foreground">Students:</span>
-                  <span className="font-medium">{batch.enrolledStudents}/{batch.capacity}</span>
-                </div>
-                <div className="pt-2 border-t border-border flex gap-2">
+                <div className="pt-1.5 border-t border-border flex gap-1.5">
                   <Button 
                     size="sm" 
                     variant="outline" 
-                    className="flex-1"
+                    className="flex-1 h-7 text-[11px]"
                     onClick={() => handleViewBatch(batch)}
                   >
-                    <Eye className="w-4 h-4 mr-1" />
+                    <Eye className="w-3 h-3 mr-1" />
                     View
                   </Button>
                   <Button 
                     size="sm" 
                     variant="outline"
+                    className="h-7 px-2"
                     onClick={() => handleEditBatch(batch)}
                   >
-                    <Edit className="w-4 h-4" />
+                    <Edit className="w-3 h-3" />
                   </Button>
                   <Button 
                     size="sm" 
                     variant="outline"
-                    className="text-destructive hover:bg-destructive/10"
+                    className="text-destructive hover:bg-destructive/10 h-7 px-2"
                     onClick={() => handleDeleteBatch(batch.id)}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3 h-3" />
                   </Button>
                 </div>
               </CardContent>
