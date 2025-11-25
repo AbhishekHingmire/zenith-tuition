@@ -122,20 +122,15 @@ export default function StudentDashboard() {
           </CardContent>
         </Card>
 
-        {/* AI Insights */}
-        <div className="grid gap-4">
-          {studentInsights.map((insight, index) => (
-            <InsightCard
-              key={index}
-              type={insight.type}
-              icon={insight.icon}
-              title={insight.title}
-              message={insight.message}
-              action={insight.action}
-              onActionClick={() => console.log('Action clicked')}
-            />
-          ))}
-        </div>
+        {/* View Stats Button */}
+        <Card>
+          <CardContent className="p-6">
+            <Button className="w-full" variant="outline" onClick={() => navigate('/student/performance')}>
+              <TrendingUp className="w-5 h-5 mr-2" />
+              View My Stats
+            </Button>
+          </CardContent>
+        </Card>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
