@@ -1,12 +1,14 @@
+import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { InteractiveTimetable } from '@/components/student/InteractiveTimetable';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Calendar, ChevronDown, Clock, User } from 'lucide-react';
 import { mockTodaySchedule } from '@/data/mockStudentData';
-import { Clock, MapPin, User } from 'lucide-react';
 
 export default function StudentSchedule() {
+  const [timetableOpen, setTimetableOpen] = useState(true);
+
   const weekSchedule = {
     Monday: mockTodaySchedule,
     Tuesday: mockTodaySchedule,
@@ -18,62 +20,85 @@ export default function StudentSchedule() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">My Schedule</h1>
-          <p className="text-muted-foreground mt-1">View your class timetable</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">My Schedule</h1>
+          <p className="text-sm text-muted-foreground mt-1">View your class timetable</p>
         </div>
 
-        <Tabs defaultValue="today" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="today">Today</TabsTrigger>
-            <TabsTrigger value="week">This Week</TabsTrigger>
-          </TabsList>
+        {/* Today's Timetable Panel */}
+        <Collapsible open={timetableOpen} onOpenChange={setTimetableOpen}>
+          <Card>
+            <CollapsibleTrigger className="w-full">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-primary" />
+                    Today's Timetable
+                  </div>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${timetableOpen ? 'rotate-180' : ''}`} />
+                </CardTitle>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="space-y-3 pt-0">
+                <div className="text-xs font-medium text-muted-foreground mb-2">
+                  Class 10 - Science Batch • {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+                </div>
+                {mockTodaySchedule.map((classItem) => (
+                  <div key={classItem.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/30 transition-colors">
+                    <div className="flex-shrink-0 text-center min-w-[55px]">
+                      <div className="font-bold text-sm text-primary">{classItem.startTime}</div>
+                      <div className="text-[10px] text-muted-foreground">{classItem.endTime}</div>
+                    </div>
+                    <div className="h-10 w-px bg-border" />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm truncate">{classItem.subject}</div>
+                      <div className="text-xs text-muted-foreground truncate">{classItem.teacher}</div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-xs text-muted-foreground">{classItem.room}</div>
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 mt-0.5 capitalize">
+                        {classItem.type}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
 
-          <TabsContent value="today">
-            <InteractiveTimetable schedule={mockTodaySchedule} />
-          </TabsContent>
-
-          <TabsContent value="week" className="space-y-4">
-            {Object.entries(weekSchedule).map(([day, classes]) => (
-              <Card key={day}>
-                <CardHeader>
-                  <CardTitle className="text-lg">{day}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
+        {/* Weekly Timetable Panel */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-primary" />
+              Weekly Timetable
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="space-y-4">
+              {Object.entries(weekSchedule).map(([day, classes]) => (
+                <div key={day}>
+                  <div className="font-semibold text-sm text-foreground mb-2 flex items-center gap-2">
+                    <span className={`w-1.5 h-1.5 rounded-full ${day === new Date().toLocaleDateString('en-US', { weekday: 'long' }) ? 'bg-primary animate-pulse' : 'bg-muted-foreground'}`} />
+                    {day}
+                  </div>
+                  <div className="space-y-1.5 ml-3">
                     {classes.map((classItem) => (
-                      <div
-                        key={classItem.id}
-                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 border rounded-lg"
-                      >
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-foreground">{classItem.subject}</p>
-                          <div className="flex flex-wrap items-center gap-2 mt-1 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <Clock className="w-3 h-3 flex-shrink-0" />
-                              <span className="whitespace-nowrap">{classItem.startTime} - {classItem.endTime}</span>
-                            </div>
-                            <span>•</span>
-                            <div className="flex items-center gap-1">
-                              <User className="w-3 h-3 flex-shrink-0" />
-                              <span className="truncate">{classItem.teacher}</span>
-                            </div>
-                            <span>•</span>
-                            <span>{classItem.room}</span>
-                          </div>
-                        </div>
-                        <Badge variant="outline" className="capitalize whitespace-nowrap">
-                          {classItem.type.replace('-', ' ')}
-                        </Badge>
+                      <div key={`${day}-${classItem.id}`} className="flex items-center gap-2 p-2 bg-muted/30 rounded text-xs hover:bg-muted/50 transition-colors">
+                        <span className="font-semibold text-primary min-w-[45px]">{classItem.startTime}</span>
+                        <span className="font-medium flex-1 truncate">{classItem.subject}</span>
+                        <span className="text-muted-foreground text-[10px] truncate">{classItem.room}</span>
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </TabsContent>
-        </Tabs>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </MainLayout>
   );
