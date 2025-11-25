@@ -34,6 +34,7 @@ import AdminUserManagement from "./pages/admin/UserManagement";
 import AdminSystemSettings from "./pages/admin/SystemSettings";
 import AdminNotifications from "./pages/admin/Notifications";
 import AdminAdmissions from "./pages/admin/Admissions";
+import AdminScheduleRequests from "./pages/admin/ScheduleRequests";
 
 // Teacher pages
 import TeacherSchedule from "./pages/teacher/Schedule";
@@ -229,6 +230,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <AdminAdmissions />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/schedule-requests"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminScheduleRequests />
                 </ProtectedRoute>
               }
             />
