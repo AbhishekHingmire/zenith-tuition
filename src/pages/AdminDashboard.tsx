@@ -2,9 +2,10 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { 
   Users, GraduationCap, IndianRupee, ClipboardCheck, 
-  AlertTriangle, X, UserPlus, Calendar, FileText, Bell, TrendingUp
+  AlertTriangle, X, UserPlus, Calendar, FileText, Bell, TrendingUp, ChevronDown
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -13,6 +14,8 @@ import { useState } from 'react';
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
+  const [activityOpen, setActivityOpen] = useState(true);
+  const [tasksOpen, setTasksOpen] = useState(true);
 
   const criticalAlerts = [
     { id: 'alert1', type: 'critical', message: '8 students with fees overdue >30 days', action: 'Review', link: '/admin/finance' },
@@ -185,53 +188,71 @@ export default function AdminDashboard() {
 
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Recent Activity</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="space-y-3">
-                {recentActivities.map((activity) => (
-                  <div key={activity.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className={`p-1.5 rounded-full bg-muted flex-shrink-0`}>
-                      <activity.icon className={`w-3.5 h-3.5 ${activity.color}`} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm truncate">{activity.text}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{activity.time}</p>
-                    </div>
+          {/* Recent Activity - Collapsible */}
+          <Collapsible open={activityOpen} onOpenChange={setActivityOpen}>
+            <Card>
+              <CollapsibleTrigger className="w-full">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center justify-between text-base">
+                    <span>Recent Activity</span>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${activityOpen ? 'rotate-180' : ''}`} />
+                  </CardTitle>
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent className="pt-0">
+                  <div className="space-y-3">
+                    {recentActivities.map((activity) => (
+                      <div key={activity.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                        <div className={`p-1.5 rounded-full bg-muted flex-shrink-0`}>
+                          <activity.icon className={`w-3.5 h-3.5 ${activity.color}`} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm truncate">{activity.text}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{activity.time}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
 
-          {/* Pending Tasks */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                Pending Tasks
-                <Badge variant="secondary">{pendingTasks.length}</Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="space-y-2">
-                {pendingTasks.map((task) => (
-                  <div 
-                    key={task.id} 
-                    className="flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-                    onClick={() => navigate(task.link)}
-                  >
-                    <p className="text-sm flex-1 min-w-0 truncate">{task.task}</p>
-                    <Button size="sm" variant="ghost" className="h-7 text-xs flex-shrink-0">
-                      View
-                    </Button>
+          {/* Pending Tasks - Collapsible */}
+          <Collapsible open={tasksOpen} onOpenChange={setTasksOpen}>
+            <Card>
+              <CollapsibleTrigger className="w-full">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center justify-between text-base">
+                    <div className="flex items-center gap-2">
+                      Pending Tasks
+                      <Badge variant="secondary">{pendingTasks.length}</Badge>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${tasksOpen ? 'rotate-180' : ''}`} />
+                  </CardTitle>
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent className="pt-0">
+                  <div className="space-y-2">
+                    {pendingTasks.map((task) => (
+                      <div 
+                        key={task.id} 
+                        className="flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                        onClick={() => navigate(task.link)}
+                      >
+                        <p className="text-sm flex-1 min-w-0 truncate">{task.task}</p>
+                        <Button size="sm" variant="ghost" className="h-7 text-xs flex-shrink-0">
+                          View
+                        </Button>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
         </div>
       </div>
     </MainLayout>
