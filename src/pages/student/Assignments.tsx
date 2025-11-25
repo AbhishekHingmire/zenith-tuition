@@ -1,12 +1,18 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Calendar, Clock, FileText, User, CheckCircle2, Award } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Calendar, Clock, FileText, User, CheckCircle2, Award, Eye, Download, File } from 'lucide-react';
 import { mockAssignments } from '@/data/mockStudentData';
 import { format } from 'date-fns';
+import { useState } from 'react';
 
 export default function StudentAssignments() {
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
+
   const pendingAssignments = mockAssignments.filter(a => a.status === 'pending');
   const completedAssignments = mockAssignments.filter(a => a.status === 'graded' || a.status === 'submitted')
     .sort((a, b) => {
@@ -15,6 +21,16 @@ export default function StudentAssignments() {
       const dateB = b.submission?.submittedDate || new Date(0);
       return dateB.getTime() - dateA.getTime();
     });
+
+  const handleViewDetails = (assignment: any) => {
+    setSelectedAssignment(assignment);
+    setViewDialogOpen(true);
+  };
+
+  const handleDownload = (fileName: string) => {
+    // Simulate download
+    console.log('Downloading:', fileName);
+  };
 
   return (
     <MainLayout>
@@ -81,27 +97,23 @@ export default function StudentAssignments() {
                     return (
                       <div 
                         key={assignment.id} 
-                        className={`p-3 border rounded-lg space-y-2 transition-colors ${
+                        className={`p-2.5 border rounded-lg space-y-1.5 transition-colors ${
                           isUrgent ? 'border-destructive/50 bg-destructive/5' : 'hover:bg-muted/30'
                         }`}
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <h4 className="font-semibold text-sm">{assignment.title}</h4>
+                          <h4 className="font-semibold text-xs line-clamp-1">{assignment.title}</h4>
                           <Badge 
                             variant={isUrgent ? "destructive" : "outline"} 
-                            className="text-xs shrink-0"
+                            className="text-[10px] px-1.5 py-0 shrink-0"
                           >
                             {assignment.subject}
                           </Badge>
                         </div>
-                        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                        <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
                             {format(assignment.dueDate, 'MMM d, h:mm a')}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <User className="w-3 h-3" />
-                            {assignment.postedBy.name}
                           </div>
                           <div className="flex items-center gap-1">
                             <Award className="w-3 h-3" />
@@ -109,10 +121,19 @@ export default function StudentAssignments() {
                           </div>
                         </div>
                         {isUrgent && (
-                          <div className="text-xs font-medium text-destructive">
+                          <div className="text-[10px] font-medium text-destructive">
                             Due in {daysUntilDue} {daysUntilDue === 1 ? 'day' : 'days'}!
                           </div>
                         )}
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="w-full h-7 text-xs mt-1.5"
+                          onClick={() => handleViewDetails(assignment)}
+                        >
+                          <Eye className="w-3 h-3 mr-1" />
+                          View Details
+                        </Button>
                       </div>
                     );
                   })
@@ -141,29 +162,38 @@ export default function StudentAssignments() {
                   completedAssignments.map((assignment) => (
                     <div 
                       key={assignment.id} 
-                      className="p-3 border border-green-200 bg-green-50/50 dark:bg-green-950/20 dark:border-green-800 rounded-lg space-y-2"
+                      className="p-2.5 border border-green-200 bg-green-50/50 dark:bg-green-950/20 dark:border-green-800 rounded-lg space-y-1.5"
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-start gap-2 flex-1">
-                          <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                          <h4 className="font-semibold text-sm">{assignment.title}</h4>
+                        <div className="flex items-start gap-1.5 flex-1">
+                          <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                          <h4 className="font-semibold text-xs line-clamp-1">{assignment.title}</h4>
                         </div>
-                        <Badge variant="outline" className="text-xs shrink-0 border-green-600 text-green-600">
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0 border-green-600 text-green-600">
                           {assignment.subject}
                         </Badge>
                       </div>
                       {assignment.submission && (
-                        <div className="flex items-center justify-between text-xs ml-7">
+                        <div className="flex items-center justify-between text-[10px] ml-5">
                           <span className="text-muted-foreground">
                             Completed: {format(assignment.submission.submittedDate, 'MMM d, yyyy')}
                           </span>
                           {assignment.submission.marks !== undefined && (
-                            <Badge className="font-semibold bg-green-600 text-white hover:bg-green-700">
+                            <Badge className="font-semibold bg-green-600 text-white hover:bg-green-700 text-[10px] px-1.5 py-0">
                               {assignment.submission.marks}/{assignment.totalMarks}
                             </Badge>
                           )}
                         </div>
                       )}
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="w-full h-7 text-xs mt-1.5 ml-5"
+                        onClick={() => handleViewDetails(assignment)}
+                      >
+                        <Eye className="w-3 h-3 mr-1" />
+                        View Details
+                      </Button>
                     </div>
                   ))
                 )}
@@ -171,6 +201,124 @@ export default function StudentAssignments() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* View Details Dialog */}
+        <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Assignment Details</DialogTitle>
+            </DialogHeader>
+            {selectedAssignment && (
+              <div className="space-y-4 py-2">
+                {/* Header Info */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">{selectedAssignment.title}</h3>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <Badge variant="outline">{selectedAssignment.subject}</Badge>
+                    <Badge className={selectedAssignment.status === 'pending' ? 'bg-destructive' : 'bg-green-600'}>
+                      {selectedAssignment.status === 'pending' ? 'Pending' : 'Completed'}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Assignment Info Grid */}
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-muted-foreground text-xs mb-1">Posted By</p>
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4" />
+                      <span className="font-medium">{selectedAssignment.postedBy.name}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs mb-1">Due Date</p>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      <span className="font-medium">{format(selectedAssignment.dueDate, 'MMM d, yyyy h:mm a')}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs mb-1">Total Marks</p>
+                    <div className="flex items-center gap-2">
+                      <Award className="w-4 h-4" />
+                      <span className="font-medium">{selectedAssignment.totalMarks} marks</span>
+                    </div>
+                  </div>
+                  {selectedAssignment.submission && (
+                    <div>
+                      <p className="text-muted-foreground text-xs mb-1">Marks Obtained</p>
+                      <Badge className="bg-green-600 text-white">
+                        {selectedAssignment.submission.marks}/{selectedAssignment.totalMarks}
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+
+                {/* Description */}
+                <div>
+                  <p className="text-sm font-semibold mb-2">Description</p>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedAssignment.description || 'Complete the assignment on the given topic. Follow the instructions provided in the attached materials.'}
+                  </p>
+                </div>
+
+                {/* Attachments */}
+                <div>
+                  <p className="text-sm font-semibold mb-2">Attached Materials</p>
+                  <div className="space-y-2">
+                    {/* Mock attachments - in real app, this would come from assignment data */}
+                    {[
+                      { name: 'Question_Bank.pdf', type: 'PDF', size: '2.4 MB' },
+                      { name: 'Reference_Image.jpg', type: 'Image', size: '856 KB' },
+                      { name: 'Instructions.docx', type: 'Document', size: '124 KB' },
+                    ].map((file, idx) => (
+                      <div 
+                        key={idx}
+                        className="flex items-center justify-between p-2 border rounded-lg hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-primary/10 rounded flex items-center justify-center">
+                            <File className="w-4 h-4 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">{file.name}</p>
+                            <p className="text-xs text-muted-foreground">{file.type} • {file.size}</p>
+                          </div>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={() => handleDownload(file.name)}
+                        >
+                          <Download className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Submission Info (if completed) */}
+                {selectedAssignment.submission && (
+                  <div className="border-t pt-3">
+                    <p className="text-sm font-semibold mb-2">Submission Details</p>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Submitted On:</span>
+                        <span className="font-medium">{format(selectedAssignment.submission.submittedDate, 'MMM d, yyyy h:mm a')}</span>
+                      </div>
+                      {selectedAssignment.submission.feedback && (
+                        <div>
+                          <span className="text-muted-foreground">Teacher Feedback:</span>
+                          <p className="mt-1 p-2 bg-muted rounded text-sm">{selectedAssignment.submission.feedback}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </MainLayout>
   );
