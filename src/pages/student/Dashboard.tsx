@@ -356,25 +356,22 @@ export default function StudentDashboard() {
             <CollapsibleContent>
               <CardContent>
                 <div className="space-y-3">
-                  {[1, 2, 3, 4, 5].map((position) => (
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((position) => (
                     <div key={position} className={`flex items-center gap-3 p-3 rounded-lg ${position === rank ? 'bg-primary/10 border border-primary' : 'bg-muted/30'}`}>
                       <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
                         {position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : position}
                       </div>
                       <div className="flex-1">
                         <h4 className="font-semibold">{position === rank ? 'You' : `Student ${position}`}</h4>
-                        <p className="text-sm text-muted-foreground">Level {level + (5 - position)}</p>
+                        <p className="text-sm text-muted-foreground">Level {level + (10 - position)}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold">{currentXP + ((5 - position) * 200)} XP</p>
-                        <p className="text-sm text-muted-foreground">{3 + (5 - position)} badges</p>
+                        <p className="font-bold">{currentXP + ((10 - position) * 150)} XP</p>
+                        <p className="text-sm text-muted-foreground">{3 + Math.floor((10 - position) / 2)} badges</p>
                       </div>
                     </div>
                   ))}
                 </div>
-                <Button className="w-full mt-4" variant="outline">
-                  View Full Leaderboard
-                </Button>
               </CardContent>
             </CollapsibleContent>
           </Card>
