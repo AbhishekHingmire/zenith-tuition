@@ -49,6 +49,7 @@ import StudentSettings from "./pages/student/Settings";
 import StudentStudyMaterials from "./pages/student/StudyMaterials";
 import StudentDoubts from "./pages/student/Doubts";
 import StudentNotifications from "./pages/student/Notifications";
+import StudentProfile from "./pages/student/Profile";
 
 const queryClient = new QueryClient();
 
@@ -319,6 +320,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['student']}>
                   <StudentNotifications />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/profile"
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <StudentProfile />
                 </ProtectedRoute>
               }
             />
