@@ -43,7 +43,7 @@ export default function SystemSettings() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <Label>Tuition Name</Label>
                     <Input defaultValue="Bright Future Academy" />

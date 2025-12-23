@@ -144,7 +144,7 @@ export default function Teachers() {
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {filteredTeachers.map((teacher) => (
                 <div key={teacher.id} className="border border-border rounded-lg p-3 hover:shadow-md transition-shadow bg-card">
                   <div className="flex items-center gap-2 mb-2">

@@ -534,7 +534,7 @@ export default function Students() {
                       <CardHeader className="pb-3">
                         <CardTitle className="text-base">Contact Information</CardTitle>
                       </CardHeader>
-                      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      <CardContent className="grid grid-cols-2 md:grid-cols-2 gap-3 text-sm">
                         <div>
                           <p className="text-muted-foreground text-xs">Email</p>
                           <p className="font-medium">{viewingStudent.email}</p>

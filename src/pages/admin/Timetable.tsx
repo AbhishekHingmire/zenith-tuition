@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Clock, Plus, Save, Copy, Calendar as CalendarIcon } from 'lucide-react';
 import { toast } from 'sonner';
-import { DraggableScheduleCalendar } from '@/components/admin/DraggableScheduleCalendar';
 
 const mockTimeSlots = [
   { id: '1', name: 'Period 1', startTime: '08:00', endTime: '09:00', type: 'class' },
@@ -68,7 +67,11 @@ export default function TimetableManagement() {
           </TabsList>
 
           <TabsContent value="visual" className="space-y-4">
-            <DraggableScheduleCalendar />
+            <Card>
+              <CardContent className="p-4">
+                <p className="text-muted-foreground">Visual calendar coming soon...</p>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="slots" className="space-y-6">

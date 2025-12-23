@@ -2,246 +2,146 @@ import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, XCircle, AlertCircle, Download } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
 const mockBatches = [
-  { id: 'b1', name: 'Grade 10-A', subject: 'Mathematics', students: 25 },
-  { id: 'b2', name: 'Grade 9-B', subject: 'Science', students: 28 },
-  { id: 'b3', name: 'Grade 11-A', subject: 'Physics', students: 22 },
+  { id: 'b1', name: 'Grade 10-A' },
+  { id: 'b2', name: 'Grade 9-B' },
+  { id: 'b3', name: 'Grade 11-A' },
 ];
 
 const mockStudents = [
-  { id: 's1', name: 'Rahul Kumar', admissionNo: 'STU-001', photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rahul' },
-  { id: 's2', name: 'Priya Sharma', admissionNo: 'STU-002', photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Priya' },
-  { id: 's3', name: 'Amit Patel', admissionNo: 'STU-003', photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Amit' },
-  { id: 's4', name: 'Neha Singh', admissionNo: 'STU-004', photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Neha' },
-  { id: 's5', name: 'Vikram Reddy', admissionNo: 'STU-005', photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Vikram' },
-  { id: 's6', name: 'Anjali Verma', admissionNo: 'STU-006', photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Anjali' },
-  { id: 's7', name: 'Rohan Gupta', admissionNo: 'STU-007', photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rohan' },
-  { id: 's8', name: 'Sneha Joshi', admissionNo: 'STU-008', photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sneha' },
+  { id: 's1', name: 'Rahul Kumar', admissionNo: 'STU-001' },
+  { id: 's2', name: 'Priya Sharma', admissionNo: 'STU-002' },
+  { id: 's3', name: 'Amit Patel', admissionNo: 'STU-003' },
+  { id: 's4', name: 'Neha Singh', admissionNo: 'STU-004' },
+  { id: 's5', name: 'Vikram Reddy', admissionNo: 'STU-005' },
 ];
 
 export default function TeacherAttendance() {
   const [selectedBatch, setSelectedBatch] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [attendanceData, setAttendanceData] = useState<Record<string, 'present' | 'absent' | 'late'>>({});
+  const [attendanceData, setAttendanceData] = useState<Record<string, 'P' | 'A'>>({});
 
-  const markAttendance = (studentId: string, status: 'present' | 'absent' | 'late') => {
+  const toggleAttendance = (studentId: string) => {
     setAttendanceData(prev => ({
       ...prev,
-      [studentId]: status
+      [studentId]: prev[studentId] === 'P' ? 'A' : 'P'
     }));
   };
 
   const markAllPresent = () => {
-    const newData: Record<string, 'present' | 'absent' | 'late'> = {};
-    mockStudents.forEach(s => newData[s.id] = 'present');
+    const newData: Record<string, 'P' | 'A'> = {};
+    mockStudents.forEach(s => newData[s.id] = 'P');
     setAttendanceData(newData);
-    toast.success('All students marked present');
-  };
-
-  const markAllAbsent = () => {
-    const newData: Record<string, 'present' | 'absent' | 'late'> = {};
-    mockStudents.forEach(s => newData[s.id] = 'absent');
-    setAttendanceData(newData);
-    toast.success('All students marked absent');
   };
 
   const handleSubmit = () => {
-    const unmarked = mockStudents.filter(s => !attendanceData[s.id]);
-    if (unmarked.length > 0) {
-      toast.error(`Please mark attendance for ${unmarked.length} student(s)`);
+    if (!selectedBatch) {
+      toast.error('Please select a batch');
       return;
     }
-    
     toast.success('Attendance saved successfully!');
   };
 
-  const getAttendanceStats = () => {
-    const total = mockStudents.length;
-    const present = Object.values(attendanceData).filter(s => s === 'present').length;
-    const absent = Object.values(attendanceData).filter(s => s === 'absent').length;
-    const late = Object.values(attendanceData).filter(s => s === 'late').length;
-    const unmarked = total - present - absent - late;
-    
-    return { total, present, absent, late, unmarked };
-  };
-
-  const stats = getAttendanceStats();
+  const presentCount = Object.values(attendanceData).filter(s => s === 'P').length;
+  const absentCount = Object.values(attendanceData).filter(s => s === 'A').length;
 
   return (
     <MainLayout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Attendance Management</h1>
-            <p className="text-muted-foreground mt-1">Mark and manage daily attendance</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => toast.info('Exporting attendance data...')} className="w-full sm:w-auto">
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
-            <Button onClick={handleSubmit} className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
-              Save Attendance
-            </Button>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold">Mark Attendance</h1>
+          <p className="text-muted-foreground">Quick daily attendance marking</p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <Card>
-            <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground">Total Students</p>
-              <p className="text-2xl font-bold">{stats.total}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-4 text-center">
               <p className="text-sm text-muted-foreground">Present</p>
-              <p className="text-2xl font-bold text-secondary">{stats.present}</p>
+              <p className="text-2xl font-bold text-green-600">{presentCount}</p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-4 text-center">
               <p className="text-sm text-muted-foreground">Absent</p>
-              <p className="text-2xl font-bold text-destructive">{stats.absent}</p>
+              <p className="text-2xl font-bold text-red-600">{absentCount}</p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground">Late</p>
-              <p className="text-2xl font-bold text-amber-600">{stats.late}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground">Unmarked</p>
-              <p className="text-2xl font-bold text-muted-foreground">{stats.unmarked}</p>
+            <CardContent className="p-4 text-center">
+              <p className="text-sm text-muted-foreground">Total</p>
+              <p className="text-2xl font-bold">{mockStudents.length}</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Filters */}
         <Card>
           <CardContent className="pt-6">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="space-y-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div>
                 <label className="text-sm font-medium">Date</label>
                 <input
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md"
+                  className="w-full mt-1 px-3 py-2 border rounded-md"
                 />
               </div>
-              <div className="space-y-2">
+              <div>
                 <label className="text-sm font-medium">Batch</label>
                 <Select value={selectedBatch} onValueChange={setSelectedBatch}>
-                  <SelectTrigger>
+                  <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select batch" />
                   </SelectTrigger>
                   <SelectContent>
                     {mockBatches.map(batch => (
-                      <SelectItem key={batch.id} value={batch.name}>{batch.name} - {batch.subject}</SelectItem>
+                      <SelectItem key={batch.id} value={batch.name}>{batch.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Quick Actions</label>
-                <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={markAllPresent}
-                    className="flex-1"
-                  >
-                    All Present
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={() => {
-                      setAttendanceData({});
-                      toast.info('Cleared all marks');
-                    }}
-                    className="flex-1"
-                  >
-                    Clear All
-                  </Button>
-                </div>
+              <div>
+                <label className="text-sm font-medium">Actions</label>
+                <Button 
+                  onClick={markAllPresent}
+                  variant="outline"
+                  className="w-full mt-1"
+                >
+                  Mark All Present
+                </Button>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Attendance List */}
         <Card>
           <CardHeader>
-            <CardTitle>Mark Attendance ({mockStudents.length} Students)</CardTitle>
+            <CardTitle>Students ({mockStudents.length})</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto -mx-4 sm:mx-0">
-              <table className="w-full min-w-[600px]">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Student</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Admission No</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold">Mark Attendance</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {mockStudents.map((student) => (
-                    <tr key={student.id} className="hover:bg-muted/50">
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={student.photo}
-                            alt={student.name}
-                            className="w-10 h-10 rounded-full"
-                          />
-                          <div>
-                            <p className="font-medium">{student.name}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 text-sm">{student.admissionNo}</td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center justify-center gap-2">
-                          <Button
-                            size="sm"
-                            variant={attendanceData[student.id] === 'present' ? 'default' : 'outline'}
-                            className={attendanceData[student.id] === 'present' ? 'bg-secondary hover:bg-secondary/90' : ''}
-                            onClick={() => markAttendance(student.id, 'present')}
-                          >
-                            <CheckCircle2 className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant={attendanceData[student.id] === 'late' ? 'default' : 'outline'}
-                            className={attendanceData[student.id] === 'late' ? 'bg-amber-600 hover:bg-amber-700 text-white' : ''}
-                            onClick={() => markAttendance(student.id, 'late')}
-                          >
-                            <AlertCircle className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant={attendanceData[student.id] === 'absent' ? 'default' : 'outline'}
-                            className={attendanceData[student.id] === 'absent' ? 'bg-destructive hover:bg-destructive/90' : ''}
-                            onClick={() => markAttendance(student.id, 'absent')}
-                          >
-                            <XCircle className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-2">
+              {mockStudents.map((student) => (
+                <div key={student.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50">
+                  <div>
+                    <p className="font-medium">{student.name}</p>
+                    <p className="text-sm text-muted-foreground">{student.admissionNo}</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant={attendanceData[student.id] === 'P' ? 'default' : attendanceData[student.id] === 'A' ? 'destructive' : 'outline'}
+                    onClick={() => toggleAttendance(student.id)}
+                    className="w-20"
+                  >
+                    {attendanceData[student.id] === 'P' ? 'Present' : attendanceData[student.id] === 'A' ? 'Absent' : 'Mark'}
+                  </Button>
+                </div>
+              ))}
             </div>
+            <Button onClick={handleSubmit} className="w-full mt-4">
+              Save Attendance
+            </Button>
           </CardContent>
         </Card>
       </div>

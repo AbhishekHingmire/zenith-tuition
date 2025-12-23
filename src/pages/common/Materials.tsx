@@ -35,7 +35,7 @@ type Material = {
   uploadDate: Date;
   views: number;
   downloads: number;
-  rating: number;
+  // rating: number;
   description?: string;
   tags?: string;
   difficulty?: string;
@@ -53,7 +53,7 @@ const mockMaterials = [
     uploadDate: new Date('2024-01-15'),
     views: 145,
     downloads: 87,
-    rating: 4.5,
+    // rating: 4.5,
   },
   {
     id: '2',
@@ -65,7 +65,7 @@ const mockMaterials = [
     uploadDate: new Date('2024-01-20'),
     views: 98,
     downloads: 45,
-    rating: 4.8,
+    // rating: 4.8,
   },
 ];
 
@@ -108,7 +108,7 @@ export default function Materials() {
       uploadDate: new Date(),
       views: 0,
       downloads: 0,
-      rating: 0,
+      // rating: 0,
     };
     setMaterials([newMaterial, ...materials]);
     setUploadOpen(false);
@@ -251,12 +251,12 @@ export default function Materials() {
               </p>
             </CardContent>
           </Card>
-          <Card>
+          {/* <Card>
             <CardContent className="p-3">
               <p className="text-xs text-muted-foreground mb-0.5">Avg. Rating</p>
               <p className="text-xl font-bold">4.7</p>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
 
         {/* Materials List */}
@@ -524,7 +524,7 @@ export default function Materials() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   <div className="text-center p-3 border rounded-lg">
                     <Eye className="w-5 h-5 mx-auto mb-1 text-primary" />
                     <p className="text-2xl font-bold">{selectedMaterial.views}</p>
@@ -535,11 +535,11 @@ export default function Materials() {
                     <p className="text-2xl font-bold">{selectedMaterial.downloads}</p>
                     <p className="text-xs text-muted-foreground">Downloads</p>
                   </div>
-                  <div className="text-center p-3 border rounded-lg">
+                  {/* <div className="text-center p-3 border rounded-lg">
                     <BarChart3 className="w-5 h-5 mx-auto mb-1 text-accent" />
                     <p className="text-2xl font-bold">{selectedMaterial.rating}</p>
-                    <p className="text-xs text-muted-foreground">Rating</p>
-                  </div>
+                    <p className="text-xs text-muted-foreground">Rating</p> 
+                  </div> */}
                 </div>
 
                 {selectedMaterial.description && (

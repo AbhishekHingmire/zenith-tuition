@@ -52,24 +52,26 @@ const subjects = ['Mathematics', 'Science', 'English', 'Physics', 'Chemistry', '
 const batches = ['Grade 10-A', 'Grade 10-B', 'Grade 9-A', 'Grade 9-B', 'Grade 11-A'];
 
 interface CreateExamFormProps {
+  exam?: any; // Exam to edit (optional)
   onSuccess?: () => void;
 }
 
-export const CreateExamForm = ({ onSuccess }: CreateExamFormProps) => {
+export const CreateExamForm = ({ exam, onSuccess }: CreateExamFormProps) => {
   const { toast } = useToast();
-  const [selectedBatches, setSelectedBatches] = useState<string[]>([]);
+  const [selectedBatches, setSelectedBatches] = useState<string[]>(exam?.batches || []);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      type: 'unit_test',
-      subject: '',
-      batches: [],
-      time: '09:00',
-      duration: '60',
-      totalMarks: '100',
-      syllabus: '',
+      name: exam?.name || '',
+      type: exam?.type || 'unit_test',
+      subject: exam?.subject || '',
+      batches: exam?.batches || [],
+      date: exam?.date || '',
+      time: exam?.time || '09:00',
+      duration: exam?.duration || '60',
+      totalMarks: exam?.totalMarks?.toString() || '100',
+      syllabus: exam?.syllabus || '',
     },
   });
 
@@ -77,8 +79,10 @@ export const CreateExamForm = ({ onSuccess }: CreateExamFormProps) => {
     console.log('Exam data:', data);
     
     toast({
-      title: 'Exam Created Successfully',
-      description: `${data.name} has been created for ${data.batches.length} batch(es)`,
+      title: exam ? 'Exam Updated Successfully' : 'Exam Created Successfully',
+      description: exam 
+        ? `${data.name} has been updated` 
+        : `${data.name} has been created for ${data.batches.length} batch(es)`,
     });
 
     if (onSuccess) {

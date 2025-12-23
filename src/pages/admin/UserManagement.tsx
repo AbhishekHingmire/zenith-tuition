@@ -176,7 +176,7 @@ export default function UserManagement() {
           </TabsContent>
 
           <TabsContent value="roles">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Super Admin Role */}
               <Card className="border-primary">
                 <CardHeader>
@@ -285,7 +285,7 @@ export default function UserManagement() {
                 <CardTitle>Available Permissions</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {[
                     'View Students', 'Add/Edit Students', 'Delete Students',
                     'View Fees', 'Manage Fees', 'View Reports',

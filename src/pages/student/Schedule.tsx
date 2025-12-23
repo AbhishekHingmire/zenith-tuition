@@ -1,246 +1,162 @@
-import { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Calendar, Clock, User, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, Clock, User, MapPin, RefreshCw, CalendarDays } from 'lucide-react';
-import { mockTodaySchedule } from '@/data/mockStudentData';
-import { format } from 'date-fns';
+
+const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+// Mock schedule data - student can have multiple batches with different subjects
+const mockSchedule = [
+  { day: 'Monday', time: '09:00 AM - 10:00 AM', batch: 'Grade 10-A', subject: 'Mathematics', teacher: 'Dr. John Smith', room: 'Room 201' },
+  { day: 'Monday', time: '11:00 AM - 12:00 PM', batch: 'Grade 10-A', subject: 'Physics', teacher: 'Prof. Sarah Johnson', room: 'Room 305' },
+  { day: 'Monday', time: '02:00 PM - 03:00 PM', batch: 'Grade 10-B', subject: 'Chemistry', teacher: 'Dr. Michael Brown', room: 'Room 102' },
+  { day: 'Tuesday', time: '09:00 AM - 10:00 AM', batch: 'Grade 10-A', subject: 'English', teacher: 'Ms. Emily Davis', room: 'Room 201' },
+  { day: 'Tuesday', time: '10:00 AM - 11:00 AM', batch: 'Grade 10-A', subject: 'Mathematics', teacher: 'Dr. John Smith', room: 'Room 201' },
+  { day: 'Tuesday', time: '02:00 PM - 03:00 PM', batch: 'Grade 10-B', subject: 'Biology', teacher: 'Dr. Lisa Wilson', room: 'Room 103' },
+  { day: 'Wednesday', time: '09:00 AM - 10:00 AM', batch: 'Grade 10-A', subject: 'Physics', teacher: 'Prof. Sarah Johnson', room: 'Room 305' },
+  { day: 'Wednesday', time: '11:00 AM - 12:00 PM', batch: 'Grade 10-A', subject: 'Chemistry', teacher: 'Dr. Michael Brown', room: 'Room 102' },
+  { day: 'Thursday', time: '09:00 AM - 10:00 AM', batch: 'Grade 10-A', subject: 'Mathematics', teacher: 'Dr. John Smith', room: 'Room 201' },
+  { day: 'Thursday', time: '10:00 AM - 11:00 AM', batch: 'Grade 10-B', subject: 'English', teacher: 'Ms. Emily Davis', room: 'Room 204' },
+  { day: 'Thursday', time: '02:00 PM - 03:00 PM', batch: 'Grade 10-A', subject: 'Biology', teacher: 'Dr. Lisa Wilson', room: 'Room 103' },
+  { day: 'Friday', time: '09:00 AM - 10:00 AM', batch: 'Grade 10-A', subject: 'Physics', teacher: 'Prof. Sarah Johnson', room: 'Room 305' },
+  { day: 'Friday', time: '11:00 AM - 12:00 PM', batch: 'Grade 10-B', subject: 'Mathematics', teacher: 'Dr. John Smith', room: 'Room 201' },
+  { day: 'Saturday', time: '09:00 AM - 10:00 AM', batch: 'Grade 10-A', subject: 'Extra Class - Math', teacher: 'Dr. John Smith', room: 'Room 201' },
+];
 
 export default function StudentSchedule() {
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-  
-  // Update current time every minute
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const weekSchedule = {
-    Monday: mockTodaySchedule,
-    Tuesday: mockTodaySchedule,
-    Wednesday: mockTodaySchedule,
-    Thursday: mockTodaySchedule,
-    Friday: mockTodaySchedule,
-    Saturday: mockTodaySchedule.slice(0, 2),
-    Sunday: [],
+  const getClassesForDay = (day: string) => {
+    return mockSchedule.filter(item => item.day === day);
   };
 
-  const getCurrentClassIndex = () => {
-    const currentHour = currentTime.getHours();
-    const currentMinute = currentTime.getMinutes();
-    const currentTimeInMinutes = currentHour * 60 + currentMinute;
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
 
-    return mockTodaySchedule.findIndex((classItem) => {
-      const [startHour, startMinute] = classItem.startTime.split(':').map(Number);
-      const [endHour, endMinute] = classItem.endTime.split(':').map(Number);
-      const startTimeInMinutes = startHour * 60 + startMinute;
-      const endTimeInMinutes = endHour * 60 + endMinute;
-
-      return currentTimeInMinutes >= startTimeInMinutes && currentTimeInMinutes < endTimeInMinutes;
-    });
-  };
-
-  const isClassPast = (endTime: string) => {
-    const [hour, minute] = endTime.split(':').map(Number);
-    const classEndInMinutes = hour * 60 + minute;
-    const currentTimeInMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
-    return currentTimeInMinutes > classEndInMinutes;
-  };
-
-  const currentClassIndex = getCurrentClassIndex();
-
-  const handleRefresh = () => {
-    window.location.reload();
-  };
+  // Get unique batches and count classes per batch
+  const batches = Array.from(new Set(mockSchedule.map(item => item.batch)));
+  const totalClasses = mockSchedule.length;
 
   return (
     <MainLayout>
-      <div className="space-y-4 pb-20 md:pb-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">My Timetable</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {format(currentTime, 'EEEE, MMMM d, yyyy')} • {format(currentTime, 'h:mm a')}
-            </p>
-          </div>
-          <Button variant="outline" size="sm" onClick={handleRefresh} className="hidden sm:flex">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold">My Timetable</h1>
+          <p className="text-muted-foreground mt-1">Your weekly class schedule</p>
         </div>
 
-        {/* Tab-Based Layout */}
-        <Tabs defaultValue="today" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="today">Today's Timetable</TabsTrigger>
-            <TabsTrigger value="weekly">Weekly Timetable</TabsTrigger>
-          </TabsList>
-
-          {/* Tab 1 - Today's Timetable */}
-          <TabsContent value="today" className="mt-4">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Calendar className="w-5 h-5 text-primary" />
-                  Today's Timetable
-                </CardTitle>
-                <div className="text-xs text-muted-foreground">
-                  Class 10 - Science Batch
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {mockTodaySchedule.length === 0 ? (
-                  <div className="text-center py-12">
-                    <CalendarDays className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                    <p className="text-sm font-medium text-muted-foreground">No classes today</p>
-                    <p className="text-xs text-muted-foreground mt-1">Enjoy your day off!</p>
+        {/* Today's Classes */}
+        <Card className="border-primary">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="w-5 h-5" />
+              Today's Classes - {today}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {getClassesForDay(today).length === 0 ? (
+              <p className="text-muted-foreground text-center py-4">No classes scheduled for today</p>
+            ) : (
+              <div className="space-y-3">
+                {getClassesForDay(today).map((item, index) => (
+                  <div key={index} className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                    <div className="flex items-center gap-4">
+                      <div className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium min-w-[140px] text-center">
+                        {item.time}
+                      </div>
+                      <div>
+                        <p className="font-semibold">{item.subject}</p>
+                        <p className="text-sm text-muted-foreground">{item.batch} • {item.teacher}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <MapPin className="w-4 h-4" />
+                      <span className="text-sm">{item.room}</span>
+                    </div>
                   </div>
-                ) : (
-                  mockTodaySchedule.map((classItem, index) => {
-                    const isCurrentClass = index === currentClassIndex;
-                    const isPast = isClassPast(classItem.endTime);
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Weekly Schedule */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Weekly Timetable</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {weekDays.map((day) => {
+                const classes = getClassesForDay(day);
+                const isToday = day === today;
+                
+                return (
+                  <div key={day} className={`${isToday ? 'border-l-4 border-primary pl-4' : ''}`}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <h3 className={`font-semibold ${isToday ? 'text-primary' : ''}`}>{day}</h3>
+                      {isToday && <Badge>Today</Badge>}
+                      <span className="text-sm text-muted-foreground">
+                        ({classes.length} {classes.length === 1 ? 'class' : 'classes'})
+                      </span>
+                    </div>
                     
-                    return (
-                      <div
-                        key={classItem.id}
-                        className={`flex items-start gap-3 p-3 rounded-lg border transition-all ${
-                          isCurrentClass
-                            ? 'border-primary bg-primary/10 shadow-sm ring-2 ring-primary/20'
-                            : isPast
-                            ? 'border-border bg-muted/30 opacity-60'
-                            : 'border-border hover:bg-muted/30'
-                        }`}
-                      >
-                        <div className="flex-shrink-0 text-center min-w-[60px]">
-                          <div className={`font-bold text-sm ${isCurrentClass ? 'text-primary' : isPast ? 'text-muted-foreground' : 'text-foreground'}`}>
-                            {classItem.startTime}
+                    {classes.length === 0 ? (
+                      <p className="text-sm text-muted-foreground pl-4">No classes scheduled</p>
+                    ) : (
+                      <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
+                        {classes.map((item, index) => (
+                          <div key={index} className="border rounded-lg p-3 hover:shadow-md transition-shadow">
+                            <div className="flex items-start justify-between mb-2">
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium truncate">{item.subject}</p>
+                                <p className="text-xs text-muted-foreground truncate">{item.batch}</p>
+                              </div>
+                              <Badge variant="outline" className="ml-2 flex-shrink-0 text-xs">{item.room}</Badge>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
+                              <Clock className="w-3 h-3 flex-shrink-0" />
+                              <span className="truncate">{item.time}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                              <User className="w-3 h-3 flex-shrink-0" />
+                              <span className="truncate">{item.teacher}</span>
+                            </div>
                           </div>
-                          <div className="text-[10px] text-muted-foreground">
-                            {classItem.endTime}
-                          </div>
-                          {isCurrentClass && (
-                            <Badge variant="default" className="mt-1 text-[9px] px-1 py-0">
-                              Now
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="h-12 w-px bg-border" />
-                        <div className="flex-1 min-w-0">
-                          <div className={`font-semibold text-sm truncate ${isPast ? 'text-muted-foreground' : 'text-foreground'}`}>
-                            {classItem.subject}
-                          </div>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground truncate mt-0.5">
-                            <User className="w-3 h-3 flex-shrink-0" />
-                            {classItem.teacher}
-                          </div>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground truncate mt-0.5">
-                            <MapPin className="w-3 h-3 flex-shrink-0" />
-                            {classItem.room}
-                          </div>
-                        </div>
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 capitalize flex-shrink-0">
-                          {classItem.type}
-                        </Badge>
+                        ))}
                       </div>
-                    );
-                  })
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Tab 2 - Weekly Timetable */}
-          <TabsContent value="weekly" className="mt-4">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Calendar className="w-5 h-5 text-primary" />
-                  Weekly Timetable
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue={currentDay} className="w-full">
-                  <div className="flex items-center gap-2 mb-4">
-                    <TabsList className="grid w-full grid-cols-7 gap-0.5 h-auto p-0.5">
-                      {Object.keys(weekSchedule).map((day) => (
-                        <TabsTrigger 
-                          key={day} 
-                          value={day}
-                          className={`text-[10px] sm:text-xs px-1 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${
-                            day === currentDay ? 'font-bold' : ''
-                          }`}
-                        >
-                          {day.slice(0, 3)}
-                        </TabsTrigger>
-                      ))}
-                    </TabsList>
+                    )}
                   </div>
-                  
-                  {Object.entries(weekSchedule).map(([day, classes]) => (
-                    <TabsContent key={day} value={day} className="space-y-2 mt-0">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="text-xs font-semibold text-muted-foreground">
-                          {day} • {classes.length} {classes.length === 1 ? 'class' : 'classes'}
-                        </div>
-                        {day === currentDay && (
-                          <Badge variant="default" className="text-[10px] px-2 py-0">
-                            Today
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      {classes.length === 0 ? (
-                        <div className="text-center py-12 border border-dashed rounded-lg">
-                          <CalendarDays className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
-                          <p className="text-sm text-muted-foreground">No classes scheduled</p>
-                        </div>
-                      ) : (
-                        classes.map((classItem, index) => (
-                          <div 
-                            key={index} 
-                            className="flex items-start gap-3 p-2.5 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
-                          >
-                            <div className="flex-shrink-0 text-center min-w-[50px]">
-                              <div className="font-bold text-xs text-primary">
-                                {classItem.startTime}
-                              </div>
-                              <div className="text-[10px] text-muted-foreground">
-                                {classItem.endTime}
-                              </div>
-                            </div>
-                            <div className="h-10 w-px bg-border" />
-                            <div className="flex-1 min-w-0">
-                              <div className="font-semibold text-xs truncate">
-                                {classItem.subject}
-                              </div>
-                              <div className="flex items-center gap-1 text-[10px] text-muted-foreground truncate mt-0.5">
-                                <User className="w-2.5 h-2.5 flex-shrink-0" />
-                                {classItem.teacher}
-                              </div>
-                              <div className="flex items-center gap-1 text-[10px] text-muted-foreground truncate mt-0.5">
-                                <MapPin className="w-2.5 h-2.5 flex-shrink-0" />
-                                {classItem.room}
-                              </div>
-                            </div>
-                            <Badge variant="outline" className="text-[9px] px-1 py-0 capitalize flex-shrink-0">
-                              {classItem.type}
-                            </Badge>
-                          </div>
-                        ))
-                      )}
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Summary Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <p className="text-3xl font-bold text-primary">{totalClasses}</p>
+                <p className="text-sm text-muted-foreground mt-1">Total Classes/Week</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <p className="text-3xl font-bold text-blue-600">{batches.length}</p>
+                <p className="text-sm text-muted-foreground mt-1">Batches Enrolled</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <p className="text-3xl font-bold text-green-600">{Array.from(new Set(mockSchedule.map(s => s.subject))).length}</p>
+                <p className="text-sm text-muted-foreground mt-1">Subjects</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </MainLayout>
   );

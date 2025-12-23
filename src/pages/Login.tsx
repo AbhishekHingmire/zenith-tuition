@@ -127,7 +127,7 @@ export default function Login() {
             {/* Role Selection */}
             <div className="space-y-2">
               <Label htmlFor="role">Select Role</Label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {(['admin', 'teacher', 'student'] as UserRole[]).map((r) => (
                   <button
                     key={r}

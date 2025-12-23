@@ -9,32 +9,31 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
-import TeacherDashboard from "./pages/TeacherDashboard";
 import StudentDashboard from "./pages/student/Dashboard";
-import Exams from "./pages/teacher/Exams";
-import MarksEntry from "./pages/teacher/MarksEntry";
 import NotFound from "./pages/NotFound";
 
-// Admin pages
+// Common pages (shared between teacher and admin)
+import Exams from "./pages/common/Exams";
+import Assignments from "./pages/common/Assignments";
+import Materials from "./pages/common/Materials";
+import Performance from "./pages/common/Performance";
+
+// Admin-only pages
 import AdminStudents from "./pages/admin/Students";
 import AdminTeachers from "./pages/admin/Teachers";
 import AdminBatches from "./pages/admin/Batches";
 import AdminAttendance from "./pages/admin/Attendance";
-import AdminExams from "./pages/admin/Exams";
 import AdminFinance from "./pages/admin/Finance";
 import AdminReports from "./pages/admin/Reports";
 import AdminSettings from "./pages/admin/Settings";
 import AdminSchedule from "./pages/admin/Schedule";
 import AdminNotifications from "./pages/admin/Notifications";
 
-// Teacher pages
+// Teacher-only pages
+import TeacherDashboard from "./pages/teacher/Dashboard";
 import TeacherSchedule from "./pages/teacher/Schedule";
 import TeacherAttendance from "./pages/teacher/Attendance";
-import TeacherAssignments from "./pages/teacher/Assignments";
-import TeacherPerformance from "./pages/teacher/Performance";
 import TeacherSettings from "./pages/teacher/Settings";
-import ExamResults from "./pages/teacher/ExamResults";
-import TeacherMaterials from "./pages/teacher/Materials";
 import TeacherLeave from "./pages/teacher/Leave";
 
 // Admin detail pages
@@ -58,7 +57,12 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
           <AuthProvider>
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
@@ -108,7 +112,7 @@ const App = () => (
               path="/admin/exams"
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
-                  <AdminExams />
+                  <Exams />
                 </ProtectedRoute>
               }
             />
@@ -153,6 +157,31 @@ const App = () => (
               }
             />
             <Route
+              path="/admin/assignments"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <Assignments />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/materials"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <Materials />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/performance"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <Performance />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/admin/students/:id"
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
@@ -186,22 +215,6 @@ const App = () => (
               }
             />
             <Route
-              path="/teacher/exams/:examId/marks"
-              element={
-                <ProtectedRoute allowedRoles={['teacher']}>
-                  <MarksEntry />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/teacher/exams/:examId/results"
-              element={
-                <ProtectedRoute allowedRoles={['teacher']}>
-                  <ExamResults />
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/teacher/attendance"
               element={
                 <ProtectedRoute allowedRoles={['teacher']}>
@@ -213,7 +226,7 @@ const App = () => (
               path="/teacher/assignments"
               element={
                 <ProtectedRoute allowedRoles={['teacher']}>
-                  <TeacherAssignments />
+                  <Assignments />
                 </ProtectedRoute>
               }
             />
@@ -221,7 +234,7 @@ const App = () => (
               path="/teacher/performance"
               element={
                 <ProtectedRoute allowedRoles={['teacher']}>
-                  <TeacherPerformance />
+                  <Performance />
                 </ProtectedRoute>
               }
             />
@@ -237,10 +250,11 @@ const App = () => (
               path="/teacher/materials"
               element={
                 <ProtectedRoute allowedRoles={['teacher']}>
-                  <TeacherMaterials />
+                  <Materials />
                 </ProtectedRoute>
               }
             />
+
             <Route
               path="/teacher/leave"
               element={

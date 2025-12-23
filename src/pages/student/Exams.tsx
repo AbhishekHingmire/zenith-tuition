@@ -292,7 +292,7 @@ export default function StudentExams() {
                   </div>
 
                   {/* Strengths & Weaknesses */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
                     <div className="p-4 bg-secondary/10 border border-secondary/20 rounded-lg">
                       <h4 className="font-semibold text-secondary mb-3 flex items-center gap-2">
                         <TrendingUp className="w-4 h-4" />

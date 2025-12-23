@@ -287,7 +287,7 @@ export default function Reports() {
             <CardTitle className="text-lg">Available Reports</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {reports.map((report, index) => (
                 <div
                   key={index}
