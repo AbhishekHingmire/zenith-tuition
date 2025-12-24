@@ -15,7 +15,7 @@ const todayClasses = [
 const pendingTasks = [
   { task: 'Grade Math Assignment - Grade 10', count: 25, dueDate: 'Today', link: '/teacher/assignments' },
   { task: 'Mark Attendance - Science Batch', count: 1, dueDate: 'Today', link: '/teacher/attendance' },
-  { task: 'Enter Marks - Unit Test', count: 28, dueDate: 'Tomorrow', link: '/teacher/marks-entry' },
+  { task: 'Review Exam Results - Unit Test', count: 28, dueDate: 'Tomorrow', link: '/teacher/exams' },
 ];
 
 const announcements = [

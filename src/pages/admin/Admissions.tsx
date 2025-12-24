@@ -69,7 +69,7 @@ export default function Admissions() {
                     Add New Inquiry
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
                   <DialogHeader>
                     <DialogTitle>Add New Inquiry/Lead</DialogTitle>
                   </DialogHeader>

@@ -1,45 +1,83 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { IndianRupee, Search, Download, Send, CheckCircle, Clock, AlertTriangle, TrendingUp } from 'lucide-react';
-import { mockStudents } from '@/data/mockData';
+import { IndianRupee, Search, Download, Send, CheckCircle, Clock, AlertTriangle, TrendingUp, X, Calendar } from 'lucide-react';
+import { yearlyFees } from '@/data/yearlyMockData';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 
 export default function Fees() {
+  const currentMonth = new Date().getMonth() + 1;
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [selectedMonth, setSelectedMonth] = useState<string>('current');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(25);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [paymentAmount, setPaymentAmount] = useState('');
 
-  // Mock fee data
-  const feeData = mockStudents.map(student => ({
-    ...student,
-    feeAmount: student.monthlyFee || 5000,
-    paidAmount: Math.random() > 0.5 ? student.monthlyFee || 5000 : Math.floor(Math.random() * (student.monthlyFee || 5000)),
-    dueDate: new Date(2024, 1, 15).toISOString().split('T')[0],
-    status: Math.random() > 0.5 ? 'paid' : Math.random() > 0.3 ? 'pending' : 'overdue',
-  }));
+  // Filter fees based on search, status, and month
+  const filteredData = useMemo(() => {
+    let filtered = [...yearlyFees];
+    
+    // Month filter
+    if (selectedMonth !== 'all') {
+      const targetMonth = selectedMonth === 'current' ? currentMonth : parseInt(selectedMonth);
+      filtered = filtered.filter(fee => fee.monthNumber === targetMonth);
+    }
+    
+    // Search filter
+    if (searchQuery) {
+      filtered = filtered.filter(item =>
+        item.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.admissionNo.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    // Status filter
+    if (filterStatus !== 'all') {
+      filtered = filtered.filter(item => item.status === filterStatus);
+    }
+    
+    return filtered;
+  }, [searchQuery, filterStatus, selectedMonth, currentMonth]);
 
-  const filteredData = feeData.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.admissionNo.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = filterStatus === 'all' || item.status === filterStatus;
-    return matchesSearch && matchesStatus;
-  });
+  // Pagination logic
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedData = filteredData.slice(startIndex, endIndex);
 
-  const stats = {
-    totalCollection: feeData.reduce((sum, s) => sum + s.paidAmount, 0),
-    pending: feeData.filter(s => s.status === 'pending').length,
-    overdue: feeData.filter(s => s.status === 'overdue').length,
-    paid: feeData.filter(s => s.status === 'paid').length,
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
   };
+
+  const handleFilterChange = (value: string) => {
+    setFilterStatus(value);
+    setCurrentPage(1);
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  };
+
+  const stats = useMemo(() => ({
+    totalCollection: filteredData.filter(s => s.status === 'paid').reduce((sum, s) => sum + s.amount, 0),
+    pending: filteredData.filter(s => s.status === 'pending').length,
+    overdue: filteredData.filter(s => s.status === 'overdue').length,
+    paid: filteredData.filter(s => s.status === 'paid').length,
+    expectedAmount: filteredData.reduce((sum, s) => sum + s.amount, 0),
+  }), [filteredData]);
 
   const handleRecordPayment = (student: any) => {
     setSelectedStudent(student);
@@ -71,7 +109,7 @@ export default function Fees() {
 
   return (
     <MainLayout>
-      <div className="space-y-4">
+      <div className="space-y-4 sm:space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold">Fee Management</h1>
@@ -84,42 +122,132 @@ export default function Fees() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <Card>
-            <CardContent className="p-3">
-              <div className="flex items-center gap-2">
-                <div className="bg-primary/10 p-2 rounded-lg">
-                  <IndianRupee className="w-4 h-4 text-primary" />
+            <CardContent className="p-3 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Collected</p>
+                  <p className="text-xl sm:text-2xl font-bold">₹{(stats.totalCollection / 100000).toFixed(1)}L</p>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Total Collection</p>
-                  <p className="text-lg sm:text-xl font-bold">₹{(stats.totalCollection / 100000).toFixed(1)}L</p>
-                </div>
+                <IndianRupee className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
               </div>
             </CardContent>
           </Card>
+          
           <Card>
-            <CardContent className="p-3">
-              <div className="flex items-center gap-2">
-                <div className="bg-secondary/10 p-2 rounded-lg">
-                  <CheckCircle className="w-4 h-4 text-secondary" />
+            <CardContent className="p-3 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Paid</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stats.paid}</p>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Paid</p>
-                  <p className="text-lg sm:text-xl font-bold">{stats.paid}</p>
-                </div>
+                <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
               </div>
             </CardContent>
           </Card>
+          
           <Card>
-            <CardContent className="p-3">
-              <div className="flex items-center gap-2">
-                <div className="bg-amber-100 p-2 rounded-lg">
-                  <Clock className="w-4 h-4 text-amber-700" />
+            <CardContent className="p-3 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Pending</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stats.pending}</p>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Pending</p>
-                  <p className="text-lg sm:text-xl font-bold">{stats.pending}</p>
+                <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-amber-600" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-3 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Overdue</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stats.overdue}</p>
+                </div>
+                <AlertTriangle className="h-6 w-6 sm:h-8 sm:w-8 text-red-600" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Filters */}
+        <Card>
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <div className="flex-1">
+                <label className="text-xs sm:text-sm font-medium mb-1.5 block">Search</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by name or admission no..."
+                    value={searchQuery}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex-1">
+                <label className="text-xs sm:text-sm font-medium mb-1.5 block">Month</label>
+                <Select value={selectedMonth} onValueChange={(value) => { setSelectedMonth(value); setCurrentPage(1); }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Months</SelectItem>
+                    <SelectItem value="current">This Month</SelectItem>
+                    <SelectItem value="1">January</SelectItem>
+                    <SelectItem value="2">February</SelectItem>
+                    <SelectItem value="3">March</SelectItem>
+                    <SelectItem value="4">April</SelectItem>
+                    <SelectItem value="5">May</SelectItem>
+                    <SelectItem value="6">June</SelectItem>
+                    <SelectItem value="7">July</SelectItem>
+                    <SelectItem value="8">August</SelectItem>
+                    <SelectItem value="9">September</SelectItem>
+                    <SelectItem value="10">October</SelectItem>
+                    <SelectItem value="11">November</SelectItem>
+                    <SelectItem value="12">December</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex-1">
+                <label className="text-xs sm:text-sm font-medium mb-1.5 block">Status</label>
+                <Select value={filterStatus} onValueChange={(value) => handleFilterChange(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="paid">Paid</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="overdue">Overdue</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {(searchQuery || selectedMonth !== 'current' || filterStatus !== 'all') && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="sm:mt-6"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSelectedMonth('current');
+                    setFilterStatus('all');
+                    setCurrentPage(1);
+                  }}
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Clear
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
                 </div>
               </div>
             </CardContent>
@@ -149,10 +277,10 @@ export default function Fees() {
                   placeholder="Search students..." 
                   className="pl-10"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                 />
               </div>
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <Select value={filterStatus} onValueChange={handleFilterChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="All Status" />
                 </SelectTrigger>
@@ -175,16 +303,16 @@ export default function Fees() {
           <CardContent className="pt-0">
             {/* Mobile Card View */}
             <div className="block md:hidden space-y-3">
-              {filteredData.map((item) => (
+              {paginatedData.map((item) => (
                 <div key={item.id} className="border border-border rounded-lg p-3 space-y-2">
                   <div className="flex items-center gap-2">
                     <img
                       src={item.photo}
-                      alt={item.name}
+                      alt={item.studentName}
                       className="w-10 h-10 rounded-full flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm truncate">{item.name}</p>
+                      <p className="font-semibold text-sm truncate">{item.studentName}</p>
                       <p className="text-xs text-muted-foreground">{item.admissionNo}</p>
                     </div>
                     {getStatusBadge(item.status)}
@@ -192,15 +320,15 @@ export default function Fees() {
                   <div className="grid grid-cols-2 gap-2 text-[11px]">
                     <div>
                       <span className="text-muted-foreground">Fee:</span>
-                      <span className="font-medium ml-1">₹{item.feeAmount}</span>
+                      <span className="font-medium ml-1">₹{item.amount}</span>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Paid:</span>
-                      <span className="font-medium ml-1 text-secondary">₹{item.paidAmount}</span>
+                      <span className="font-medium ml-1 text-secondary">₹{0}</span>
                     </div>
                     <div className="col-span-2">
                       <span className="text-muted-foreground">Due:</span>
-                      <span className="font-medium ml-1 text-destructive">₹{item.feeAmount - item.paidAmount}</span>
+                      <span className="font-medium ml-1 text-destructive">₹{item.amount - 0}</span>
                     </div>
                   </div>
                   {item.status !== 'paid' && (
@@ -244,26 +372,26 @@ export default function Fees() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {filteredData.map((item) => (
+                  {paginatedData.map((item) => (
                     <tr key={item.id} className="hover:bg-muted/50">
                       <td className="px-3 py-3">
                         <div className="flex items-center gap-2">
                           <img
                             src={item.photo}
-                            alt={item.name}
+                            alt={item.studentName}
                             className="w-8 h-8 rounded-full"
                           />
                           <div className="min-w-0">
-                            <p className="font-medium text-sm truncate">{item.name}</p>
+                            <p className="font-medium text-sm truncate">{item.studentName}</p>
                             <p className="text-xs text-muted-foreground truncate">{item.batch}</p>
                           </div>
                         </div>
                       </td>
                       <td className="px-3 py-3 text-xs">{item.admissionNo}</td>
-                      <td className="px-3 py-3 text-xs font-medium">₹{item.feeAmount}</td>
-                      <td className="px-3 py-3 text-xs text-secondary font-medium">₹{item.paidAmount}</td>
+                      <td className="px-3 py-3 text-xs font-medium">₹{item.amount}</td>
+                      <td className="px-3 py-3 text-xs text-secondary font-medium">₹{0}</td>
                       <td className="px-3 py-3 text-xs text-destructive font-medium">
-                        ₹{item.feeAmount - item.paidAmount}
+                        ₹{item.amount - 0}
                       </td>
                       <td className="px-3 py-3 text-center">
                         {getStatusBadge(item.status)}
@@ -297,6 +425,16 @@ export default function Fees() {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination */}
+            <DataTablePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={filteredData.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
           </CardContent>
         </Card>
 

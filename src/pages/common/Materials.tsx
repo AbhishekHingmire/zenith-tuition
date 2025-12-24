@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,62 +22,118 @@ import {
   Trash2,
   Plus,
   BarChart3,
-  X
+  X,
+  TrendingUp,
+  FolderOpen
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
+import { yearlyMaterials } from '@/data/yearlyMockData';
+import { useAuth } from '@/contexts/AuthContext';
+import { coachingBatches } from '@/data/comprehensiveCoachingData';
 
 type Material = {
   id: string;
   title: string;
   subject: string;
   batches: string[];
+  batchIds: string[];
   chapter: string;
   type: string;
-  uploadDate: Date;
+  uploadDate: string;
+  uploadedBy: string;
   views: number;
   downloads: number;
-  // rating: number;
   description?: string;
   tags?: string;
   difficulty?: string;
   externalLink?: string;
 };
 
-const mockMaterials = [
-  {
-    id: '1',
-    title: 'Quadratic Equations - Complete Notes',
-    subject: 'Mathematics',
-    batches: ['Grade 10-A', 'Grade 10-B'],
-    chapter: 'Chapter 4',
-    type: 'pdf',
-    uploadDate: new Date('2024-01-15'),
-    views: 145,
-    downloads: 87,
-    // rating: 4.5,
-  },
-  {
-    id: '2',
-    title: 'Newton\'s Laws of Motion Video',
-    subject: 'Physics',
-    batches: ['Grade 11-A'],
-    chapter: 'Chapter 5',
-    type: 'video',
-    uploadDate: new Date('2024-01-20'),
-    views: 98,
-    downloads: 45,
-    // rating: 4.8,
-  },
-];
-
 export default function Materials() {
-  const [materials, setMaterials] = useState<Material[]>(mockMaterials);
+  const { user } = useAuth();
+  const role = user?.role || 'teacher';
+  
+  // Get current month as default filter
+  const currentMonth = new Date().getMonth() + 1;
+  
+  const [selectedMonth, setSelectedMonth] = useState<string>('current');
+  const [selectedSubject, setSelectedSubject] = useState<string>('all');
+  const [selectedType, setSelectedType] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [viewOpen, setViewOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
   const [selectedBatches, setSelectedBatches] = useState<string[]>([]);
+  
+  // Filter materials based on role and selections
+  const filteredMaterials = useMemo(() => {
+    let filtered = [...yearlyMaterials];
+    
+    // Role-based filtering
+    if (role === 'teacher') {
+      filtered = filtered.filter(mat => mat.uploadedBy === user?.name);
+    } else if (role === 'student') {
+      const studentBatches = (user as any)?.batches || [];
+      filtered = filtered.filter(mat => 
+        mat.batches.some(b => studentBatches.includes(b))
+      );
+    }
+    
+    // Month filter
+    if (selectedMonth !== 'all') {
+      const targetMonth = selectedMonth === 'current' ? currentMonth : parseInt(selectedMonth);
+      filtered = filtered.filter(mat => {
+        const matMonth = parseInt(mat.uploadDate.split('-')[1]);
+        return matMonth === targetMonth;
+      });
+    }
+    
+    // Subject filter
+    if (selectedSubject !== 'all') {
+      filtered = filtered.filter(mat => mat.subject === selectedSubject);
+    }
+    
+    // Type filter
+    if (selectedType !== 'all') {
+      filtered = filtered.filter(mat => mat.type === selectedType);
+    }
+    
+    return filtered.sort((a, b) => new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime());
+  }, [role, user, selectedMonth, selectedSubject, selectedType]);
+  
+  // Pagination logic
+  const totalPages = Math.ceil(filteredMaterials.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedMaterials = filteredMaterials.slice(startIndex, endIndex);
+  
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  };
+  
+  // Calculate stats
+  const stats = useMemo(() => {
+    const total = filteredMaterials.length;
+    const totalViews = filteredMaterials.reduce((sum, m) => sum + m.views, 0);
+    const totalDownloads = filteredMaterials.reduce((sum, m) => sum + m.downloads, 0);
+    const thisMonth = filteredMaterials.filter(m => {
+      const matMonth = parseInt(m.uploadDate.split('-')[1]);
+      return matMonth === currentMonth;
+    }).length;
+    
+    return { total, totalViews, totalDownloads, thisMonth };
+  }, [filteredMaterials, currentMonth]);
+  
+  // Get unique subjects from yearlyMaterials
+  const subjects = useMemo(() => {
+    const uniqueSubjects = [...new Set(yearlyMaterials.map(m => m.subject))];
+    return uniqueSubjects.sort();
+  }, []);
   
   const [formData, setFormData] = useState({
     title: '',
@@ -215,11 +272,11 @@ export default function Materials() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Study Materials</h1>
-            <p className="text-muted-foreground mt-1">Upload and manage learning resources</p>
+            <h1 className="text-xl sm:text-2xl font-bold">Study Materials</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Upload and manage learning resources</p>
           </div>
           <Button onClick={() => setUploadOpen(true)} className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-2" />
@@ -227,116 +284,283 @@ export default function Materials() {
           </Button>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <Card>
-            <CardContent className="p-3">
-              <p className="text-xs text-muted-foreground mb-0.5">Total Materials</p>
-              <p className="text-xl font-bold">{materials.length}</p>
+            <CardContent className="p-3 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Total Materials</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stats.total}</p>
+                </div>
+                <FolderOpen className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+              </div>
             </CardContent>
           </Card>
+          
           <Card>
-            <CardContent className="p-3">
-              <p className="text-xs text-muted-foreground mb-0.5">Total Views</p>
-              <p className="text-xl font-bold">
-                {materials.reduce((sum, m) => sum + m.views, 0)}
-              </p>
+            <CardContent className="p-3 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Total Views</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stats.totalViews}</p>
+                </div>
+                <Eye className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
+              </div>
             </CardContent>
           </Card>
+          
           <Card>
-            <CardContent className="p-3">
-              <p className="text-xs text-muted-foreground mb-0.5">Downloads</p>
-              <p className="text-xl font-bold">
-                {materials.reduce((sum, m) => sum + m.downloads, 0)}
-              </p>
+            <CardContent className="p-3 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Downloads</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stats.totalDownloads}</p>
+                </div>
+                <Download className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600" />
+              </div>
             </CardContent>
           </Card>
-          {/* <Card>
-            <CardContent className="p-3">
-              <p className="text-xs text-muted-foreground mb-0.5">Avg. Rating</p>
-              <p className="text-xl font-bold">4.7</p>
+          
+          <Card>
+            <CardContent className="p-3 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground">This Month</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stats.thisMonth}</p>
+                </div>
+                <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
+              </div>
             </CardContent>
-          </Card> */}
+          </Card>
         </div>
 
-        {/* Materials List */}
+        {/* Filters */}
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">My Uploaded Materials</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="space-y-3">
-              {materials.map((material) => (
-                <div
-                  key={material.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 border border-border rounded-lg hover:border-primary/50 transition-colors"
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <div className="flex-1">
+                <label className="text-xs sm:text-sm font-medium mb-1.5 block">Month</label>
+                <Select value={selectedMonth} onValueChange={(value) => { setSelectedMonth(value); setCurrentPage(1); }}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Months</SelectItem>
+                    <SelectItem value="current">This Month</SelectItem>
+                    <SelectItem value="1">January</SelectItem>
+                    <SelectItem value="2">February</SelectItem>
+                    <SelectItem value="3">March</SelectItem>
+                    <SelectItem value="4">April</SelectItem>
+                    <SelectItem value="5">May</SelectItem>
+                    <SelectItem value="6">June</SelectItem>
+                    <SelectItem value="7">July</SelectItem>
+                    <SelectItem value="8">August</SelectItem>
+                    <SelectItem value="9">September</SelectItem>
+                    <SelectItem value="10">October</SelectItem>
+                    <SelectItem value="11">November</SelectItem>
+                    <SelectItem value="12">December</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex-1">
+                <label className="text-xs sm:text-sm font-medium mb-1.5 block">Subject</label>
+                <Select value={selectedSubject} onValueChange={(value) => { setSelectedSubject(value); setCurrentPage(1); }}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select subject" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Subjects</SelectItem>
+                    {subjects.map(subject => (
+                      <SelectItem key={subject} value={subject}>{subject}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex-1">
+                <label className="text-xs sm:text-sm font-medium mb-1.5 block">Type</label>
+                <Select value={selectedType} onValueChange={(value) => { setSelectedType(value); setCurrentPage(1); }}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="pdf">PDF</SelectItem>
+                    <SelectItem value="video">Video</SelectItem>
+                    <SelectItem value="link">Link</SelectItem>
+                    <SelectItem value="ppt">PPT</SelectItem>
+                    <SelectItem value="doc">Document</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {(selectedMonth !== 'current' || selectedSubject !== 'all' || selectedType !== 'all') && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="sm:mt-6"
+                  onClick={() => {
+                    setSelectedMonth('current');
+                    setSelectedSubject('all');
+                    setSelectedType('all');
+                    setCurrentPage(1);
+                  }}
                 >
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className={`${getTypeColor(material.type)} p-2 rounded-lg flex-shrink-0`}>
-                      {getTypeIcon(material.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-sm mb-1 truncate">{material.title}</h3>
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-1">
-                        <span>{material.subject}</span>
-                        <span>•</span>
-                        <span>{material.chapter}</span>
-                        <span className="hidden sm:inline">•</span>
-                        <span className="hidden sm:inline">{material.uploadDate.toLocaleDateString()}</span>
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {material.batches.slice(0, 2).map((batch, idx) => (
-                          <Badge key={idx} variant="outline" className="text-xs px-1.5 py-0">
-                            {batch}
-                          </Badge>
-                        ))}
-                        {material.batches.length > 2 && (
-                          <Badge variant="outline" className="text-xs px-1.5 py-0">
-                            +{material.batches.length - 2}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between sm:justify-end gap-3">
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Eye className="w-3 h-3" />
-                        <span>{material.views}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Download className="w-3 h-3" />
-                        <span>{material.downloads}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-1">
-                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleView(material)}>
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleEditClick(material)}>
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDeleteClick(material)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                  <X className="h-4 w-4 mr-2" />
+                  Clear
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
 
+        {/* Materials List */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+          {paginatedMaterials.map((material) => (
+            <Card
+              key={material.id}
+              className="hover:shadow-lg transition-all hover:border-primary/50 cursor-pointer group"
+              onClick={() => handleView(material)}
+            >
+              <CardContent className="p-3 sm:p-4">
+                <div className="flex flex-col h-full">
+                  {/* Icon and Type */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className={`${getTypeColor(material.type)} p-2 rounded-lg`}>
+                      {getTypeIcon(material.type)}
+                    </div>
+                    <Badge variant="outline" className="text-xs capitalize">
+                      {material.type}
+                    </Badge>
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="font-semibold text-sm mb-2 line-clamp-2 min-h-[2.5rem]">
+                    {material.title}
+                  </h3>
+
+                  {/* Subject & Chapter */}
+                  <div className="space-y-1 mb-3 text-xs text-muted-foreground">
+                    <p className="truncate">{material.subject}</p>
+                    <p className="truncate">{material.chapter}</p>
+                  </div>
+
+                  {/* Batches */}
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {material.batches.slice(0, 1).map((batch, idx) => (
+                      <Badge key={idx} variant="secondary" className="text-xs px-1.5 py-0">
+                        {batch.length > 10 ? batch.substring(0, 10) + '...' : batch}
+                      </Badge>
+                    ))}
+                    {material.batches.length > 1 && (
+                      <Badge variant="secondary" className="text-xs px-1.5 py-0">
+                        +{material.batches.length - 1}
+                      </Badge>
+                    )}
+                  </div>
+
+                  {/* Stats */}
+                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-3 pt-2 border-t">
+                    <div className="flex items-center gap-1">
+                      <Eye className="w-3 h-3" />
+                      <span>{material.views}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Download className="w-3 h-3" />
+                      <span>{material.downloads}</span>
+                    </div>
+                  </div>
+
+                  {/* Upload Date */}
+                  <p className="text-xs text-muted-foreground mb-3">
+                    {format(new Date(material.uploadDate), 'PP')}
+                  </p>
+
+                  {/* Actions */}
+                  <div className="flex gap-1 mt-auto pt-2 border-t">
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="flex-1 h-7 text-xs"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleView(material);
+                      }}
+                    >
+                      <Eye className="w-3 h-3 sm:mr-1" />
+                      <span className="hidden sm:inline">View</span>
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="h-7 w-7 p-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditClick(material);
+                      }}
+                    >
+                      <Edit className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteClick(material);
+                      }}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Pagination */}
+        {filteredMaterials.length > 0 && (
+          <Card className="mt-6">
+            <CardContent className="pt-6">
+              <DataTablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={filteredMaterials.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPage}
+                onItemsPerPageChange={handleItemsPerPageChange}
+              />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Empty State */}
+        {filteredMaterials.length === 0 && (
+          <Card className="p-12">
+            <div className="text-center">
+              <FolderOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No materials found</h3>
+              <p className="text-muted-foreground mb-6">
+                {selectedMonth !== 'current' || selectedSubject !== 'all' || selectedType !== 'all'
+                  ? 'Try adjusting your filters to see more materials'
+                  : 'Upload your first study material to get started'}
+              </p>
+              {selectedMonth === 'current' && selectedSubject === 'all' && selectedType === 'all' && (
+                <Button className="bg-primary hover:bg-primary/90" onClick={() => setUploadOpen(true)}>
+                  <Plus className="w-5 h-5 mr-2" />
+                  Upload Material
+                </Button>
+              )}
+            </div>
+          </Card>
+        )}
+
         {/* Upload Dialog */}
         <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
             <DialogHeader>
               <DialogTitle>Upload Study Material</DialogTitle>
             </DialogHeader>
@@ -485,7 +709,7 @@ export default function Materials() {
 
         {/* View Dialog */}
         <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
             <DialogHeader>
               <DialogTitle>Material Details</DialogTitle>
             </DialogHeader>
@@ -520,7 +744,7 @@ export default function Materials() {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Upload Date</p>
-                    <p className="font-medium">{selectedMaterial.uploadDate.toLocaleDateString()}</p>
+                    <p className="font-medium">{format(new Date(selectedMaterial.uploadDate), 'PP')}</p>
                   </div>
                 </div>
 
@@ -584,7 +808,7 @@ export default function Materials() {
 
         {/* Edit Dialog */}
         <Dialog open={editOpen} onOpenChange={setEditOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
             <DialogHeader>
               <DialogTitle>Edit Material</DialogTitle>
             </DialogHeader>

@@ -39,44 +39,37 @@ export default function Reports() {
   const reports = [
     {
       title: 'Student Enrollment Report',
-      description: 'Complete details of all enrolled students',
+      description: 'Complete student enrollment details and trends',
       icon: Users,
-      color: 'bg-primary/10 text-primary',
+      color: 'bg-blue-100 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400',
       category: 'Students',
     },
     {
       title: 'Attendance Summary',
-      description: 'Monthly attendance statistics and trends',
+      description: 'Student attendance statistics and analytics',
       icon: Calendar,
-      color: 'bg-secondary/10 text-secondary',
+      color: 'bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400',
       category: 'Attendance',
     },
     {
       title: 'Fee Collection Report',
-      description: 'Detailed fee payment and collection status',
+      description: 'Fee payment status and collection analysis',
       icon: IndianRupee,
-      color: 'bg-amber-100 text-amber-700',
+      color: 'bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400',
       category: 'Finance',
     },
     {
-      title: 'Performance Analytics',
-      description: 'Student academic performance and grades',
+      title: 'Exam Performance Report',
+      description: 'Student exam results and performance analytics',
       icon: TrendingUp,
-      color: 'bg-emerald-100 text-emerald-700',
+      color: 'bg-purple-100 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400',
       category: 'Academics',
     },
     {
-      title: 'Teacher Performance',
-      description: 'Teacher workload and performance metrics',
-      icon: BookOpen,
-      color: 'bg-purple-100 text-purple-700',
-      category: 'Teachers',
-    },
-    {
-      title: 'Batch-wise Analysis',
-      description: 'Comprehensive batch-wise performance report',
+      title: 'Batch-wise Summary',
+      description: 'Batch strength, performance and attendance',
       icon: FileText,
-      color: 'bg-blue-100 text-blue-700',
+      color: 'bg-rose-100 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400',
       category: 'Batches',
     },
   ];
@@ -114,8 +107,8 @@ export default function Reports() {
           profit: `₹${((m.revenue - m.expenses) / 1000).toFixed(0)}K`,
         })),
       },
-      'Performance Analytics': {
-        title: 'Performance Analytics',
+      'Exam Performance Report': {
+        title: 'Exam Performance Report',
         date: `${dateFrom} to ${dateTo}`,
         data: mockStudents.slice(0, 10).map(s => ({
           name: s.name,
@@ -125,18 +118,8 @@ export default function Reports() {
           grade: 'B+',
         })),
       },
-      'Teacher Performance': {
-        title: 'Teacher Performance',
-        date: `${dateFrom} to ${dateTo}`,
-        data: mockTeachers.map(t => ({
-          name: t.name,
-          subjects: t.subjects.join(', '),
-          batches: t.assignedBatches?.length || 0,
-          rating: '4.5/5',
-        })),
-      },
-      'Batch-wise Analysis': {
-        title: 'Batch-wise Analysis',
+      'Batch-wise Summary': {
+        title: 'Batch-wise Summary',
         date: `${dateFrom} to ${dateTo}`,
         data: mockBatches.map(b => ({
           name: b.name,

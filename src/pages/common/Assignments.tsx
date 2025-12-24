@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,11 +26,13 @@ import {
   Download,
   CheckCircle,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  X
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { mockSubjects, mockBatches } from '@/data/mockData';
+import { yearlyAssignments } from '@/data/yearlyMockData';
 import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Progress } from '@/components/ui/progress';
@@ -76,28 +79,14 @@ interface Submission {
 }
 
 export default function TeacherAssignments() {
-  const [assignments, setAssignments] = useState<Assignment[]>([
-    {
-      id: 'a1',
-      title: 'Quadratic Equations - Problem Set',
-      description: 'Solve the given set of quadratic equations and show all working.',
-      subject: 'MATH',
-      batches: ['b1', 'b2'],
-      dueDate: new Date(2025, 5, 20, 23, 59),
-      totalMarks: 50,
-      rubric: [
-        { id: 'r1', name: 'Correct Solutions', description: 'Accuracy of answers', maxPoints: 25 },
-        { id: 'r2', name: 'Working Shown', description: 'Clear step-by-step working', maxPoints: 15 },
-        { id: 'r3', name: 'Presentation', description: 'Neatness and organization', maxPoints: 10 },
-      ],
-      attachments: [{ name: 'problem-set.pdf', size: 245000, type: 'application/pdf' }],
-      allowLateSubmission: true,
-      lateSubmissionPenalty: 10,
-      status: 'active',
-      createdAt: new Date(),
-      submissions: { total: 50, submitted: 32, graded: 15 },
-    },
-  ]);
+  const [assignments, setAssignments] = useState<Assignment[]>(
+    yearlyAssignments.map(a => ({
+      ...a,
+      dueDate: new Date(a.dueDate),
+      createdAt: new Date(a.createdAt),
+      batches: a.batchIds || a.batches,
+    }))
+  );
 
   const [submissions, setSubmissions] = useState<Submission[]>([
     {
@@ -133,6 +122,15 @@ export default function TeacherAssignments() {
   const [gradeDialogOpen, setGradeDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   
+  // Filter and Pagination states
+  const currentMonth = new Date().getMonth() + 1;
+  const [selectedMonth, setSelectedMonth] = useState<string>('current');
+  const [selectedSubject, setSelectedSubject] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  
   const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
   const [viewingAssignment, setViewingAssignment] = useState<Assignment | null>(null);
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
@@ -166,6 +164,58 @@ export default function TeacherAssignments() {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Filter assignments
+  const filteredAssignments = useMemo(() => {
+    let filtered = [...assignments];
+
+    // Month filter
+    if (selectedMonth !== 'all') {
+      const targetMonth = selectedMonth === 'current' ? currentMonth : parseInt(selectedMonth);
+      filtered = filtered.filter(assignment => {
+        const assignmentMonth = assignment.dueDate.getMonth() + 1;
+        return assignmentMonth === targetMonth;
+      });
+    }
+
+    // Subject filter
+    if (selectedSubject !== 'all') {
+      filtered = filtered.filter(assignment => assignment.subject === selectedSubject);
+    }
+
+    // Status filter
+    if (selectedStatus !== 'all') {
+      filtered = filtered.filter(assignment => assignment.status === selectedStatus);
+    }
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(assignment => 
+        assignment.title.toLowerCase().includes(query) ||
+        assignment.description.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered.sort((a, b) => b.dueDate.getTime() - a.dueDate.getTime());
+  }, [assignments, selectedMonth, selectedSubject, selectedStatus, searchQuery, currentMonth]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredAssignments.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedAssignments = filteredAssignments.slice(startIndex, endIndex);
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  };
+
+  // Get unique subjects from assignments
+  const subjects = useMemo(() => {
+    const uniqueSubjects = Array.from(new Set(assignments.map(a => a.subject)));
+    return uniqueSubjects.sort();
+  }, [assignments]);
 
   const toggleBatch = (batchId: string) => {
     setFormData(prev => ({
@@ -473,9 +523,101 @@ export default function TeacherAssignments() {
           </Button>
         </div>
 
+        {/* Filters */}
+        <Card>
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <div className="flex-1">
+                  <label className="text-xs sm:text-sm font-medium mb-1.5 block">Month</label>
+                  <Select value={selectedMonth} onValueChange={(value) => { setSelectedMonth(value); setCurrentPage(1); }}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select month" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Months</SelectItem>
+                      <SelectItem value="current">This Month</SelectItem>
+                      <SelectItem value="1">January</SelectItem>
+                      <SelectItem value="2">February</SelectItem>
+                      <SelectItem value="3">March</SelectItem>
+                      <SelectItem value="4">April</SelectItem>
+                      <SelectItem value="5">May</SelectItem>
+                      <SelectItem value="6">June</SelectItem>
+                      <SelectItem value="7">July</SelectItem>
+                      <SelectItem value="8">August</SelectItem>
+                      <SelectItem value="9">September</SelectItem>
+                      <SelectItem value="10">October</SelectItem>
+                      <SelectItem value="11">November</SelectItem>
+                      <SelectItem value="12">December</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex-1">
+                  <label className="text-xs sm:text-sm font-medium mb-1.5 block">Subject</label>
+                  <Select value={selectedSubject} onValueChange={(value) => { setSelectedSubject(value); setCurrentPage(1); }}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select subject" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Subjects</SelectItem>
+                      {subjects.map(subject => (
+                        <SelectItem key={subject} value={subject}>{subject}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex-1">
+                  <label className="text-xs sm:text-sm font-medium mb-1.5 block">Status</label>
+                  <Select value={selectedStatus} onValueChange={(value) => { setSelectedStatus(value); setCurrentPage(1); }}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="draft">Draft</SelectItem>
+                      <SelectItem value="closed">Closed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {(selectedMonth !== 'current' || selectedSubject !== 'all' || selectedStatus !== 'all' || searchQuery) && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="sm:mt-6"
+                    onClick={() => {
+                      setSelectedMonth('current');
+                      setSelectedSubject('all');
+                      setSelectedStatus('all');
+                      setSearchQuery('');
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Clear
+                  </Button>
+                )}
+              </div>
+              
+              <div>
+                <label className="text-xs sm:text-sm font-medium mb-1.5 block">Search</label>
+                <Input
+                  placeholder="Search assignments by title or description..."
+                  value={searchQuery}
+                  onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+                  className="w-full"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Assignments List */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {assignments.map((assignment) => {
+          {paginatedAssignments.map((assignment) => {
             const subject = mockSubjects.find(s => s.code === assignment.subject);
             const submissionPercentage = (assignment.submissions.submitted / assignment.submissions.total) * 100 || 0;
 
@@ -563,6 +705,43 @@ export default function TeacherAssignments() {
             );
           })}
         </div>
+
+        {/* Pagination */}
+        {filteredAssignments.length > 0 && (
+          <Card>
+            <CardContent className="pt-6">
+              <DataTablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                itemsPerPage={itemsPerPage}
+                totalItems={filteredAssignments.length}
+                onPageChange={setCurrentPage}
+                onItemsPerPageChange={handleItemsPerPageChange}
+              />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Empty State */}
+        {filteredAssignments.length === 0 && (
+          <Card className="p-12">
+            <div className="text-center">
+              <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No assignments found</h3>
+              <p className="text-muted-foreground mb-6">
+                {searchQuery || selectedMonth !== 'current' || selectedSubject !== 'all' || selectedStatus !== 'all'
+                  ? 'Try adjusting your filters'
+                  : 'Create your first assignment to get started'}
+              </p>
+              {!searchQuery && selectedMonth === 'current' && selectedSubject === 'all' && selectedStatus === 'all' && (
+                <Button className="bg-primary hover:bg-primary/90" onClick={handleAddAssignment}>
+                  <Plus className="w-5 h-5 mr-2" />
+                  Create First Assignment
+                </Button>
+              )}
+            </div>
+          </Card>
+        )}
 
         {assignments.length === 0 && (
           <Card>

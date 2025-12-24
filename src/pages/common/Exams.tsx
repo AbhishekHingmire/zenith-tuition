@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Edit, Trash2, ClipboardList, Eye, Calendar as CalendarIcon, Clock, Award, X, Save, TrendingUp, Users } from 'lucide-react';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus, Edit, Trash2, ClipboardList, Eye, Calendar as CalendarIcon, Clock, Award, X, Save, TrendingUp, Users, Filter } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -12,14 +14,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { CreateExamForm } from '@/components/exams/CreateExamForm';
 import { format } from 'date-fns';
-import { mockExams, mockExamResults } from '@/data/mockData';
+import { yearlyExams, yearlyExamResults } from '@/data/yearlyMockData';
 import { getExamTypeLabel, getExamTypeColor } from '@/utils/examHelpers';
 import { calculateGrade, getGradeColor } from '@/utils/gradeCalculator';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { coachingBatches } from '@/data/comprehensiveCoachingData';
 
 export default function Exams() {
-  const [exams, setExams] = useState(mockExams);
+  const { user } = useAuth();
+  const role = user?.role || 'teacher';
+  
+  // Get current month as default filter
+  const currentMonth = new Date().getMonth() + 1;
+  const currentYear = new Date().getFullYear();
+  
+  const [selectedMonth, setSelectedMonth] = useState<string>('current');
+  const [selectedType, setSelectedType] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -29,9 +42,50 @@ export default function Exams() {
   const [marksDialogOpen, setMarksDialogOpen] = useState(false);
   const [resultsDialogOpen, setResultsDialogOpen] = useState(false);
   const [studentMarks, setStudentMarks] = useState<any[]>([]);
-  const { user } = useAuth();
+  const [publishedResults, setPublishedResults] = useState<Record<string, boolean>>({});
+  
+  // Filter exams based on role and selections
+  const filteredExams = useMemo(() => {
+    let filtered = [...yearlyExams];
+    
+    // Role-based filtering
+    if (role === 'teacher') {
+      filtered = filtered.filter(exam => exam.teacher === user?.name);
+    } else if (role === 'student') {
+      // Students see exams for their batches only
+      const studentBatches = (user as any)?.batches || [];
+      filtered = filtered.filter(exam => studentBatches.includes(exam.batch));
+    }
+    
+    // Month filter
+    if (selectedMonth !== 'all') {
+      const targetMonth = selectedMonth === 'current' ? currentMonth : parseInt(selectedMonth);
+      filtered = filtered.filter(exam => {
+        const examMonth = parseInt(exam.date.split('-')[1]);
+        return examMonth === targetMonth;
+      });
+    }
+    
+    // Type filter
+    if (selectedType !== 'all') {
+      filtered = filtered.filter(exam => exam.type === selectedType);
+    }
+    
+    return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [role, user, selectedMonth, selectedType]);
+  
+  const [exams, setExams] = useState(filteredExams);
 
-  const role = user?.role || 'teacher';
+  // Pagination logic
+  const totalPages = Math.ceil(filteredExams.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedExams = filteredExams.slice(startIndex, endIndex);
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  };
 
   const handleDeleteExam = (examId: string) => {
     setExamToDelete(examId);
@@ -40,7 +94,7 @@ export default function Exams() {
 
   const confirmDelete = () => {
     if (examToDelete) {
-      setExams(exams.filter(e => e.id !== examToDelete));
+      setExams(filteredExams.filter(e => e.id !== examToDelete));
       toast.success('Exam deleted successfully');
     }
     setDeleteDialogOpen(false);
@@ -54,14 +108,14 @@ export default function Exams() {
 
   const handleEnterMarks = (exam: any) => {
     setSelectedExam(exam);
-    const results = mockExamResults.filter(r => r.examId === exam.id);
+    const results = yearlyExamResults.filter(r => r.examId === exam.id);
     setStudentMarks(results);
     setMarksDialogOpen(true);
   };
 
   const handleViewResults = (exam: any) => {
     setSelectedExam(exam);
-    const results = mockExamResults.filter(r => r.examId === exam.id);
+    const results = yearlyExamResults.filter(r => r.examId === exam.id);
     setStudentMarks(results);
     setResultsDialogOpen(true);
   };
@@ -84,10 +138,28 @@ export default function Exams() {
     setMarksDialogOpen(false);
   };
 
+  const handlePublishResults = (examId: string) => {
+    const results = yearlyExamResults.filter(r => r.examId === examId);
+    const exam = filteredExams.find(e => e.id === examId);
+    
+    if (!exam) return;
+    
+    // Check if all students have marks
+    const allMarksEntered = results.every(r => r.marksObtained !== undefined && r.marksObtained !== null);
+    
+    if (!allMarksEntered) {
+      toast.error('Cannot publish results. Marks not entered for all students.');
+      return;
+    }
+    
+    setPublishedResults(prev => ({ ...prev, [examId]: true }));
+    toast.success('Results published successfully to all students!');
+  };
+
   // Mock grading progress
   const getGradingProgress = (examId: string) => {
-    const results = mockExamResults.filter(r => r.examId === examId && r.marksObtained !== undefined);
-    const total = mockExamResults.filter(r => r.examId === examId).length;
+    const results = yearlyExamResults.filter(r => r.examId === examId && r.marksObtained !== undefined);
+    const total = yearlyExamResults.filter(r => r.examId === examId).length;
     return { graded: results.length, total };
   };
 
@@ -96,10 +168,34 @@ export default function Exams() {
   const canEdit = role === 'admin' || role === 'teacher';
   const canDelete = role === 'admin' || role === 'teacher';
   const canEnterMarks = role === 'admin' || role === 'teacher';
+  
+  // Calculate stats and separate exams
+  const stats = useMemo(() => {
+    const total = filteredExams.length;
+    const completed = filteredExams.filter(e => e.status === 'completed').length;
+    const upcoming = filteredExams.filter(e => e.status === 'upcoming').length;
+    const thisMonth = filteredExams.filter(e => {
+      const examMonth = parseInt(e.date.split('-')[1]);
+      return examMonth === currentMonth;
+    }).length;
+    
+    return { total, completed, upcoming, thisMonth };
+  }, [filteredExams, currentMonth]);
+
+  // Separate completed and upcoming exams
+  const completedExams = useMemo(() => 
+    filteredExams.filter(e => e.status === 'completed'),
+    [filteredExams]
+  );
+
+  const upcomingExams = useMemo(() => 
+    filteredExams.filter(e => e.status === 'upcoming'),
+    [filteredExams]
+  );
 
   return (
     <MainLayout>
-      <div className="space-y-4">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
@@ -117,7 +213,7 @@ export default function Exams() {
                   Create Exam
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogContent className="max-w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
                 <DialogHeader>
                   <DialogTitle>Create New Exam</DialogTitle>
                 </DialogHeader>
@@ -127,135 +223,388 @@ export default function Exams() {
           )}
         </div>
 
-        {/* Exams List */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {exams.map((exam) => {
-            const progress = getGradingProgress(exam.id);
-            const progressPercentage = (progress.graded / progress.total) * 100;
-
-            return (
-              <Card key={exam.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-base truncate">{exam.name}</CardTitle>
-                      <div className="flex items-center gap-1 flex-wrap mt-1.5">
-                        <Badge className={getExamTypeColor(exam.type) + " text-xs"}>
-                          {getExamTypeLabel(exam.type)}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs">{exam.subject}</Badge>
-                        {exam.published && (
-                          <Badge className="bg-emerald-100 text-emerald-700 text-xs">Published</Badge>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="space-y-2 pt-0">
-                  <div className="flex items-center gap-2 text-xs">
-                    <CalendarIcon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                    <span className="text-muted-foreground">Date:</span>
-                    <span className="font-medium">{format(exam.date, 'PPP')}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <Clock className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                    <span className="text-muted-foreground">Duration:</span>
-                    <span className="font-medium">{exam.duration} minutes</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <Award className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                    <span className="text-muted-foreground">Total Marks:</span>
-                    <span className="font-medium">{exam.totalMarks}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <ClipboardList className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                    <span className="text-muted-foreground">Batches:</span>
-                    <span className="font-medium">{exam.batches.length} batch(es)</span>
-                  </div>
-
-                  {/* Grading Progress */}
-                  {canEnterMarks && (
-                    <div className="pt-2">
-                      <div className="flex items-center justify-between text-xs mb-1.5">
-                        <span className="text-muted-foreground">Marks Entry Progress</span>
-                        <span className="font-medium">
-                          {progress.graded}/{progress.total}
-                        </span>
-                      </div>
-                      <Progress value={progressPercentage} className="h-2" />
-                    </div>
-                  )}
-
-                  {/* Primary Actions - Enter Marks & View Results */}
-                  {canEnterMarks && (
-                    <div className="grid grid-cols-2 gap-1.5 pt-2 border-t border-border">
-                      <Button
-                        size="sm"
-                        onClick={() => handleEnterMarks(exam)}
-                        className="bg-primary hover:bg-primary/90 h-8 text-xs"
-                      >
-                        <ClipboardList className="w-3.5 h-3.5 mr-1" />
-                        Enter Marks
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleViewResults(exam)}
-                        className="h-8 text-xs"
-                      >
-                        <Eye className="w-3.5 h-3.5 mr-1" />
-                        View Results
-                      </Button>
-                    </div>
-                  )}
-
-                  {/* Secondary Actions - Update, Delete */}
-                  <div className="flex gap-1.5 pt-1.5">
-                    {canEdit && (
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="flex-1 h-7 text-xs"
-                        onClick={() => handleEditExam(exam)}
-                      >
-                        <Edit className="w-3 h-3 mr-1" />
-                        Update
-                      </Button>
-                    )}
-                    {canDelete && (
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 px-2"
-                        onClick={() => handleDeleteExam(exam.id)}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <Card>
+            <CardContent className="p-3 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Total Exams</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stats.total}</p>
+                </div>
+                <ClipboardList className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-3 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Completed</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stats.completed}</p>
+                </div>
+                <Award className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-3 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Upcoming</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stats.upcoming}</p>
+                </div>
+                <CalendarIcon className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-3 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground">This Month</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stats.thisMonth}</p>
+                </div>
+                <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Empty State */}
-        {exams.length === 0 && (
-          <Card className="p-12">
-            <div className="text-center">
-              <ClipboardList className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No exams created yet</h3>
-              <p className="text-muted-foreground mb-6">Create your first exam to start managing assessments</p>
-              {canCreate && (
-                <Button className="bg-primary hover:bg-primary/90" onClick={() => setDialogOpen(true)}>
-                  <Plus className="w-5 h-5 mr-2" />
-                  Create First Exam
+        {/* Filters */}
+        <Card>
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <div className="flex-1">
+                <label className="text-xs sm:text-sm font-medium mb-1.5 block">Month</label>
+                <Select value={selectedMonth} onValueChange={(value) => { setSelectedMonth(value); setCurrentPage(1); }}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Months</SelectItem>
+                    <SelectItem value="current">This Month</SelectItem>
+                    <SelectItem value="1">January</SelectItem>
+                    <SelectItem value="2">February</SelectItem>
+                    <SelectItem value="3">March</SelectItem>
+                    <SelectItem value="4">April</SelectItem>
+                    <SelectItem value="5">May</SelectItem>
+                    <SelectItem value="6">June</SelectItem>
+                    <SelectItem value="7">July</SelectItem>
+                    <SelectItem value="8">August</SelectItem>
+                    <SelectItem value="9">September</SelectItem>
+                    <SelectItem value="10">October</SelectItem>
+                    <SelectItem value="11">November</SelectItem>
+                    <SelectItem value="12">December</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex-1">
+                <label className="text-xs sm:text-sm font-medium mb-1.5 block">Type</label>
+                <Select value={selectedType} onValueChange={(value) => { setSelectedType(value); setCurrentPage(1); }}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="weekly_test">Weekly Test</SelectItem>
+                    <SelectItem value="unit_test">Unit Test</SelectItem>
+                    <SelectItem value="quarterly">Quarterly</SelectItem>
+                    <SelectItem value="half_yearly">Half Yearly</SelectItem>
+                    <SelectItem value="final">Final Exam</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {(selectedMonth !== 'current' || selectedType !== 'all') && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="sm:mt-6"
+                  onClick={() => {
+                    setSelectedMonth('current');
+                    setSelectedType('all');
+                    setCurrentPage(1);
+                  }}
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Clear
                 </Button>
               )}
             </div>
-          </Card>
-        )}
+          </CardContent>
+        </Card>
+
+        {/* Exams Panels - Completed & Upcoming */}
+        <Tabs defaultValue="completed" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="completed" className="flex items-center gap-2">
+              <Award className="w-4 h-4" />
+              Completed ({completedExams.length})
+            </TabsTrigger>
+            <TabsTrigger value="upcoming" className="flex items-center gap-2">
+              <CalendarIcon className="w-4 h-4" />
+              Upcoming ({upcomingExams.length})
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Completed Exams Panel */}
+          <TabsContent value="completed" className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {completedExams.slice(startIndex, endIndex).map((exam) => {
+                const progress = getGradingProgress(exam.id);
+                const progressPercentage = (progress.graded / progress.total) * 100;
+                const isPublished = publishedResults[exam.id];
+                const allMarksEntered = progress.graded === progress.total;
+
+                return (
+                  <Card key={exam.id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-base truncate">{exam.title}</CardTitle>
+                          <div className="flex items-center gap-1 flex-wrap mt-1.5">
+                            <Badge className={getExamTypeColor(exam.type) + " text-xs"}>
+                              {getExamTypeLabel(exam.type)}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">{exam.subject}</Badge>
+                            {isPublished ? (
+                              <Badge className="bg-green-600 text-white text-xs">Published</Badge>
+                            ) : allMarksEntered ? (
+                              <Badge className="bg-amber-600 text-white text-xs">Pending Publish</Badge>
+                            ) : null}
+                          </div>
+                        </div>
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="space-y-2 pt-0">
+                      <div className="flex items-center gap-2 text-xs">
+                        <CalendarIcon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                        <span className="text-muted-foreground">Date:</span>
+                        <span className="font-medium">{format(exam.date, 'PPP')}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <Clock className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                        <span className="text-muted-foreground">Duration:</span>
+                        <span className="font-medium">{exam.duration} minutes</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <Award className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                        <span className="text-muted-foreground">Total Marks:</span>
+                        <span className="font-medium">{exam.totalMarks}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <Users className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                        <span className="text-muted-foreground">Batch:</span>
+                        <span className="font-medium">{exam.batch}</span>
+                      </div>
+
+                      {/* Grading Progress */}
+                      {canEnterMarks && (
+                        <div className="pt-2">
+                          <div className="flex items-center justify-between text-xs mb-1.5">
+                            <span className="text-muted-foreground">Marks Entry Progress</span>
+                            <span className="font-medium">
+                              {progress.graded}/{progress.total}
+                            </span>
+                          </div>
+                          <Progress value={progressPercentage} className="h-2" />
+                        </div>
+                      )}
+
+                      {/* Primary Actions - Enter Marks & View Results */}
+                      {canEnterMarks && (
+                        <div className="grid grid-cols-2 gap-1.5 pt-2 border-t border-border">
+                          <Button
+                            size="sm"
+                            onClick={() => handleEnterMarks(exam)}
+                            className="bg-primary hover:bg-primary/90 h-8 text-xs"
+                          >
+                            <ClipboardList className="w-3.5 h-3.5 mr-1" />
+                            Enter Marks
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleViewResults(exam)}
+                            className="h-8 text-xs"
+                          >
+                            <Eye className="w-3.5 h-3.5 mr-1" />
+                            View Details
+                          </Button>
+                        </div>
+                      )}
+
+                      {/* Secondary Actions - Update, Delete */}
+                      <div className="flex gap-1.5 pt-1.5">
+                        {canEdit && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="flex-1 h-7 text-xs"
+                            onClick={() => handleEditExam(exam)}
+                          >
+                            <Edit className="w-3 h-3 mr-1" />
+                            Update
+                          </Button>
+                        )}
+                        {canDelete && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 px-2"
+                            onClick={() => handleDeleteExam(exam.id)}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+            
+            {/* Pagination for Completed */}
+            {completedExams.length > itemsPerPage && (
+              <Card>
+                <CardContent className="pt-6">
+                  <DataTablePagination
+                    currentPage={currentPage}
+                    totalPages={Math.ceil(completedExams.length / itemsPerPage)}
+                    itemsPerPage={itemsPerPage}
+                    totalItems={completedExams.length}
+                    onPageChange={setCurrentPage}
+                    onItemsPerPageChange={handleItemsPerPageChange}
+                  />
+                </CardContent>
+              </Card>
+            )}
+            
+            {/* Empty State for Completed */}
+            {completedExams.length === 0 && (
+              <Card className="p-12">
+                <div className="text-center">
+                  <Award className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No completed exams</h3>
+                  <p className="text-muted-foreground">Completed exams will appear here</p>
+                </div>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Upcoming Exams Panel */}
+          <TabsContent value="upcoming" className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {upcomingExams.slice(startIndex, endIndex).map((exam) => {
+                return (
+                  <Card key={exam.id} className="hover:shadow-lg transition-shadow border-l-4 border-l-orange-500">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-base truncate">{exam.title}</CardTitle>
+                          <div className="flex items-center gap-1 flex-wrap mt-1.5">
+                            <Badge className={getExamTypeColor(exam.type) + " text-xs"}>
+                              {getExamTypeLabel(exam.type)}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">{exam.subject}</Badge>
+                            <Badge className="bg-orange-600 text-white text-xs">Upcoming</Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="space-y-2 pt-0">
+                      <div className="flex items-center gap-2 text-xs">
+                        <CalendarIcon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                        <span className="text-muted-foreground">Date:</span>
+                        <span className="font-medium">{format(exam.date, 'PPP')}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <Clock className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                        <span className="text-muted-foreground">Duration:</span>
+                        <span className="font-medium">{exam.duration} minutes</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <Award className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                        <span className="text-muted-foreground">Total Marks:</span>
+                        <span className="font-medium">{exam.totalMarks}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <Users className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                        <span className="text-muted-foreground">Batch:</span>
+                        <span className="font-medium">{exam.batch}</span>
+                      </div>
+
+                      {/* Secondary Actions - Update, Delete */}
+                      <div className="flex gap-1.5 pt-2 border-t border-border mt-2">
+                        {canEdit && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="flex-1 h-7 text-xs"
+                            onClick={() => handleEditExam(exam)}
+                          >
+                            <Edit className="w-3 h-3 mr-1" />
+                            Update
+                          </Button>
+                        )}
+                        {canDelete && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 px-2"
+                            onClick={() => handleDeleteExam(exam.id)}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+            
+            {/* Pagination for Upcoming */}
+            {upcomingExams.length > itemsPerPage && (
+              <Card>
+                <CardContent className="pt-6">
+                  <DataTablePagination
+                    currentPage={currentPage}
+                    totalPages={Math.ceil(upcomingExams.length / itemsPerPage)}
+                    itemsPerPage={itemsPerPage}
+                    totalItems={upcomingExams.length}
+                    onPageChange={setCurrentPage}
+                    onItemsPerPageChange={handleItemsPerPageChange}
+                  />
+                </CardContent>
+              </Card>
+            )}
+            
+            {/* Empty State for Upcoming */}
+            {upcomingExams.length === 0 && (
+              <Card className="p-12">
+                <div className="text-center">
+                  <CalendarIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No upcoming exams</h3>
+                  <p className="text-muted-foreground mb-6">Create your next exam to start managing assessments</p>
+                  {canCreate && (
+                    <Button className="bg-primary hover:bg-primary/90" onClick={() => setDialogOpen(true)}>
+                      <Plus className="w-5 h-5 mr-2" />
+                      Create Exam
+                    </Button>
+                  )}
+                </div>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
 
         {/* Edit Dialog */}
         {canEdit && (
@@ -380,7 +729,38 @@ export default function Exams() {
           <Dialog open={resultsDialogOpen} onOpenChange={setResultsDialogOpen}>
             <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Exam Results - {selectedExam?.name}</DialogTitle>
+                <div className="flex items-center justify-between">
+                  <DialogTitle>Exam Results - {selectedExam?.title}</DialogTitle>
+                  {selectedExam && (() => {
+                    const progress = getGradingProgress(selectedExam.id);
+                    const allMarksEntered = progress.graded === progress.total;
+                    const isPublished = publishedResults[selectedExam.id];
+                    
+                    return (
+                      <div className="flex items-center gap-2">
+                        {isPublished ? (
+                          <Badge className="bg-green-600 text-white">
+                            <Award className="w-3 h-3 mr-1" />
+                            Published
+                          </Badge>
+                        ) : allMarksEntered ? (
+                          <Button
+                            size="sm"
+                            onClick={() => handlePublishResults(selectedExam.id)}
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            <Award className="w-4 h-4 mr-2" />
+                            Publish Results
+                          </Button>
+                        ) : (
+                          <Badge variant="destructive">
+                            Pending Results ({progress.graded}/{progress.total})
+                          </Badge>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
               </DialogHeader>
 
               <Tabs defaultValue="overview" className="space-y-4">
@@ -400,7 +780,7 @@ export default function Exams() {
                           </div>
                           <div>
                             <p className="text-xs text-muted-foreground">Total Students</p>
-                            <p className="text-2xl font-bold">{mockExamResults.filter(r => r.examId === selectedExam?.id).length}</p>
+                            <p className="text-2xl font-bold">{yearlyExamResults.filter(r => r.examId === selectedExam?.id).length}</p>
                           </div>
                         </div>
                       </CardContent>
@@ -416,7 +796,7 @@ export default function Exams() {
                             <p className="text-xs text-muted-foreground">Average Marks</p>
                             <p className="text-2xl font-bold">
                               {(() => {
-                                const results = mockExamResults.filter(r => r.examId === selectedExam?.id);
+                                const results = yearlyExamResults.filter(r => r.examId === selectedExam?.id);
                                 const avg = results.reduce((acc, r) => acc + r.marksObtained, 0) / results.length;
                                 return avg.toFixed(1);
                               })()}
@@ -435,7 +815,7 @@ export default function Exams() {
                           <div>
                             <p className="text-xs text-muted-foreground">Highest Marks</p>
                             <p className="text-2xl font-bold">
-                              {Math.max(...mockExamResults.filter(r => r.examId === selectedExam?.id).map(r => r.marksObtained))}
+                              {Math.max(...yearlyExamResults.filter(r => r.examId === selectedExam?.id).map(r => r.marksObtained))}
                             </p>
                           </div>
                         </div>
@@ -452,7 +832,7 @@ export default function Exams() {
                             <p className="text-xs text-muted-foreground">Pass %</p>
                             <p className="text-2xl font-bold">
                               {(() => {
-                                const results = mockExamResults.filter(r => r.examId === selectedExam?.id);
+                                const results = yearlyExamResults.filter(r => r.examId === selectedExam?.id);
                                 const passMarks = (selectedExam?.totalMarks || 100) * 0.4;
                                 const passed = results.filter(r => r.marksObtained >= passMarks).length;
                                 return ((passed / results.length) * 100).toFixed(0);
@@ -481,7 +861,7 @@ export default function Exams() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {mockExamResults
+                        {yearlyExamResults
                           .filter(r => r.examId === selectedExam?.id)
                           .map((result, index) => {
                             const percentage = ((result.marksObtained / (selectedExam?.totalMarks || 100)) * 100).toFixed(1);

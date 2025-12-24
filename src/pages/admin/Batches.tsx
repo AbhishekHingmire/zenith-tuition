@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Plus, Users, Calendar, Edit, Trash2, Eye } from 'lucide-react';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
+import { BookOpen, Plus, Users, Calendar, Edit, Trash2, Eye, Clock, User, GraduationCap, IndianRupee, TrendingUp, Award, Target, AlertTriangle, BarChart3, Download, Share2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -10,11 +11,18 @@ import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { mockBatches, mockTeachers, mockSubjects } from '@/data/mockData';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { ScheduleBuilder, ScheduleSlot, formatScheduleDisplay } from '@/components/ScheduleBuilder';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
+import { format } from 'date-fns';
 
 export default function Batches() {
   const [batches, setBatches] = useState(mockBatches);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBatch, setEditingBatch] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -31,6 +39,8 @@ export default function Batches() {
     capacity: '',
     startDate: '',
     endDate: '',
+    feeType: 'yearly' as 'yearly' | 'monthly',
+    totalFee: '',
     monthlyFee: '',
   });
 
@@ -47,9 +57,20 @@ export default function Batches() {
     setFormData(prev => ({
       ...prev,
       teacherIds: prev.teacherIds.includes(teacherId)
-        ? prev.teacherIds.filter(t => t !== teacherId)
+        ? prev.teacherIds.filter(id => id !== teacherId)
         : [...prev.teacherIds, teacherId]
     }));
+  };
+
+  // Pagination logic
+  const totalPages = Math.ceil(batches.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedBatches = batches.slice(startIndex, endIndex);
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
   };
 
   const handleAddBatch = () => {
@@ -63,6 +84,8 @@ export default function Batches() {
       capacity: '',
       startDate: '',
       endDate: '',
+      feeType: 'yearly',
+      totalFee: '',
       monthlyFee: '',
     });
     setDialogOpen(true);
@@ -79,7 +102,9 @@ export default function Batches() {
       capacity: String(batch.capacity),
       startDate: batch.startDate,
       endDate: batch.endDate,
-      monthlyFee: String(batch.monthlyFee),
+      feeType: batch.feeType || 'yearly',
+      totalFee: String(batch.totalFee || ''),
+      monthlyFee: String(batch.monthlyFee || ''),
     });
     setDialogOpen(true);
   };
@@ -125,6 +150,8 @@ export default function Batches() {
               capacity: Number(formData.capacity),
               startDate: formData.startDate,
               endDate: formData.endDate,
+              feeType: formData.feeType,
+              totalFee: Number(formData.totalFee) || (formData.feeType === 'yearly' ? Number(formData.monthlyFee) * 12 : Number(formData.monthlyFee)),
               monthlyFee: Number(formData.monthlyFee)
             }
           : b
@@ -144,6 +171,8 @@ export default function Batches() {
         capacity: Number(formData.capacity),
         startDate: formData.startDate || new Date().toISOString().split('T')[0],
         endDate: formData.endDate || new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+        feeType: formData.feeType,
+        totalFee: Number(formData.totalFee) || (formData.feeType === 'yearly' ? Number(formData.monthlyFee) * 12 : Number(formData.monthlyFee)),
         monthlyFee: Number(formData.monthlyFee),
         status: 'ongoing',
       };
@@ -168,8 +197,78 @@ export default function Batches() {
   };
 
   const handleViewBatch = (batch: any) => {
-    setViewingBatch(batch);
+    // Generate analytics data for the batch
+    const batchWithAnalytics = {
+      ...batch,
+      analytics: {
+        // Top Performers (mock data)
+        topPerformers: [
+          { id: '1', name: 'Rahul Kumar', avgScore: 92, rank: 1, attendance: 96 },
+          { id: '2', name: 'Priya Sharma', avgScore: 88, rank: 2, attendance: 94 },
+          { id: '3', name: 'Amit Patel', avgScore: 85, rank: 3, attendance: 90 },
+        ],
+        // Low Attendance Students
+        lowAttendance: [
+          { id: '4', name: 'Vikram Singh', attendance: 65, absent: 12, late: 5 },
+          { id: '5', name: 'Neha Gupta', attendance: 72, absent: 9, late: 3 },
+        ],
+        // Subject-wise Average
+        subjectAverage: [
+          { subject: 'Mathematics', average: 78, topScore: 95, lowScore: 45 },
+          { subject: 'Physics', average: 75, topScore: 92, lowScore: 50 },
+          { subject: 'Chemistry', average: 82, topScore: 98, lowScore: 55 },
+        ],
+        // Overall Stats
+        overallStats: {
+          avgAttendance: 85,
+          avgScore: 78,
+          passRate: 92,
+          totalClasses: 120,
+        }
+      }
+    };
+    
+    setViewingBatch(batchWithAnalytics);
     setViewDialogOpen(true);
+  };
+
+  const handleDownloadBatchReport = () => {
+    if (!viewingBatch) return;
+    
+    const reportContent = `BATCH PERFORMANCE REPORT
+========================
+Batch: ${viewingBatch.name}
+Grade: ${viewingBatch.grade}
+Teacher: ${viewingBatch.teacher}
+Period: ${viewingBatch.startDate} to ${viewingBatch.endDate}
+Generated: ${format(new Date(), 'MMMM dd, yyyy')}
+
+OVERALL STATISTICS:
+- Total Students: ${viewingBatch.enrolledStudents}/${viewingBatch.capacity}
+- Average Attendance: ${viewingBatch.analytics?.overallStats.avgAttendance}%
+- Average Score: ${viewingBatch.analytics?.overallStats.avgScore}%
+- Pass Rate: ${viewingBatch.analytics?.overallStats.passRate}%
+
+TOP PERFORMERS:
+${viewingBatch.analytics?.topPerformers.map((s: any, i: number) => `${i+1}. ${s.name} - Avg: ${s.avgScore}% | Attendance: ${s.attendance}%`).join('\n')}
+
+SUBJECT-WISE PERFORMANCE:
+${viewingBatch.analytics?.subjectAverage.map((s: any) => `${s.subject}: Avg ${s.average}% (High: ${s.topScore}, Low: ${s.lowScore})`).join('\n')}
+
+LOW ATTENDANCE STUDENTS:
+${viewingBatch.analytics?.lowAttendance.map((s: any) => `${s.name}: ${s.attendance}% (Absent: ${s.absent}, Late: ${s.late})`).join('\n')}
+`;
+    
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${viewingBatch.name.replace(/\s+/g, '_')}_Report_${format(new Date(), 'yyyy-MM-dd')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('Batch report downloaded!');
   };
 
   return (
@@ -187,7 +286,7 @@ export default function Batches() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {batches.map((batch) => (
+          {paginatedBatches.map((batch) => (
             <Card key={batch.id} className="hover:shadow-md transition-shadow">
               <CardHeader className="pb-2 px-3 pt-3">
                 <div className="flex items-start justify-between gap-2">
@@ -254,6 +353,20 @@ export default function Batches() {
             </Card>
           ))}
         </div>
+
+        {/* Pagination */}
+        <Card>
+          <CardContent className="pt-4">
+            <DataTablePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={batches.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
+          </CardContent>
+        </Card>
 
         {/* Add/Edit Dialog */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -334,16 +447,70 @@ export default function Batches() {
                   onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
                 />
               </div>
+              
               <div className="space-y-2">
-                <Label htmlFor="batchFee">Monthly Fee (₹) *</Label>
-                <Input
-                  id="batchFee"
-                  type="number"
-                  placeholder="e.g., 5000"
-                  value={formData.monthlyFee}
-                  onChange={(e) => setFormData({ ...formData, monthlyFee: e.target.value })}
-                />
+                <Label htmlFor="feeType">Fee Type *</Label>
+                <Select
+                  value={formData.feeType}
+                  onValueChange={(value: 'yearly' | 'monthly') => setFormData({ ...formData, feeType: value })}
+                >
+                  <SelectTrigger id="feeType">
+                    <SelectValue placeholder="Select fee type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yearly">Yearly</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+
+              {formData.feeType === 'yearly' ? (
+                <div className="space-y-2">
+                  <Label htmlFor="totalFee">Total Yearly Fee (₹) *</Label>
+                  <Input
+                    id="totalFee"
+                    type="number"
+                    placeholder="e.g., 60000"
+                    value={formData.totalFee}
+                    onChange={(e) => {
+                      const yearly = Number(e.target.value);
+                      setFormData({ 
+                        ...formData, 
+                        totalFee: e.target.value,
+                        monthlyFee: yearly > 0 ? String(Math.round(yearly / 12)) : ''
+                      });
+                    }}
+                  />
+                  {formData.totalFee && (
+                    <p className="text-xs text-muted-foreground">
+                      Monthly equivalent: ₹{Math.round(Number(formData.totalFee) / 12).toLocaleString()}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="monthlyFee">Monthly Fee (₹) *</Label>
+                  <Input
+                    id="monthlyFee"
+                    type="number"
+                    placeholder="e.g., 5000"
+                    value={formData.monthlyFee}
+                    onChange={(e) => {
+                      const monthly = Number(e.target.value);
+                      setFormData({ 
+                        ...formData, 
+                        monthlyFee: e.target.value,
+                        totalFee: monthly > 0 ? String(monthly * 12) : ''
+                      });
+                    }}
+                  />
+                  {formData.monthlyFee && (
+                    <p className="text-xs text-muted-foreground">
+                      Yearly equivalent: ₹{(Number(formData.monthlyFee) * 12).toLocaleString()}
+                    </p>
+                  )}
+                </div>
+              )}
               <div className="space-y-2 sm:col-span-2">
                 <Label>Schedule * (Add time slots for different days)</Label>
                 <ScheduleBuilder
@@ -381,99 +548,315 @@ export default function Batches() {
 
         {/* View Details Dialog */}
         <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Batch Details</DialogTitle>
+              <div className="flex items-center justify-between pr-6">
+                <div>
+                  <DialogTitle className="text-2xl">{viewingBatch?.name}</DialogTitle>
+                  <p className="text-sm text-muted-foreground mt-1">Comprehensive Batch Analytics & Report</p>
+                </div>
+                <div className="flex gap-2">
+                  <Badge className={viewingBatch?.status === 'ongoing' ? 'bg-green-500' : 'bg-gray-400'}>
+                    {viewingBatch?.status}
+                  </Badge>
+                  <Button variant="outline" size="sm" onClick={handleDownloadBatchReport}>
+                    <Download className="w-4 h-4 mr-1" />
+                    Report
+                  </Button>
+                </div>
+              </div>
             </DialogHeader>
             {viewingBatch && (
-              <div className="space-y-4 py-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-xl font-semibold">{viewingBatch.name}</h3>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {viewingBatch.subjects?.map((subCode: string, idx: number) => {
-                        const subject = mockSubjects.find(s => s.code === subCode);
-                        return (
-                          <Badge key={idx} variant="outline">
-                            {subject?.name || subCode}
-                          </Badge>
-                        );
-                      })}
-                    </div>
+              <Tabs defaultValue="overview" className="mt-4">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="performance">Performance</TabsTrigger>
+                  <TabsTrigger value="attendance">Attendance</TabsTrigger>
+                  <TabsTrigger value="students">Students</TabsTrigger>
+                </TabsList>
+
+                {/* Overview Tab */}
+                <TabsContent value="overview" className="space-y-4 mt-4">
+                  {/* Key Metrics */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+                      <CardContent className="p-3">
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4 text-blue-600" />
+                          <div>
+                            <p className="text-[10px] text-muted-foreground">Enrolled</p>
+                            <p className="text-lg font-bold">{viewingBatch.enrolledStudents}/{viewingBatch.capacity}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+                      <CardContent className="p-3">
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="w-4 h-4 text-green-600" />
+                          <div>
+                            <p className="text-[10px] text-muted-foreground">Avg Score</p>
+                            <p className="text-lg font-bold">{viewingBatch.analytics?.overallStats.avgScore}%</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+                      <CardContent className="p-3">
+                        <div className="flex items-center gap-2">
+                          <Target className="w-4 h-4 text-purple-600" />
+                          <div>
+                            <p className="text-[10px] text-muted-foreground">Pass Rate</p>
+                            <p className="text-lg font-bold">{viewingBatch.analytics?.overallStats.passRate}%</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900">
+                      <CardContent className="p-3">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-amber-600" />
+                          <div>
+                            <p className="text-[10px] text-muted-foreground">Attendance</p>
+                            <p className="text-lg font-bold">{viewingBatch.analytics?.overallStats.avgAttendance}%</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
-                  <Badge className={viewingBatch.status === 'ongoing' ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'}>
-                    {viewingBatch.status}
-                  </Badge>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Grade</p>
-                    <p className="font-medium">{viewingBatch.grade}</p>
+
+                  {/* Basic Info */}
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm">Batch Details</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Grade:</span>
+                          <span className="font-medium">{viewingBatch.grade}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Teacher:</span>
+                          <span className="font-medium">{viewingBatch.teacher}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Duration:</span>
+                          <span className="font-medium">
+                            {format(new Date(viewingBatch.startDate), 'MMM dd')} - {format(new Date(viewingBatch.endDate), 'MMM dd, yyyy')}
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm">Fee Structure</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Type:</span>
+                          <Badge variant="outline">{viewingBatch.feeType === 'yearly' ? 'Yearly' : 'Monthly'}</Badge>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Amount:</span>
+                          <span className="font-bold">
+                            ₹{(viewingBatch.feeType === 'yearly' ? viewingBatch.totalFee : viewingBatch.monthlyFee).toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground text-xs">
+                            {viewingBatch.feeType === 'yearly' ? 'Per Month' : 'Per Year'}:
+                          </span>
+                          <span className="text-xs">
+                            ₹{viewingBatch.feeType === 'yearly' 
+                              ? viewingBatch.monthlyFee.toLocaleString() 
+                              : (viewingBatch.monthlyFee * 12).toLocaleString()}
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Teacher</p>
-                    <p className="font-medium">{viewingBatch.teacher}</p>
-                  </div>
-                  <div className="col-span-2">
-                    <p className="text-sm text-muted-foreground mb-2">Schedule</p>
-                    {viewingBatch.schedules && viewingBatch.schedules.length > 0 ? (
+
+                  {/* Subjects & Schedule */}
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Subjects</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap gap-2">
+                        {viewingBatch.subjects?.map((subCode: string, idx: number) => {
+                          const subject = mockSubjects.find(s => s.code === subCode);
+                          return <Badge key={idx} variant="secondary">{subject?.name || subCode}</Badge>;
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Performance Tab */}
+                <TabsContent value="performance" className="space-y-4 mt-4">
+                  {/* Top Performers */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Award className="w-4 h-4 text-yellow-600" />
+                        Top Performers
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
                       <div className="space-y-2">
-                        {viewingBatch.schedules.map((slot: ScheduleSlot, idx: number) => (
-                          <div key={slot.id || idx} className="p-2 bg-muted/50 rounded-md">
-                            <div className="flex flex-wrap gap-1 mb-1">
-                              {slot.days.map(day => (
-                                <Badge key={day} variant="secondary" className="text-xs">
-                                  {day}
-                                </Badge>
-                              ))}
+                        {viewingBatch.analytics?.topPerformers.map((student: any, idx: number) => (
+                          <div key={student.id} className="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-950 dark:to-amber-950 rounded-lg border">
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center justify-center w-8 h-8 bg-yellow-500 text-white rounded-full font-bold text-sm">
+                                #{idx + 1}
+                              </div>
+                              <div>
+                                <p className="font-semibold text-sm">{student.name}</p>
+                                <p className="text-xs text-muted-foreground">Rank {student.rank}</p>
+                              </div>
                             </div>
-                            <p className="text-xs font-medium">
-                              {slot.startTime} - {slot.endTime}
-                            </p>
+                            <div className="text-right">
+                              <p className="font-bold text-lg text-green-600">{student.avgScore}%</p>
+                              <p className="text-xs text-muted-foreground">Attendance: {student.attendance}%</p>
+                            </div>
                           </div>
                         ))}
                       </div>
-                    ) : (
-                      <p className="font-medium text-sm">{viewingBatch.schedule}</p>
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Capacity</p>
-                    <p className="font-medium">{viewingBatch.enrolledStudents}/{viewingBatch.capacity} students</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Start Date</p>
-                    <p className="font-medium">{viewingBatch.startDate}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">End Date</p>
-                    <p className="font-medium">{viewingBatch.endDate}</p>
-                  </div>
-                  <div className="col-span-2">
-                    <p className="text-sm text-muted-foreground">Monthly Fee</p>
-                    <p className="font-medium">₹{viewingBatch.monthlyFee.toLocaleString()}</p>
-                  </div>
-                </div>
+                    </CardContent>
+                  </Card>
 
-                <div className="pt-4 border-t">
-                  <p className="text-sm text-muted-foreground mb-2">Enrollment Progress</p>
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span>Enrollment</span>
-                      <span className="font-medium">
-                        {Math.round((viewingBatch.enrolledStudents / viewingBatch.capacity) * 100)}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-muted rounded-full h-2">
-                      <div 
-                        className="bg-primary h-2 rounded-full transition-all"
-                        style={{ width: `${(viewingBatch.enrolledStudents / viewingBatch.capacity) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
+                  {/* Subject-wise Performance */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <BarChart3 className="w-4 h-4" />
+                        Subject-wise Average Scores
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {viewingBatch.analytics?.subjectAverage.map((subject: any) => (
+                          <div key={subject.subject} className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium text-sm">{subject.subject}</span>
+                              <span className="text-sm font-bold">{subject.average}%</span>
+                            </div>
+                            <Progress value={subject.average} className="h-2" />
+                            <div className="flex justify-between text-xs text-muted-foreground">
+                              <span>Low: {subject.lowScore}</span>
+                              <span>High: {subject.topScore}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Attendance Tab */}
+                <TabsContent value="attendance" className="space-y-4 mt-4">
+                  {/* Low Attendance Students */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 text-red-600" />
+                        Students with Low Attendance
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {viewingBatch.analytics?.lowAttendance.length > 0 ? (
+                        <div className="space-y-2">
+                          {viewingBatch.analytics.lowAttendance.map((student: any) => (
+                            <div key={student.id} className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-950 rounded-lg border border-red-200 dark:border-red-800">
+                              <div>
+                                <p className="font-semibold text-sm">{student.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  Absent: {student.absent} days • Late: {student.late} days
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-bold text-lg text-red-600">{student.attendance}%</p>
+                                <Badge variant="destructive" className="text-xs">Needs Attention</Badge>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-center text-muted-foreground py-4">No low attendance issues</p>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Overall Attendance Stats */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">Attendance Statistics</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Average Attendance</p>
+                          <p className="text-2xl font-bold text-green-600">{viewingBatch.analytics?.overallStats.avgAttendance}%</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Total Classes</p>
+                          <p className="text-2xl font-bold">{viewingBatch.analytics?.overallStats.totalClasses}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Students Tab */}
+                <TabsContent value="students" className="space-y-4 mt-4">
+                  {viewingBatch.students && viewingBatch.students.length > 0 ? (
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Users className="w-5 h-5" />
+                          Enrolled Students ({viewingBatch.students.length})
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="border rounded-lg overflow-hidden">
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="bg-muted/50">
+                                <TableHead className="w-12">#</TableHead>
+                                <TableHead>Student Name</TableHead>
+                                <TableHead>Admission No.</TableHead>
+                                <TableHead>Enrolled Date</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {viewingBatch.students.map((student: any, index: number) => (
+                                <TableRow key={student.id} className="hover:bg-muted/30">
+                                  <TableCell className="font-medium text-muted-foreground">{index + 1}</TableCell>
+                                  <TableCell className="font-medium">{student.name}</TableCell>
+                                  <TableCell>
+                                    <Badge variant="outline" className="font-mono text-xs">{student.admissionNo}</Badge>
+                                  </TableCell>
+                                  <TableCell className="text-sm text-muted-foreground">
+                                    {format(new Date(student.enrolledDate), 'MMM dd, yyyy')}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <Card>
+                      <CardContent className="py-8 text-center text-muted-foreground">
+                        No students enrolled yet
+                      </CardContent>
+                    </Card>
+                  )}
+                </TabsContent>
+              </Tabs>
             )}
           </DialogContent>
         </Dialog>

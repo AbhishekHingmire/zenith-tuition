@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Plus, Search, Edit, Trash2, Eye, TrendingUp, TrendingDown, CheckCircle, XCircle, Clock, Calendar, BookOpen } from 'lucide-react';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
+import { Users, Plus, Search, Edit, Trash2, Eye, TrendingUp, TrendingDown, CheckCircle, XCircle, Clock, Calendar, BookOpen, IndianRupee, Receipt, Download, Share2, FileText, Filter, Award, BarChart3, Target } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -10,14 +11,23 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { mockBatches } from '@/data/mockData';
+import { coachingStudents, coachingBatches } from '@/data/comprehensiveCoachingData';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { ViewButton, EditButton, DeleteButton } from '@/components/ui/action-buttons';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useNavigate } from 'react-router-dom';
+import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 
 export default function Students() {
-  const [students, setStudents] = useState([
+  const navigate = useNavigate();
+  const [students, setStudents] = useState(coachingStudents);
+  const [selectedBatchFilter, setSelectedBatchFilter] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(25);
+  const [oldStudents] = useState([
     { 
       id: "1", 
       name: "Rahul Sharma", 
@@ -45,7 +55,41 @@ export default function Students() {
       address: "123 Main St, Mumbai",
       parentName: "Mr. Sharma",
       parentEmail: "sharma@example.com",
-      monthlyFee: 5000
+      joiningDate: "2024-06-01",
+      feeType: 'yearly',
+      totalFee: 60000,
+      monthlyFee: 5000,
+      totalPaid: 25000,
+      totalDue: 5000,
+      lastPayment: '2024-11-15',
+      lastPaymentAmount: 5000,
+      feeStatus: 'overdue',
+      nextDueDate: '2024-12-01',
+      attendanceRecords: [
+        { date: '2024-12-23', batch: 'Grade 10-A', subject: 'Mathematics', time: '09:00-10:30', status: 'Present' },
+        { date: '2024-12-23', batch: 'Grade 10-A', subject: 'Physics', time: '11:00-12:30', status: 'Present' },
+        { date: '2024-12-22', batch: 'Grade 10-A', subject: 'Chemistry', time: '14:00-15:30', status: 'Absent' },
+        { date: '2024-12-22', batch: 'Grade 10-A', subject: 'Mathematics', time: '09:00-10:30', status: 'Present' },
+        { date: '2024-12-21', batch: 'Grade 10-A', subject: 'Physics', time: '11:00-12:30', status: 'Late' },
+        { date: '2024-12-21', batch: 'Grade 10-A', subject: 'Mathematics', time: '09:00-10:30', status: 'Present' },
+        { date: '2024-12-20', batch: 'Grade 10-A', subject: 'Chemistry', time: '14:00-15:30', status: 'Present' },
+        { date: '2024-12-20', batch: 'Grade 10-A', subject: 'Physics', time: '11:00-12:30', status: 'Present' },
+      ],
+      paymentHistory: [
+        { id: 'P001', date: '2024-11-15', amount: 5000, mode: 'UPI', transactionId: 'UPI123456', receiptNo: 'RCT-001' },
+        { id: 'P002', date: '2024-10-10', amount: 5000, mode: 'Cash', transactionId: '-', receiptNo: 'RCT-002' },
+        { id: 'P003', date: '2024-09-08', amount: 5000, mode: 'Bank Transfer', transactionId: 'TXN789012', receiptNo: 'RCT-003' },
+        { id: 'P004', date: '2024-08-05', amount: 5000, mode: 'UPI', transactionId: 'UPI654321', receiptNo: 'RCT-004' },
+        { id: 'P005', date: '2024-07-01', amount: 5000, mode: 'Cash', transactionId: '-', receiptNo: 'RCT-005' },
+      ],
+      examRecords: [
+        { id: 'E001', examName: 'Mid Term Exam', subject: 'Mathematics', type: 'mid_term', date: '2024-12-15', marksObtained: 85, totalMarks: 100, grade: 'A', percentage: 85, rank: 3 },
+        { id: 'E002', examName: 'Unit Test 2', subject: 'Physics', type: 'unit_test', date: '2024-12-10', marksObtained: 78, totalMarks: 100, grade: 'B+', percentage: 78, rank: 8 },
+        { id: 'E003', examName: 'Mid Term Exam', subject: 'Chemistry', type: 'mid_term', date: '2024-12-12', marksObtained: 92, totalMarks: 100, grade: 'A+', percentage: 92, rank: 1 },
+        { id: 'E004', examName: 'Unit Test 1', subject: 'Mathematics', type: 'unit_test', date: '2024-11-20', marksObtained: 80, totalMarks: 100, grade: 'A', percentage: 80, rank: 5 },
+        { id: 'E005', examName: 'Weekly Test', subject: 'Physics', type: 'weekly_test', date: '2024-12-05', marksObtained: 75, totalMarks: 100, grade: 'B+', percentage: 75, rank: 6 },
+        { id: 'E006', examName: 'Unit Test 1', subject: 'Chemistry', type: 'unit_test', date: '2024-11-18', marksObtained: 88, totalMarks: 100, grade: 'A', percentage: 88, rank: 2 },
+      ]
     },
     { 
       id: "2", 
@@ -74,7 +118,31 @@ export default function Students() {
       address: "456 Park Ave, Mumbai",
       parentName: "Mrs. Patel",
       parentEmail: "patel@example.com",
-      monthlyFee: 5000
+      joiningDate: "2024-05-15",
+      feeType: 'yearly',
+      totalFee: 60000,
+      monthlyFee: 5000,
+      totalPaid: 30000,
+      totalDue: 0,
+      lastPayment: '2024-12-01',
+      lastPaymentAmount: 5000,
+      feeStatus: 'paid',
+      nextDueDate: '2025-01-01',
+      attendanceRecords: [
+        { date: '2024-12-20', batch: 'Grade 10-A', subject: 'Mathematics', time: '09:00-10:30', status: 'Present' },
+        { date: '2024-12-19', batch: 'Grade 10-A', subject: 'Physics', time: '11:00-12:30', status: 'Present' },
+        { date: '2024-12-18', batch: 'Grade 10-A', subject: 'Chemistry', time: '14:00-15:30', status: 'Present' },
+        { date: '2024-12-17', batch: 'Grade 10-A', subject: 'Mathematics', time: '09:00-10:30', status: 'Present' },
+        { date: '2024-12-16', batch: 'Grade 10-A', subject: 'Physics', time: '11:00-12:30', status: 'Present' },
+      ],
+      paymentHistory: [
+        { id: 'P011', date: '2024-12-01', amount: 5000, mode: 'UPI', transactionId: 'UPI111222', receiptNo: 'RCT-011' },
+        { id: 'P012', date: '2024-11-01', amount: 5000, mode: 'Bank Transfer', transactionId: 'TXN333444', receiptNo: 'RCT-012' },
+        { id: 'P013', date: '2024-10-01', amount: 5000, mode: 'UPI', transactionId: 'UPI555666', receiptNo: 'RCT-013' },
+        { id: 'P014', date: '2024-09-01', amount: 5000, mode: 'Cash', transactionId: '-', receiptNo: 'RCT-014' },
+        { id: 'P015', date: '2024-08-01', amount: 5000, mode: 'UPI', transactionId: 'UPI777888', receiptNo: 'RCT-015' },
+        { id: 'P016', date: '2024-07-01', amount: 5000, mode: 'Bank Transfer', transactionId: 'TXN999000', receiptNo: 'RCT-016' },
+      ]
     },
     { 
       id: "3", 
@@ -103,7 +171,29 @@ export default function Students() {
       address: "789 River Rd, Pune",
       parentName: "Mr. Kumar",
       parentEmail: "kumar@example.com",
-      monthlyFee: 5000
+      joiningDate: "2024-07-01",
+      feeType: 'monthly',
+      totalFee: 30000,
+      monthlyFee: 5000,
+      totalPaid: 20000,
+      totalDue: 10000,
+      lastPayment: '2024-10-10',
+      lastPaymentAmount: 5000,
+      feeStatus: 'overdue',
+      nextDueDate: '2024-11-01',
+      attendanceRecords: [
+        { date: '2024-12-20', batch: 'Grade 11-B', subject: 'Mathematics', time: '09:00-10:30', status: 'Absent' },
+        { date: '2024-12-19', batch: 'Grade 11-B', subject: 'Physics', time: '11:00-12:30', status: 'Present' },
+        { date: '2024-12-18', batch: 'Grade 11-B', subject: 'Chemistry', time: '14:00-15:30', status: 'Absent' },
+        { date: '2024-12-17', batch: 'Grade 11-B', subject: 'Mathematics', time: '09:00-10:30', status: 'Late' },
+        { date: '2024-12-16', batch: 'Grade 11-B', subject: 'Physics', time: '11:00-12:30', status: 'Present' },
+      ],
+      paymentHistory: [
+        { id: 'P021', date: '2024-10-10', amount: 5000, mode: 'Cash', transactionId: '-', receiptNo: 'RCT-021' },
+        { id: 'P022', date: '2024-09-05', amount: 5000, mode: 'UPI', transactionId: 'UPI123789', receiptNo: 'RCT-022' },
+        { id: 'P023', date: '2024-08-01', amount: 5000, mode: 'Bank Transfer', transactionId: 'TXN456123', receiptNo: 'RCT-023' },
+        { id: 'P024', date: '2024-07-01', amount: 5000, mode: 'Cash', transactionId: '-', receiptNo: 'RCT-024' },
+      ]
     },
   ]);
 
@@ -114,6 +204,14 @@ export default function Students() {
   const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewingStudent, setViewingStudent] = useState<any>(null);
+  
+  // Filter states
+  const [attendanceStartDate, setAttendanceStartDate] = useState(format(subMonths(new Date(), 1), 'yyyy-MM-dd'));
+  const [attendanceEndDate, setAttendanceEndDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [examStartDate, setExamStartDate] = useState(format(subMonths(new Date(), 1), 'yyyy-MM-dd'));
+  const [examEndDate, setExamEndDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [selectedSubject, setSelectedSubject] = useState<string>('all');
+  const [selectedExamType, setSelectedExamType] = useState<string>('all');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -131,11 +229,37 @@ export default function Students() {
     timing: '',
   });
 
-  const filteredStudents = students.filter(student =>
-    student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.admissionNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredStudents = students.filter(student => {
+    const matchesSearch = student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.admissionNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.email.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesBatch = selectedBatchFilter === 'all' || student.batch === selectedBatchFilter;
+    
+    return matchesSearch && matchesBatch;
+  });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedStudents = filteredStudents.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  const handleFilterChange = (value: string) => {
+    setSelectedBatchFilter(value);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  };
 
   const handleAddStudent = () => {
     setEditingStudent(null);
@@ -232,6 +356,70 @@ export default function Students() {
   const handleViewStudent = (student: any) => {
     setViewingStudent(student);
     setViewDialogOpen(true);
+    // Reset filters to default (1 month)
+    setAttendanceStartDate(format(subMonths(new Date(), 1), 'yyyy-MM-dd'));
+    setAttendanceEndDate(format(new Date(), 'yyyy-MM-dd'));
+    setExamStartDate(format(subMonths(new Date(), 1), 'yyyy-MM-dd'));
+    setExamEndDate(format(new Date(), 'yyyy-MM-dd'));
+    setSelectedSubject('all');
+    setSelectedExamType('all');
+  };
+
+  const handleDownloadReport = () => {
+    if (!viewingStudent) return;
+    
+    const filteredAttendance = viewingStudent.attendanceRecords?.filter((record: any) => {
+      const recordDate = new Date(record.date);
+      return recordDate >= new Date(attendanceStartDate) && recordDate <= new Date(attendanceEndDate);
+    });
+    
+    const filteredExams = viewingStudent.examRecords?.filter((record: any) => {
+      const recordDate = new Date(record.date);
+      const dateMatch = recordDate >= new Date(examStartDate) && recordDate <= new Date(examEndDate);
+      const subjectMatch = selectedSubject === 'all' || record.subject === selectedSubject;
+      const typeMatch = selectedExamType === 'all' || record.type === selectedExamType;
+      return dateMatch && subjectMatch && typeMatch;
+    });
+    
+    const reportContent = `STUDENT PERFORMANCE REPORT
+==========================
+Student: ${viewingStudent.name} | ${viewingStudent.admissionNo} | ${viewingStudent.batch}
+Generated: ${format(new Date(), 'MMMM dd, yyyy')}
+
+ATTENDANCE (${format(new Date(attendanceStartDate), 'MMM dd, yyyy')} - ${format(new Date(attendanceEndDate), 'MMM dd, yyyy')}):
+Total: ${filteredAttendance?.length || 0} | Present: ${filteredAttendance?.filter((r: any) => r.status === 'Present').length || 0} | Absent: ${filteredAttendance?.filter((r: any) => r.status === 'Absent').length || 0} | Late: ${filteredAttendance?.filter((r: any) => r.status === 'Late').length || 0}
+Attendance %: ${filteredAttendance?.length ? ((filteredAttendance.filter((r: any) => r.status === 'Present').length / filteredAttendance.length) * 100).toFixed(1) : 0}%
+
+EXAM PERFORMANCE (${format(new Date(examStartDate), 'MMM dd, yyyy')} - ${format(new Date(examEndDate), 'MMM dd, yyyy')}):
+Total Exams: ${filteredExams?.length || 0} | Average: ${filteredExams?.length ? (filteredExams.reduce((sum: number, e: any) => sum + e.percentage, 0) / filteredExams.length).toFixed(1) : 0}%
+
+${filteredExams?.map((exam: any) => `${format(new Date(exam.date), 'MMM dd')} - ${exam.examName} (${exam.subject}): ${exam.marksObtained}/${exam.totalMarks} (${exam.grade}) Rank: ${exam.rank}`).join('\n') || 'No exams'}`;
+    
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${viewingStudent.name.replace(/\s+/g, '_')}_Report_${format(new Date(), 'yyyy-MM-dd')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('Report downloaded successfully!');
+  };
+
+  const handleShareReport = () => {
+    if (!viewingStudent) return;
+    const reportText = `Student Report - ${viewingStudent.name} (${viewingStudent.admissionNo})
+Attendance: ${viewingStudent.attendance?.percentage || 0}% | Avg Performance: ${viewingStudent.scores?.length ? Math.round(viewingStudent.scores.reduce((acc: number, s: any) => acc + (s.marks / s.total) * 100, 0) / viewingStudent.scores.length) : 0}%`;
+    
+    if (navigator.share) {
+      navigator.share({ title: `Report - ${viewingStudent.name}`, text: reportText })
+        .then(() => toast.success('Report shared!'))
+        .catch(() => { navigator.clipboard.writeText(reportText); toast.success('Copied to clipboard!'); });
+    } else {
+      navigator.clipboard.writeText(reportText);
+      toast.success('Report copied to clipboard!');
+    }
   };
 
   return (
@@ -252,21 +440,36 @@ export default function Students() {
           <CardHeader className="pb-3">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <CardTitle className="text-lg">All Students ({filteredStudents.length})</CardTitle>
-              <div className="relative w-full sm:w-56">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input 
-                  placeholder="Search students..." 
-                  className="pl-10" 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <Select value={selectedBatchFilter} onValueChange={handleFilterChange}>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue placeholder="Filter by batch" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Batches ({students.length})</SelectItem>
+                    {coachingBatches.map(batch => (
+                      <SelectItem key={batch.id} value={batch.name}>
+                        {batch.name} ({students.filter(s => s.batch === batch.name).length})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="relative w-full sm:w-56">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input 
+                    placeholder="Search students..." 
+                    className="pl-10" 
+                    value={searchQuery}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                  />
+                </div>
               </div>
             </div>
           </CardHeader>
           <CardContent className="pt-0">
             {/* Mobile Card View */}
             <div className="block md:hidden space-y-3">
-              {filteredStudents.map((student) => (
+              {paginatedStudents.map((student) => (
                 <div key={student.id} className="border border-border rounded-lg p-3 space-y-2">
                   <div className="flex items-center gap-2">
                     <Avatar className="w-10 h-10">
@@ -337,7 +540,7 @@ export default function Students() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {filteredStudents.map((student) => (
+                  {paginatedStudents.map((student) => (
                     <tr key={student.id} className="hover:bg-muted/50">
                       <td className="px-3 py-2">
                         <div className="flex items-center gap-2">
@@ -376,6 +579,16 @@ export default function Students() {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination */}
+            <DataTablePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={filteredStudents.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
           </CardContent>
         </Card>
 
@@ -503,7 +716,19 @@ export default function Students() {
         <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Student Details</DialogTitle>
+              <div className="flex items-center justify-between pr-6">
+                <DialogTitle>Student Details</DialogTitle>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={handleShareReport}>
+                    <Share2 className="w-4 h-4 mr-2" />
+                    Share
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleDownloadReport}>
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </Button>
+                </div>
+              </div>
             </DialogHeader>
             {viewingStudent && (
               <div className="space-y-4">
@@ -556,46 +781,125 @@ export default function Students() {
 
                     <Card>
                       <CardHeader className="pb-3">
-                        <CardTitle className="text-base">Recent Activity</CardTitle>
+                        <CardTitle className="text-base">Fee Details</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="space-y-2">
-                          {viewingStudent.recentActivity?.map((activity: any, index: number) => (
-                            <div key={index} className="flex items-start gap-2 text-sm">
-                              <div className={`p-1 rounded-full ${
-                                activity.type.includes('Present') || activity.type.includes('Submitted') || activity.type.includes('Top') 
-                                  ? 'bg-secondary/20' 
-                                  : activity.type.includes('Absent') || activity.type.includes('Late')
-                                  ? 'bg-destructive/20'
-                                  : 'bg-muted'
+                        <div className="grid grid-cols-2 gap-4">
+                          {/* Joining Date */}
+                          <div>
+                            <p className="text-xs text-muted-foreground mb-1">Joining Date</p>
+                            <p className="font-semibold text-sm">
+                              {viewingStudent.joiningDate ? format(new Date(viewingStudent.joiningDate), 'MMM dd, yyyy') : 'N/A'}
+                            </p>
+                          </div>
+
+                          {/* Fee Type */}
+                          <div>
+                            <p className="text-xs text-muted-foreground mb-1">Fee Type</p>
+                            <Badge variant="secondary" className="text-xs">
+                              {viewingStudent.feeType === 'yearly' ? 'Yearly' : 'Monthly'}
+                            </Badge>
+                          </div>
+
+                          {/* Total Fees */}
+                          <div>
+                            <p className="text-xs text-muted-foreground mb-1">
+                              {viewingStudent.feeType === 'yearly' ? 'Total Yearly Fee' : 'Total Fee'}
+                            </p>
+                            <p className="font-semibold text-sm text-blue-600 dark:text-blue-400">
+                              ₹{(viewingStudent.totalFee || ((viewingStudent.totalPaid || 0) + (viewingStudent.totalDue || 0))).toLocaleString()}
+                            </p>
+                            {viewingStudent.feeType === 'yearly' && (
+                              <p className="text-[10px] text-muted-foreground">
+                                ₹{viewingStudent.monthlyFee?.toLocaleString()}/month
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Monthly Installment (for yearly) */}
+                          {viewingStudent.feeType === 'yearly' && (
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-1">Monthly Installment</p>
+                              <p className="font-semibold text-sm text-purple-600 dark:text-purple-400">
+                                ₹{(viewingStudent.monthlyFee || 0).toLocaleString()}
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Paid Fees */}
+                          <div className={viewingStudent.feeType === 'monthly' ? 'col-span-1' : 'col-span-2'}>
+                            <p className="text-xs text-muted-foreground mb-1">Paid Fees</p>
+                            <p className="font-semibold text-sm text-green-600 dark:text-green-400">
+                              ₹{(viewingStudent.totalPaid || 0).toLocaleString()}
+                            </p>
+                          </div>
+
+                          {/* Remaining Fees */}
+                          <div className="col-span-2">
+                            <p className="text-xs text-muted-foreground mb-1">Remaining Fees</p>
+                            <div className="flex items-center gap-2">
+                              <p className={`font-semibold text-lg ${
+                                viewingStudent.totalDue > 0 
+                                  ? 'text-red-600 dark:text-red-400' 
+                                  : 'text-gray-600 dark:text-gray-400'
                               }`}>
-                                {activity.type.includes('Present') || activity.type.includes('Submitted') ? (
-                                  <CheckCircle className="h-3 w-3 text-secondary" />
-                                ) : activity.type.includes('Absent') ? (
-                                  <XCircle className="h-3 w-3 text-destructive" />
-                                ) : activity.type.includes('Late') ? (
-                                  <Clock className="h-3 w-3 text-destructive" />
-                                ) : (
-                                  <BookOpen className="h-3 w-3" />
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-xs">{activity.type}</p>
-                                <p className="text-muted-foreground text-[10px]">{activity.subject} • {activity.date}</p>
+                                ₹{(viewingStudent.totalDue || 0).toLocaleString()}
+                              </p>
+                              {viewingStudent.totalDue > 0 && (
+                                <Badge variant="destructive" className="text-[9px] px-1.5 py-0">
+                                  Due
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Tentative Due Date */}
+                          {viewingStudent.totalDue > 0 && viewingStudent.nextDueDate && (
+                            <div className="col-span-2 pt-2 border-t">
+                              <p className="text-xs text-muted-foreground mb-1">Next Due Date</p>
+                              <div className="flex items-center gap-2">
+                                <Calendar className="w-4 h-4 text-orange-600" />
+                                <p className="font-semibold text-sm text-orange-600 dark:text-orange-400">
+                                  {format(new Date(viewingStudent.nextDueDate), 'MMM dd, yyyy')}
+                                </p>
                               </div>
                             </div>
-                          ))}
+                          )}
+                        </div>
+
+                        <div className="pt-4 border-t mt-4">
+                          <Button
+                            size="sm"
+                            className="w-full"
+                            onClick={() => {
+                              setViewDialogOpen(false);
+                              navigate('/admin/finance');
+                            }}
+                          >
+                            <Receipt className="w-4 h-4 mr-2" />
+                            Record Fee Payment
+                          </Button>
                         </div>
                       </CardContent>
                     </Card>
                   </TabsContent>
 
                   <TabsContent value="attendance" className="space-y-3">
+                    {/* Summary Cards */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       <Card>
                         <CardContent className="pt-4 pb-3">
                           <div className="text-center">
-                            <CheckCircle className="h-6 w-6 mx-auto mb-1 text-secondary" />
+                            <Calendar className="h-6 w-6 mx-auto mb-1 text-blue-600 dark:text-blue-400" />
+                            <p className="text-xl font-bold">{(viewingStudent.attendance?.present || 0) + (viewingStudent.attendance?.absent || 0) + (viewingStudent.attendance?.late || 0)}</p>
+                            <p className="text-[10px] text-muted-foreground">Total Days</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardContent className="pt-4 pb-3">
+                          <div className="text-center">
+                            <CheckCircle className="h-6 w-6 mx-auto mb-1 text-green-600 dark:text-green-400" />
                             <p className="text-xl font-bold">{viewingStudent.attendance?.present || 0}</p>
                             <p className="text-[10px] text-muted-foreground">Present</p>
                           </div>
@@ -604,7 +908,7 @@ export default function Students() {
                       <Card>
                         <CardContent className="pt-4 pb-3">
                           <div className="text-center">
-                            <XCircle className="h-6 w-6 mx-auto mb-1 text-destructive" />
+                            <XCircle className="h-6 w-6 mx-auto mb-1 text-red-600 dark:text-red-400" />
                             <p className="text-xl font-bold">{viewingStudent.attendance?.absent || 0}</p>
                             <p className="text-[10px] text-muted-foreground">Absent</p>
                           </div>
@@ -613,89 +917,373 @@ export default function Students() {
                       <Card>
                         <CardContent className="pt-4 pb-3">
                           <div className="text-center">
-                            <Clock className="h-6 w-6 mx-auto mb-1 text-amber-500" />
-                            <p className="text-xl font-bold">{viewingStudent.attendance?.late || 0}</p>
-                            <p className="text-[10px] text-muted-foreground">Late</p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                      <Card>
-                        <CardContent className="pt-4 pb-3">
-                          <div className="text-center">
-                            <Calendar className="h-6 w-6 mx-auto mb-1 text-primary" />
+                            <TrendingUp className="h-6 w-6 mx-auto mb-1 text-primary" />
                             <p className="text-xl font-bold">{viewingStudent.attendance?.percentage || 0}%</p>
-                            <p className="text-[10px] text-muted-foreground">Attendance</p>
+                            <p className="text-[10px] text-muted-foreground">Percentage</p>
                           </div>
                         </CardContent>
                       </Card>
                     </div>
+
+                    {/* Date Filter */}
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="flex flex-col gap-3">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm font-medium">Filter Attendance</Label>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => {
+                                setAttendanceStartDate(format(subMonths(new Date(), 1), 'yyyy-MM-dd'));
+                                setAttendanceEndDate(format(new Date(), 'yyyy-MM-dd'));
+                              }}
+                            >
+                              Reset (1 Month)
+                            </Button>
+                          </div>
+                          <div className="flex flex-col sm:flex-row gap-3">
+                            <div className="flex-1">
+                              <Label htmlFor="attendanceStart" className="text-xs mb-1.5 block">Start Date</Label>
+                              <Input
+                                id="attendanceStart"
+                                type="date"
+                                value={attendanceStartDate}
+                                onChange={(e) => setAttendanceStartDate(e.target.value)}
+                                className="h-9"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <Label htmlFor="attendanceEnd" className="text-xs mb-1.5 block">End Date</Label>
+                              <Input
+                                id="attendanceEnd"
+                                type="date"
+                                value={attendanceEndDate}
+                                onChange={(e) => setAttendanceEndDate(e.target.value)}
+                                className="h-9"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex gap-2 text-xs text-muted-foreground">
+                            <span>Showing: {viewingStudent.attendanceRecords?.filter((r: any) => {
+                              const date = new Date(r.date);
+                              return date >= new Date(attendanceStartDate) && date <= new Date(attendanceEndDate);
+                            }).length || 0} records</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Attendance Table - Complete Format */}
                     <Card>
                       <CardHeader className="pb-3">
-                        <CardTitle className="text-base">Attendance Progress</CardTitle>
+                        <CardTitle className="text-base">Attendance Records</CardTitle>
+                        <p className="text-xs text-muted-foreground">Complete attendance history in table format</p>
                       </CardHeader>
                       <CardContent>
-                        <Progress value={viewingStudent.attendance?.percentage || 0} className="h-2" />
-                        <p className="text-xs text-muted-foreground mt-2">
-                          {viewingStudent.attendance?.percentage >= 85 
-                            ? "Excellent attendance record!" 
-                            : viewingStudent.attendance?.percentage >= 75 
-                            ? "Good attendance, keep it up!" 
-                            : "Attendance needs improvement"}
-                        </p>
+                        {(() => {
+                          // Filter attendance records by date range
+                          const filteredRecords = viewingStudent.attendanceRecords?.filter((record: any) => {
+                            const recordDate = new Date(record.date);
+                            return recordDate >= new Date(attendanceStartDate) && recordDate <= new Date(attendanceEndDate);
+                          });
+
+                          // Sort by date descending (most recent first)
+                          const sortedRecords = [...(filteredRecords || [])].sort((a, b) => 
+                            new Date(b.date).getTime() - new Date(a.date).getTime()
+                          );
+
+                          if (sortedRecords.length === 0) {
+                            return (
+                              <div className="text-center py-8 text-muted-foreground">
+                                <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                                <p>No attendance records found for selected period</p>
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div className="border rounded-lg">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow className="bg-muted/50">
+                                    <TableHead className="font-semibold">Date</TableHead>
+                                    <TableHead className="font-semibold">Batch</TableHead>
+                                    <TableHead className="font-semibold">Subject</TableHead>
+                                    <TableHead className="font-semibold">Time</TableHead>
+                                    <TableHead className="font-semibold">Status</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {sortedRecords.map((record: any, index: number) => (
+                                    <TableRow key={index} className="hover:bg-muted/30">
+                                      <TableCell className="font-medium">
+                                        {format(new Date(record.date), 'MMM dd, yyyy')}
+                                        <br />
+                                        <span className="text-xs text-muted-foreground">
+                                          {format(new Date(record.date), 'EEEE')}
+                                        </span>
+                                      </TableCell>
+                                      <TableCell>
+                                        <Badge variant="outline" className="text-xs">
+                                          {record.batch}
+                                        </Badge>
+                                      </TableCell>
+                                      <TableCell className="font-medium">{record.subject}</TableCell>
+                                      <TableCell className="text-muted-foreground">{record.time}</TableCell>
+                                      <TableCell>
+                                        <Badge 
+                                          variant={
+                                            record.status === 'Present' 
+                                              ? 'default' 
+                                              : record.status === 'Absent' 
+                                              ? 'destructive' 
+                                              : 'secondary'
+                                          }
+                                          className="text-xs px-3"
+                                        >
+                                          {record.status === 'Present' && <CheckCircle className="w-3 h-3 mr-1" />}
+                                          {record.status === 'Absent' && <XCircle className="w-3 h-3 mr-1" />}
+                                          {record.status === 'Late' && <Clock className="w-3 h-3 mr-1" />}
+                                          {record.status}
+                                        </Badge>
+                                      </TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            </div>
+                          );
+                        })()}
                       </CardContent>
                     </Card>
                   </TabsContent>
 
-                  <TabsContent value="scores" className="space-y-2">
-                    <div className="space-y-2">
-                      {viewingStudent.scores?.map((score: any, index: number) => (
-                        <Card key={index}>
-                          <CardContent className="pt-4 pb-3">
-                            <div className="flex items-center justify-between mb-2">
-                              <div>
-                                <h4 className="font-semibold text-sm">{score.subject}</h4>
-                                <p className="text-xs text-muted-foreground">
-                                  {score.marks}/{score.total} marks
-                                </p>
+                  <TabsContent value="scores" className="space-y-3">
+                    {/* Filters */}
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="flex flex-col gap-3">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm font-medium">Filter Exams</Label>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => {
+                                setExamStartDate(format(subMonths(new Date(), 1), 'yyyy-MM-dd'));
+                                setExamEndDate(format(new Date(), 'yyyy-MM-dd'));
+                                setSelectedSubject('all');
+                                setSelectedExamType('all');
+                              }}
+                            >
+                              Reset
+                            </Button>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <Label htmlFor="examStart" className="text-xs mb-1.5 block">Start Date</Label>
+                              <Input
+                                id="examStart"
+                                type="date"
+                                value={examStartDate}
+                                onChange={(e) => setExamStartDate(e.target.value)}
+                                className="h-9"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="examEnd" className="text-xs mb-1.5 block">End Date</Label>
+                              <Input
+                                id="examEnd"
+                                type="date"
+                                value={examEndDate}
+                                onChange={(e) => setExamEndDate(e.target.value)}
+                                className="h-9"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="subjectFilter" className="text-xs mb-1.5 block">Subject</Label>
+                              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                                <SelectTrigger id="subjectFilter" className="h-9">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="all">All Subjects</SelectItem>
+                                  <SelectItem value="Mathematics">Mathematics</SelectItem>
+                                  <SelectItem value="Physics">Physics</SelectItem>
+                                  <SelectItem value="Chemistry">Chemistry</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label htmlFor="examTypeFilter" className="text-xs mb-1.5 block">Exam Type</Label>
+                              <Select value={selectedExamType} onValueChange={setSelectedExamType}>
+                                <SelectTrigger id="examTypeFilter" className="h-9">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="all">All Types</SelectItem>
+                                  <SelectItem value="unit_test">Unit Test</SelectItem>
+                                  <SelectItem value="mid_term">Mid Term</SelectItem>
+                                  <SelectItem value="final">Final</SelectItem>
+                                  <SelectItem value="weekly_test">Weekly Test</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Exam Records Table */}
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Award className="w-4 h-4" />
+                          Exam Performance
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {(() => {
+                          const filteredExams = viewingStudent.examRecords?.filter((exam: any) => {
+                            const examDate = new Date(exam.date);
+                            const dateMatch = examDate >= new Date(examStartDate) && examDate <= new Date(examEndDate);
+                            const subjectMatch = selectedSubject === 'all' || exam.subject === selectedSubject;
+                            const typeMatch = selectedExamType === 'all' || exam.type === selectedExamType;
+                            return dateMatch && subjectMatch && typeMatch;
+                          }) || [];
+
+                          if (filteredExams.length === 0) {
+                            return (
+                              <div className="text-center py-8 text-muted-foreground">
+                                <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                                <p>No exam records found for selected filters</p>
                               </div>
-                              <div className="text-right">
-                                <Badge variant="secondary" className="mb-1 text-xs">
-                                  Grade {score.grade}
-                                </Badge>
-                                <div className="flex items-center gap-1 text-xs">
-                                  {score.trend.startsWith('+') ? (
-                                    <TrendingUp className="h-3 w-3 text-secondary" />
-                                  ) : (
-                                    <TrendingDown className="h-3 w-3 text-destructive" />
-                                  )}
-                                  <span className={score.trend.startsWith('+') ? 'text-secondary' : 'text-destructive'}>
-                                    {score.trend}
+                            );
+                          }
+
+                          const avgPercentage = filteredExams.reduce((sum: number, e: any) => sum + e.percentage, 0) / filteredExams.length;
+                          
+                          return (
+                            <>
+                              {/* Quick Stats */}
+                              <div className="grid grid-cols-3 gap-3 mb-4">
+                                <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 rounded-lg p-3 text-center">
+                                  <p className="text-xs text-muted-foreground">Total Exams</p>
+                                  <p className="text-2xl font-bold">{filteredExams.length}</p>
+                                </div>
+                                <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 rounded-lg p-3 text-center">
+                                  <p className="text-xs text-muted-foreground">Avg Score</p>
+                                  <p className="text-2xl font-bold">{avgPercentage.toFixed(1)}%</p>
+                                </div>
+                                <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900 rounded-lg p-3 text-center">
+                                  <p className="text-xs text-muted-foreground">Best Rank</p>
+                                  <p className="text-2xl font-bold">{Math.min(...filteredExams.map((e: any) => e.rank))}</p>
+                                </div>
+                              </div>
+
+                              {/* Exam Table */}
+                              <div className="border rounded-lg overflow-hidden">
+                                <Table>
+                                  <TableHeader>
+                                    <TableRow className="bg-muted/50">
+                                      <TableHead className="text-xs">Date</TableHead>
+                                      <TableHead className="text-xs">Exam</TableHead>
+                                      <TableHead className="text-xs">Subject</TableHead>
+                                      <TableHead className="text-xs">Marks</TableHead>
+                                      <TableHead className="text-xs">Grade</TableHead>
+                                      <TableHead className="text-xs">Rank</TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {filteredExams.map((exam: any) => (
+                                      <TableRow key={exam.id} className="hover:bg-muted/30">
+                                        <TableCell className="text-xs">
+                                          {format(new Date(exam.date), 'MMM dd, yyyy')}
+                                        </TableCell>
+                                        <TableCell className="text-xs">
+                                          <div>
+                                            <p className="font-medium">{exam.examName}</p>
+                                            <Badge variant="outline" className="text-[10px] mt-1">
+                                              {exam.type.replace('_', ' ')}
+                                            </Badge>
+                                          </div>
+                                        </TableCell>
+                                        <TableCell className="text-xs font-medium">{exam.subject}</TableCell>
+                                        <TableCell className="text-xs">
+                                          <div>
+                                            <p className="font-semibold">{exam.marksObtained}/{exam.totalMarks}</p>
+                                            <Progress value={exam.percentage} className="h-1 mt-1" />
+                                          </div>
+                                        </TableCell>
+                                        <TableCell className="text-xs">
+                                          <Badge 
+                                            variant={
+                                              exam.grade.startsWith('A') ? 'default' :
+                                              exam.grade.startsWith('B') ? 'secondary' :
+                                              'outline'
+                                            }
+                                            className="text-[10px]"
+                                          >
+                                            {exam.grade}
+                                          </Badge>
+                                        </TableCell>
+                                        <TableCell className="text-xs">
+                                          <div className="flex items-center gap-1">
+                                            <Target className="w-3 h-3" />
+                                            <span className="font-medium">#{exam.rank}</span>
+                                          </div>
+                                        </TableCell>
+                                      </TableRow>
+                                    ))}
+                                  </TableBody>
+                                </Table>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </CardContent>
+                    </Card>
+
+                    {/* Subject-wise Performance */}
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <BarChart3 className="w-4 h-4" />
+                          Subject-wise Performance
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {viewingStudent.scores?.map((score: any, index: number) => (
+                            <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between mb-2">
+                                  <h4 className="font-semibold text-sm">{score.subject}</h4>
+                                  <div className="flex items-center gap-2">
+                                    <Badge variant="secondary" className="text-xs">
+                                      {score.grade}
+                                    </Badge>
+                                    <div className="flex items-center gap-1 text-xs">
+                                      {score.trend.startsWith('+') ? (
+                                        <TrendingUp className="h-3 w-3 text-green-600" />
+                                      ) : (
+                                        <TrendingDown className="h-3 w-3 text-red-600" />
+                                      )}
+                                      <span className={score.trend.startsWith('+') ? 'text-green-600' : 'text-red-600'}>
+                                        {score.trend}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Progress value={(score.marks / score.total) * 100} className="h-2 flex-1" />
+                                  <span className="text-xs font-medium text-muted-foreground">
+                                    {score.marks}/{score.total}
                                   </span>
                                 </div>
                               </div>
                             </div>
-                            <Progress value={(score.marks / score.total) * 100} className="h-1.5" />
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                    
-                    <Card>
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-base">Overall Performance</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid grid-cols-2 gap-3 text-sm">
-                          <div>
-                            <p className="text-muted-foreground text-xs">Average Score</p>
-                            <p className="text-xl font-bold">
-                              {Math.round(viewingStudent.scores?.reduce((acc: number, s: any) => acc + (s.marks / s.total) * 100, 0) / (viewingStudent.scores?.length || 1)) || 0}%
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-muted-foreground text-xs">Subjects</p>
-                            <p className="text-xl font-bold">{viewingStudent.scores?.length || 0}</p>
-                          </div>
+                          ))}
                         </div>
                       </CardContent>
                     </Card>

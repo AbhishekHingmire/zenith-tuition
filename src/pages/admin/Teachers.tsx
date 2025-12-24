@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { GraduationCap, Plus, Search, Edit, Trash2, Eye } from 'lucide-react';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
+import { GraduationCap, Plus, Search, Edit, Trash2, Eye, Star, Users, BookOpen, TrendingUp, Award, Calendar } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -16,6 +17,8 @@ import { toast } from 'sonner';
 export default function Teachers() {
   const [teachers, setTeachers] = useState(mockTeachers);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(25);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -45,6 +48,22 @@ export default function Teachers() {
     teacher.employeeId.toLowerCase().includes(searchQuery.toLowerCase()) ||
     teacher.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredTeachers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedTeachers = filteredTeachers.slice(startIndex, endIndex);
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  };
 
   const handleAddTeacher = () => {
     setEditingTeacher(null);
@@ -138,14 +157,14 @@ export default function Teachers() {
                   placeholder="Search teachers..." 
                   className="pl-10"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                 />
               </div>
             </div>
           </CardHeader>
           <CardContent className="pt-0">
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {filteredTeachers.map((teacher) => (
+              {paginatedTeachers.map((teacher) => (
                 <div key={teacher.id} className="border border-border rounded-lg p-3 hover:shadow-md transition-shadow bg-card">
                   <div className="flex items-center gap-2 mb-2">
                     <img
@@ -217,12 +236,21 @@ export default function Teachers() {
                 </div>
               ))}
             </div>
+
+            <DataTablePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={filteredTeachers.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
           </CardContent>
         </Card>
 
         {/* Add/Edit Dialog */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
             <DialogHeader>
               <DialogTitle>{editingTeacher ? 'Edit Teacher' : 'Add New Teacher'}</DialogTitle>
             </DialogHeader>
@@ -292,28 +320,141 @@ export default function Teachers() {
 
         {/* View Details Dialog */}
         <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Teacher Details</DialogTitle>
             </DialogHeader>
             {viewingTeacher && (
-              <div className="space-y-4 py-4">
-                <div className="flex items-center gap-4">
+              <div className="space-y-6 py-4">
+                {/* Header Section */}
+                <div className="flex items-start gap-4 pb-4 border-b">
                   <img
                     src={viewingTeacher.photo}
                     alt={viewingTeacher.name}
                     className="w-20 h-20 rounded-full"
                   />
-                  <div>
-                    <h3 className="text-xl font-semibold">{viewingTeacher.name}</h3>
-                    <p className="text-muted-foreground">{viewingTeacher.employeeId}</p>
-                    <Badge className="bg-secondary text-secondary-foreground mt-1">
-                      {viewingTeacher.status}
-                    </Badge>
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="text-xl font-semibold">{viewingTeacher.name}</h3>
+                        <p className="text-muted-foreground text-sm">{viewingTeacher.employeeId}</p>
+                        <Badge className="bg-secondary text-secondary-foreground mt-2">
+                          {viewingTeacher.status}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-950 px-3 py-2 rounded-lg">
+                        <Star className="w-5 h-5 fill-amber-500 text-amber-500" />
+                        <span className="text-xl font-bold text-amber-700 dark:text-amber-400">4.8</span>
+                        <span className="text-sm text-muted-foreground">/5</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+
+                {/* Performance Overview Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <Card className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-900">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        <p className="text-xs text-muted-foreground">Total Students</p>
+                      </div>
+                      <p className="text-2xl font-bold text-blue-700 dark:text-blue-400">45</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-900">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <BookOpen className="w-4 h-4 text-green-600 dark:text-green-400" />
+                        <p className="text-xs text-muted-foreground">Subjects</p>
+                      </div>
+                      <p className="text-2xl font-bold text-green-700 dark:text-green-400">{viewingTeacher.subjects.length}</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-900">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <TrendingUp className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                        <p className="text-xs text-muted-foreground">Avg. Result</p>
+                      </div>
+                      <p className="text-2xl font-bold text-purple-700 dark:text-purple-400">87%</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-900">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Calendar className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                        <p className="text-xs text-muted-foreground">Experience</p>
+                      </div>
+                      <p className="text-2xl font-bold text-orange-700 dark:text-orange-400">4.5y</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Performance Metrics */}
+                <Card className="border-2">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Award className="w-5 h-5 text-primary" />
+                      Performance Metrics
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium">Student Satisfaction</span>
+                          <span className="text-sm font-bold text-primary">92%</span>
+                        </div>
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                          <div className="h-full bg-blue-500" style={{ width: '92%' }}></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium">Class Attendance Rate</span>
+                          <span className="text-sm font-bold text-primary">96%</span>
+                        </div>
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                          <div className="h-full bg-green-500" style={{ width: '96%' }}></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium">Assignment Completion</span>
+                          <span className="text-sm font-bold text-primary">88%</span>
+                        </div>
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                          <div className="h-full bg-purple-500" style={{ width: '88%' }}></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium">Exam Pass Rate</span>
+                          <span className="text-sm font-bold text-primary">94%</span>
+                        </div>
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                          <div className="h-full bg-amber-500" style={{ width: '94%' }}></div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Basic Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                   <div>
                     <p className="text-sm text-muted-foreground">Email</p>
                     <p className="font-medium">{viewingTeacher.email}</p>
@@ -340,24 +481,28 @@ export default function Teachers() {
                   </div>
                 </div>
 
-                <div className="pt-4 border-t">
-                  <p className="text-sm text-muted-foreground mb-2">Subjects</p>
+                <div className="pt-2 border-t">
+                  <p className="text-sm text-muted-foreground mb-2">Subjects Teaching</p>
                   <div className="flex gap-2 flex-wrap">
                     {viewingTeacher.subjects.map((subCode: string, idx: number) => {
                       const subject = mockSubjects.find(s => s.code === subCode);
                       return (
-                        <Badge key={idx} variant="outline">{subject?.name || subCode}</Badge>
+                        <Badge key={idx} variant="secondary" className="text-sm px-3 py-1">
+                          {subject?.name || subCode}
+                        </Badge>
                       );
                     })}
                   </div>
                 </div>
 
                 {viewingTeacher.assignedBatches.length > 0 && (
-                  <div className="pt-4 border-t">
+                  <div className="pt-2 border-t">
                     <p className="text-sm text-muted-foreground mb-2">Assigned Batches</p>
                     <div className="flex gap-2 flex-wrap">
                       {viewingTeacher.assignedBatches.map((batch: string, idx: number) => (
-                        <Badge key={idx} variant="outline">{batch}</Badge>
+                        <Badge key={idx} variant="outline" className="text-sm px-3 py-1">
+                          {batch}
+                        </Badge>
                       ))}
                     </div>
                   </div>
